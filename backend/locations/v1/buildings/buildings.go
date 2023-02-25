@@ -2,10 +2,10 @@ package buildings_v1
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 
+	"github.com/elonsoc/center/service"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -49,7 +49,7 @@ var BUILDINGS = map[string]Building{
 
 type BuildingsRouter struct {
 	chi.Router
-	Logger *log.Logger
+	Svcs *service.Service
 }
 
 func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
@@ -61,17 +61,17 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	return b
 }
 
-func (svc *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
+func (be *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(BUILDINGS)
 }
 
-func (svc *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		svc.Logger.Println("Building not found:", buildingId)
+		be.Svcs.Logger.Println("Building not found:", buildingId)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

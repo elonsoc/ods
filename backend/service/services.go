@@ -2,10 +2,11 @@ package service
 
 import "log"
 
+// Service, here, describes
 type Service struct {
 	Logger *log.Logger
 }
 
-func NewService(logger *log.Logger) *Service {
-	return &Service{Logger: logger}
+func NewService() *Service {
+	return &Service{}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	locations "github.com/elonsoc/center/locations"
+	"github.com/elonsoc/center/service"
 )
 
 // this represents a database of API keys issued
@@ -45,15 +46,16 @@ func initialize() chi.Router {
 	r.Use(middleware.RealIP)
 	r.Use(CheckAuth)
 
-	logger := log.New(log.Writer(), "backend: ", log.Lshortfile|log.LstdFlags)
-
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("If you're seeing this, you're authenticated!"))
 	})
-	// initialize the various endpoints
-	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Logger: logger}).Router)
 
-	logger.Println("Backend Inititalized.")
+	Services := service.NewService()
+	Services.Logger = log.New(log.Writer(), "backend: ", log.Lshortfile|log.LstdFlags)
+	// initialize the various endpoints
+	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: Services}).Router)
+
+	Services.Logger.Println("Backend Inititalized.")
 
 	return r
 }
