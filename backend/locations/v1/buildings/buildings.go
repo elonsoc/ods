@@ -4,72 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
-
-var logger = log.New(os.Stdout, "locations/v1/buildings: ", log.LstdFlags)
-
-type Room struct {
-	Name  string `json:"name"`
-	Level int    `json:"level"`
-}
-
-type Floor struct {
-	Name      string `json:"name"`
-	Level     int    `json:"level"`
-	Rooms     []Room `json:"rooms"`
-	Floorplan string `json:"floorplan"`
-}
-
-type LatLng struct {
-	Lat float64 `json:"lat"`
-	Lng float64 `json:"lng"`
-}
-
-type BuildingType int64
-
-const (
-	BuildingTypeUnknown BuildingType = iota
-	BuildingTypeResidence
-	BuildingTypeDining
-	BuildingTypeOffice
-	BuildingTypeRetail
-	BuildingTypeSchool
-	BuildingTypeOther
-)
-
-func (t BuildingType) String() string {
-	switch t {
-	case BuildingTypeUnknown:
-		return "Unknown"
-	case BuildingTypeResidence:
-		return "Residence"
-	case BuildingTypeDining:
-		return "Dining"
-	case BuildingTypeOffice:
-		return "Office"
-	case BuildingTypeRetail:
-		return "Retail"
-	case BuildingTypeSchool:
-		return "School"
-	case BuildingTypeOther:
-		return "Other"
-	default:
-		return "Unknown"
-	}
-}
-
-type Building struct {
-	Name         string       `json:"name"`
-	Floors       []Floor      `json:"floors"`
-	Location     LatLng       `json:"location"`
-	Address      string       `json:"address"`
-	BuildingType BuildingType `json:"type"`
-	Id           string       `json:"id"`
-}
 
 // this map represents a database
 var BUILDINGS = map[string]Building{
@@ -109,17 +47,32 @@ var BUILDINGS = map[string]Building{
 	},
 }
 
-func Buildings(w http.ResponseWriter, r *http.Request) {
+type BuildingsRouter struct {
+	chi.Router
+	Logger *log.Logger
+}
+
+func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
+	r := chi.NewRouter()
+	// add routes
+	r.Get("/", b.RootHandler)
+	r.Get("/{buildingID}", b.BuildingByIdHandler)
+	b.Logger.SetPrefix("BuildingsRouter: ")
+	b.Router = r
+	return b
+}
+
+func (svc *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(BUILDINGS)
 }
 
-func BuildingWithId(w http.ResponseWriter, r *http.Request) {
+func (svc *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		logger.Println("Building not found:", buildingId)
+		svc.Logger.Println("Building not found:", buildingId)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

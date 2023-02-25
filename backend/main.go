@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -16,9 +17,8 @@ var APIKEYS = map[string]bool{
 }
 
 func CheckAuth(next http.Handler) http.Handler {
-	// this middle is a proof of concept, in reality you'd want to check the API key against a database
-	// and validate that it's from a trusted source by looking at the IP address
-	// and other factors
+	// this middleware is a proof of concept, in reality you'd want to check the API key
+	// against a database and validate that it's from a trusted source
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Checking auth")
 		auth := r.Header.Get("Authorization")
@@ -43,18 +43,19 @@ func initialize() chi.Router {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
-
-	// this checkauth middleware will be applied to all routes
-	// and will be the first hop in the middleware chain
 	r.Use(CheckAuth)
 
+	logger := log.New(log.Writer(), "toplevel: ", log.Flags())
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World"))
+		w.Write([]byte("If you're seeing this, you're authenticated!"))
 	})
 	// initialize the various endpoints
-	locations.Initialize(r)
+	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Logger: logger}).Router)
+
 	return r
 }
+
 func main() {
 	err := http.ListenAndServe(":1337", initialize())
 	if err != nil {
