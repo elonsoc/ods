@@ -57,7 +57,6 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	// add routes
 	r.Get("/", b.RootHandler)
 	r.Get("/{buildingID}", b.BuildingByIdHandler)
-	b.Logger.SetPrefix("BuildingsRouter: ")
 	b.Router = r
 	return b
 }

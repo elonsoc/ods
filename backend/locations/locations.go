@@ -16,8 +16,6 @@ type LocationsRouter struct {
 // Initialize locations
 func NewLocationsRouter(l *LocationsRouter) *LocationsRouter {
 	r := chi.NewRouter()
-	l.Logger.SetPrefix("Locations: ")
-
 	l.Logger.Println("Initializing locations service")
 
 	// initialize the various endpoints

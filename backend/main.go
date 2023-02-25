@@ -45,13 +45,15 @@ func initialize() chi.Router {
 	r.Use(middleware.RealIP)
 	r.Use(CheckAuth)
 
-	logger := log.New(log.Writer(), "toplevel: ", log.Flags())
+	logger := log.New(log.Writer(), "backend: ", log.Lshortfile|log.LstdFlags)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("If you're seeing this, you're authenticated!"))
 	})
 	// initialize the various endpoints
 	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Logger: logger}).Router)
+
+	logger.Println("Backend Inititalized.")
 
 	return r
 }
