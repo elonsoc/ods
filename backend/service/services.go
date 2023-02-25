@@ -8,5 +8,7 @@ type Service struct {
 }
 
 func NewService() *Service {
-	return &Service{}
+	return &Service{
+		Logger: log.New(log.Writer(), "backend: ", log.Lshortfile|log.LstdFlags),
+	}
 }

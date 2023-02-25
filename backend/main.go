@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -50,12 +49,10 @@ func initialize() chi.Router {
 		w.Write([]byte("If you're seeing this, you're authenticated!"))
 	})
 
+	// initialize the services we'll be using
 	Services := service.NewService()
-	Services.Logger = log.New(log.Writer(), "backend: ", log.Lshortfile|log.LstdFlags)
-	// initialize the various endpoints
-	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: Services}).Router)
 
-	Services.Logger.Println("Backend Inititalized.")
+	r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: Services}).Router)
 
 	return r
 }
