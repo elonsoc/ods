@@ -6,3 +6,7 @@ venv:
 .PHONY: install
 install:
 	. ./.venv/bin/activate; pip install -r requirements.txt
+
+.PHONY: start
+start:
+	python3 main.py
