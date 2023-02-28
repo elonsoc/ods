@@ -66,7 +66,7 @@ type BuildingsRouter struct {
 func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	// At this point, the BuildingsRouter struct has been created
 	// but the chi router has not been defined.
-	
+
 	// We need to define the chi router here so that we can
 	// add the handlers to it.
 	// Also, the service package is available to us here because
