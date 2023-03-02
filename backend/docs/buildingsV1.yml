@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: API Center
+  description: "This API returns building information for Elon University."
+  version: 1.0.0
+  contact:
+    email: hello@elonsoc.org
+servers:
+  - url: https://api.elon.edu/locations/v1/buildings
+  - url: http://localhost:1337/locations/v1/buildings
+
+tags:
+  - name: building
+    description: Everything Building Related
+paths:
+  /{building_id}:
+    get:
+      parameters:
+        - in: path
+          name: building_id
+          schema:
+            type: string
+          required: true
+          description: The Building ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: API Key
+      operationId: GetBuildingById
+      tags:
+        - building
+      summary: Get a specific building by ID
+      description: Retrieves available building data for sepcified building
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Building"
+        "401":
+          description: API Key provided is not valid.
+        "404":
+          description: Provided building key is not found.
+  /:
+    get:
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: API Key
+      operationId: GetAllBuildings
+      tags:
+        - building
+      summary: Get All Buildings
+      description: Retrieves available building data for all buildings accessible
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Building"
+        "404":
+          description: Invalid
+
+components:
+  schemas:
+    LatLng:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: float64
+          description: latitude
+        lng:
+          type: number
+          format: float64
+          description: longitude
+
+    Room:
+      type: object
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+    Floor:
+      type: object
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+        Room:
+          type: array
+          items:
+            $ref: "#/components/schemas/Room"
+    Building:
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        floors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Floor"
+        location:
+          $ref: "#/components/schemas/LatLng"
+        address:
+          type: string
+        type:
+          type: string
+          enum:
+            [
+              BuildingTypeUnknown,
+              BuildingTypeResidence,
+              BuildingTypeDining,
+              BuildingTypeOffice,
+              BuildingTypeRetail,
+              BuildingTypeSchool,
+              BuildingTypeOther,
+            ]
+        id:
+          type: string
+          description: The unique id of a building
