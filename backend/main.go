@@ -8,8 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	locations "github.com/elonsoc/center/locations"
-	"github.com/elonsoc/center/service"
+	locations "github.com/elonsoc/center/backend/locations"
+	"github.com/elonsoc/center/backend/service"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user

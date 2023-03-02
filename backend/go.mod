@@ -1,4 +1,4 @@
-module github.com/elonsoc/center
+module github.com/elonsoc/center/backend
 
 go 1.19
 

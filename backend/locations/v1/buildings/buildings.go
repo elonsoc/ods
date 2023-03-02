@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/elonsoc/center/service"
+	"github.com/elonsoc/center/backend/service"
 	"github.com/go-chi/chi/v5"
 )
 
