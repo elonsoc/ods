@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -76,7 +79,9 @@ func CheckIdentity(next http.Handler) http.Handler {
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize() chi.Router {
+func initialize(service_port string, database_url string, redis_url string) chi.Router {
+	// get port from environment variable
+
 	// Create a new instance of the router
 	r := chi.NewRouter()
 
@@ -159,7 +164,7 @@ func initialize() chi.Router {
 			}
 			resp, err := http.Get("http://localhost:1338/validate?token=" + req.Token)
 			type validationResponse struct {
-				token string
+				token string `json:"token"`
 			}
 			if err != nil {
 				w.WriteHeader(http.StatusServiceUnavailable)
@@ -187,19 +192,34 @@ func initialize() chi.Router {
 	}))
 
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		// r.Use(CheckIdentity)
+		r.Use(CheckIdentity)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("you're a true affiliate."))
 		})
 	}))
 
+	log.Printf("Server running on port %s", service_port)
 	return r
 }
 
 func main() {
-	// This is where we start the server and listen on port 1337
-	err := http.ListenAndServe(":1337", initialize())
+	// get our pertinent information from the environment variables or the command line
+	service_port := flag.String("port", os.Getenv("PORT"), "port to run server on")
+	database_url := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
+	redis_url := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
+	flag.Parse()
+	if *service_port == "" {
+		log.Fatal("port not set")
+	}
+	if *database_url == "" {
+		log.Fatal("database url not set")
+	}
+	if *redis_url == "" {
+		log.Fatal("redis url not set")
+	}
+
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *service_port), initialize(*service_port, *database_url, *redis_url))
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -1,0 +1,34 @@
+name: elon-launchpad
+volumes:
+  data:
+
+services:
+  postgres:
+    image: postgres:15.2
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql
+  redis:
+    image: redis:7.0.9
+  backend:
+    ports:
+      - 3000:3000
+    environment:
+        - DATABASE_URL=postgres://postgres:postgrespw@postgres:5432/postgres
+        - REDIS_URL=redis://redis:6379
+        - PORT=3000
+    build:
+      context: ../backend/
+      dockerfile: ../backend/Dockerfile
+  frontend:
+    ports:
+      - 3001:3001
+    environment:
+        - BACKEND_URL=http://backend:3000
+        - PORT=3001
+    build:
+      context: ../frontend/
+      dockerfile: ../frontend/Dockerfile
