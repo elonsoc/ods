@@ -1,8 +1,8 @@
 package locations
 
 import (
-	buildings_v1 "github.com/elonsoc/center/locations/v1/buildings"
-	"github.com/elonsoc/center/service"
+	buildings_v1 "github.com/elonsoc/center/backend/locations/v1/buildings"
+	"github.com/elonsoc/center/backend/service"
 	"github.com/go-chi/chi/v5"
 )
 

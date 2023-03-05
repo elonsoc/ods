@@ -34,7 +34,7 @@ const (
 	BuildingTypeDining                        // Dining Hall
 	BuildingTypeOffice                        // Office Building
 	BuildingTypeRetail                        // Retail Building
-	BuildingTypeSchool                        // School Building
+	BuildingTypeAcademic                      // Academic Building
 	BuildingTypeOther                         // Other Building, not listed above
 )
 
@@ -51,8 +51,8 @@ func (t BuildingType) String() string {
 		return "Office"
 	case BuildingTypeRetail:
 		return "Retail"
-	case BuildingTypeSchool:
-		return "School"
+	case BuildingTypeAcademic:
+		return "Academic"
 	case BuildingTypeOther:
 		return "Other"
 	default:
