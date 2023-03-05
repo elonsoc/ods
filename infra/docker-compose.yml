@@ -2,9 +2,10 @@ version: "3"
 name: elon-launchpad
 volumes:
   data:
-
-networks:
+  grafana:
   loki:
+  prometheus:
+
 
 services:
   prometheus:
@@ -13,32 +14,32 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - loki
+      - prometheus:/prometheus
   loki:
     image: grafana/loki:2.7.4
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - loki
-
+    volumes:
+      - loki:/loki
   promtail:
     image: grafana/promtail:2.7.4
     volumes:
-      - /var/log:/var/log
+      - data:/var/log
     command: -config.file=/etc/promtail/config.yml
-    networks:
-      - loki
-
   grafana:
     image: grafana/grafana:latest
     ports:
       - "3002:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=grafanapw
-    networks:
-      - loki
+    volumes:
+      - grafana:/var/lib/grafana
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   postgres:
     image: postgres:15.2
     environment:
@@ -47,13 +48,27 @@ services:
       - 5432:5432
     volumes:
       - data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis:
     image: redis:7.0.9
   backend:
+    depends_on:
+      postgres:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
     ports:
       - 3000:3000
     environment:
         - DATABASE_URL=postgres://postgres:postgrespw@postgres:5432/postgres
+        - LOGGING_URL=http://loki:3100/loki/api/v1/push
+        - PROMETHEUS_URL=http://prometheus:9090
         - REDIS_URL=redis://redis:6379
         - PORT=3000
     build:

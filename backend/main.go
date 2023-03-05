@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
 
 	locations "github.com/elonsoc/center/backend/locations"
 	"github.com/elonsoc/center/backend/service"
@@ -23,7 +24,7 @@ var IdentityKeys = map[string]string{
 }
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey(next http.Handler) http.Handler {
+func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 	// this mocks a database of API keys
 	APIKEYS := map[string]bool{
 		"elon_launchpad:12345": true,
@@ -31,55 +32,69 @@ func CheckAPIKey(next http.Handler) http.Handler {
 
 	// this middleware is a proof of concept, in the future we would swap this out
 	// for a call to our database to verify the API key
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Checking auth")
-		auth := r.Header.Get("Authorization")
-		if auth == "" {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			log.Info("Checking auth")
+			auth := r.Header.Get("Authorization")
+			if auth == "" {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 
-		// this is where the call we'd make to the database to verify the API key
-		// would happen. For now, we just check if the API key is in the map above.
-		if !APIKEYS[auth] {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
+			// this is where the call we'd make to the database to verify the API key
+			// would happen. For now, we just check if the API key is in the map above.
+			if !APIKEYS[auth] {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 		}
-
-		next.ServeHTTP(w, r)
-	})
+		return http.HandlerFunc(fn)
+	}
 }
 
-func CheckIdentity(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Checking identity")
-		token_cookie, err := r.Cookie("identity")
-		if err != nil {
-			fmt.Println(err)
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		auth := token_cookie.Value
-		if auth == "" {
-			fmt.Println("no auth")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		if IdentityKeys[auth] == "" {
-			fmt.Println("no identity key associated with token")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+// func(next http.Handler) http.Handler
 
-		next.ServeHTTP(w, r)
-	})
+func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			log.Info("Checking identity")
+			token_cookie, err := r.Cookie("identity")
+			if err != nil {
+				log.Error(err)
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			auth := token_cookie.Value
+			if auth == "" {
+				log.Error("no auth")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			if IdentityKeys[auth] == "" {
+				log.Println("no identity key associated with token")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+		}
+		return http.HandlerFunc(fn)
+	}
 }
 
 // initialize begins the startup process for the backend of launchpad.
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(service_port string, database_url string, redis_url string) chi.Router {
+func initialize(servicePort, databaseURL, redisURL, loggingURL string) chi.Router {
+	// This is where we initialize the various services that we will be using
+	// like the database, logger, stats, etc.
+	// in the future, we could split up the apis into separate services
+	// which would allow for more flexibility in scaling, allow for more granular control over the API keys,
+	// and allow for more granular control over the services that are running.
+	// This particular technique is called dependency injection, and it's a good practice to use
+	// when writing code that could one day be decoupled into separate services.
+	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
+	Services := service.NewService(loggingURL, databaseURL)
+
 	// get port from environment variable
 
 	// Create a new instance of the router
@@ -96,16 +111,6 @@ func initialize(service_port string, database_url string, redis_url string) chi.
 	// middleware.RealIP is used to get the real IP address of the client
 	r.Use(middleware.RealIP)
 
-	// This is where we initialize the various services that we will be using
-	// like the database, logger, stats, etc.
-	// in the future, we could split up the apis into separate services
-	// which would allow for more flexibility in scaling, allow for more granular control over the API keys,
-	// and allow for more granular control over the services that are running.
-	// This particular technique is called dependency injection, and it's a good practice to use
-	// when writing code that could one day be decoupled into separate services.
-	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	Services := service.NewService()
-
 	// This is where we mount the various routers for the various APIs that we will be serving
 	// again, in the future we can split these up into separate services if we want to for the above reasons
 	// routers are versioned, so we can have multiple versions of the same API running at the same time
@@ -116,7 +121,7 @@ func initialize(service_port string, database_url string, redis_url string) chi.
 	r.Group(func(r chi.Router) {
 		// This custom middleware checks the Authorization header for a valid API key
 		// and if it's not valid, it returns a 401 Unauthorized error
-		r.Use(CheckAPIKey)
+		r.Use(CheckAPIKey(Services.Logger))
 
 		// This get request is just a simple ping endpoint to test that the server is running
 		// and that the API key is valid.
@@ -192,34 +197,38 @@ func initialize(service_port string, database_url string, redis_url string) chi.
 	}))
 
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		r.Use(CheckIdentity)
+		r.Use(CheckIdentity(Services.Logger))
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("you're a true affiliate."))
 		})
 	}))
 
-	log.Printf("Server running on port %s", service_port)
+	Services.Logger.Info("Server running on port %s", servicePort)
 	return r
 }
 
 func main() {
 	// get our pertinent information from the environment variables or the command line
-	service_port := flag.String("port", os.Getenv("PORT"), "port to run server on")
-	database_url := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
-	redis_url := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
+	servicePort := flag.String("port", os.Getenv("PORT"), "port to run server on")
+	databaseURL := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
+	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
+	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
 	flag.Parse()
-	if *service_port == "" {
+	if *servicePort == "" {
 		log.Fatal("port not set")
 	}
-	if *database_url == "" {
+	if *databaseURL == "" {
 		log.Fatal("database url not set")
 	}
-	if *redis_url == "" {
+	if *redisURL == "" {
 		log.Fatal("redis url not set")
 	}
+	if *loggingURL == "" {
+		log.Fatal("logging url not set")
+	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *service_port), initialize(*service_port, *database_url, *redis_url))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL))
 	if err != nil {
 		fmt.Println(err)
 	}
