@@ -57,7 +57,7 @@ paths:
       tags:
         - building
       summary: Get All Buildings
-      description: Retrieves available building data for all buildings accessible
+      description: Retrieves available building data for all buildings on campus
       responses:
         "200":
           description: OK
