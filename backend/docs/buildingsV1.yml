@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
-  title: API Center
+  title: Buildings API
   description: "This API returns building information for Elon University."
   version: 1.0.0
   contact:
@@ -72,6 +72,35 @@ paths:
 
 components:
   schemas:
+    Building:
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        floors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Floor"
+        location:
+          $ref: "#/components/schemas/LatLng"
+        address:
+          type: string
+        type:
+          type: string
+          enum:
+            [
+              BuildingTypeUnknown,
+              BuildingTypeResidence,
+              BuildingTypeDining,
+              BuildingTypeOffice,
+              BuildingTypeRetail,
+              BuildingTypeAcademic,
+              BuildingTypeOther,
+            ]
+        id:
+          type: string
+          description: The unique id of a building
     LatLng:
       type: object
       properties:
@@ -102,32 +131,3 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Room"
-    Building:
-      type: object
-      properties:
-        name:
-          type: string
-          format: string
-        floors:
-          type: array
-          items:
-            $ref: "#/components/schemas/Floor"
-        location:
-          $ref: "#/components/schemas/LatLng"
-        address:
-          type: string
-        type:
-          type: string
-          enum:
-            [
-              BuildingTypeUnknown,
-              BuildingTypeResidence,
-              BuildingTypeDining,
-              BuildingTypeOffice,
-              BuildingTypeRetail,
-              BuildingTypeAcademic,
-              BuildingTypeOther,
-            ]
-        id:
-          type: string
-          description: The unique id of a building
