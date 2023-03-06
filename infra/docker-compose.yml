@@ -1,14 +1,16 @@
+# This is a docker-compose file, which is used to run the applications locally.
+# It is usually not used in a production context.
 version: "3"
 name: elon-launchpad
-volumes:
+volumes: #volumes are used to persist data in the docker containers and are linked to the host machine(s) fs
   data:
-  grafana:
+  grafana: # this volume, which is used by grafana, is used to persist the dashboards and other information gf stores.
   loki:
   prometheus:
 
 
-services:
-  stasdExporter:
+services: # this is where services are defined. A service is a docker container, which is defined by an image.
+  stasdExporter: 
     image: prom/statsd-exporter
     ports:
       - 9102:9102
@@ -35,15 +37,15 @@ services:
     volumes:
       - data:/var/log
     command: -config.file=/etc/promtail/config.yml
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3002:3000"
-    environment:
+  grafana: # this is the grafana service, which is used to visualize the data from prometheus and loki
+    image: grafana/grafana:latest # the image defines what the contianer will be based on
+    ports: # we expose ports on both the machine and locally to be able to access the service
+      - "3002:3000" # the grafana service expects to be accessed on port 3000, but we expose it locally on port 3002. This is done to avoid conflicts with other services.
+    environment: # this is where we define the EnvVars in the containers as variable=value.
       - GF_SECURITY_ADMIN_PASSWORD=grafanapw
-    volumes:
+    volumes: # this is where we define what volumes to attach to the container. This is done to persist data in the container.
       - grafana:/var/lib/grafana
-    healthcheck:
+    healthcheck: # In healthchecking we're defining how to see if the service is up or not. This is done to avoid starting services that depend on this service before it is ready.
       test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
       interval: 10s
       timeout: 5s
@@ -63,12 +65,12 @@ services:
       retries: 5
   redis:
     image: redis:7.0.9
-  backend:
-    depends_on:
+  backend: # this is the backend service, which is the main service of the application
+    depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
       postgres:
-        condition: service_healthy
+        condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
       loki:
-        condition: service_healthy
+        condition: service_healthy # service_healthy waits for a dependent service to be healthy (i.e., it has started and is accepting connections)
       prometheus:
         condition: service_healthy
     ports:
@@ -80,9 +82,11 @@ services:
         - REDIS_URL=redis://redis:6379
         - STATSD_URL=http://statsd:9102
         - PORT=3000
-    build:
-      context: ../backend/
-      dockerfile: ../backend/Dockerfile
+    build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
+      context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
+      dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service. 
+      # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
+      # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
   frontend:
     ports:
       - 3001:3001
