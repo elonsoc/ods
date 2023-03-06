@@ -1,0 +1,7 @@
+mappings:
+    # usage: test_api_call.product-api.timer./v1/product
+  - match: "test_api_call.*.timer.*"
+    name: "test_api_call"
+    labels:
+        api_name: "$1"
+        api_endpoint: "$2"

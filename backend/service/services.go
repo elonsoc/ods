@@ -36,7 +36,7 @@ type Service struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL string) *Service {
+func NewService(loggingURL, databaseURL, statsdURL string) *Service {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
@@ -52,6 +52,14 @@ func NewService(loggingURL, databaseURL string) *Service {
 		Logger: log,
 		Db:     db,
 	}
+}
+
+func InitStatsD(statsdURL string, log *logrus.Logger) *statsd.Client {
+	client, err := statsd.New(statsdURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return client
 }
 
 func InitDB(databaseURL string, log *logrus.Logger) *pgx.Conn {

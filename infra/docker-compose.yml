@@ -8,6 +8,14 @@ volumes:
 
 
 services:
+  stasdExporter:
+    image: prom/statsd-exporter
+    ports:
+      - 9102:9102
+    command: --statsd.mapping-config=/etc/statsd-exporter/mapping.yml
+    volumes:
+      - ./statsd-exporter.yml:/etc/statsd-exporter/mapping.yml
+
   prometheus:
     image: prom/prometheus:v2.30.3
     ports:
@@ -70,6 +78,7 @@ services:
         - LOGGING_URL=http://loki:3100/loki/api/v1/push
         - PROMETHEUS_URL=http://prometheus:9090
         - REDIS_URL=redis://redis:6379
+        - STATSD_URL=http://statsd:9102
         - PORT=3000
     build:
       context: ../backend/

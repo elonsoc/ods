@@ -84,7 +84,7 @@ func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL string) chi.Router {
+func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string) chi.Router {
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
 	// in the future, we could split up the apis into separate services
@@ -93,7 +93,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL string) chi.Route
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	Services := service.NewService(loggingURL, databaseURL)
+	Services := service.NewService(loggingURL, databaseURL, statsdURL)
 
 	// get port from environment variable
 
@@ -214,6 +214,7 @@ func main() {
 	databaseURL := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
 	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
 	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
+	statsdURL := flag.String("statsd_url", os.Getenv("STATSD_URL"), "statsd url")
 	flag.Parse()
 	if *servicePort == "" {
 		log.Fatal("port not set")
@@ -227,8 +228,11 @@ func main() {
 	if *loggingURL == "" {
 		log.Fatal("logging url not set")
 	}
+	if *statsdURL == "" {
+		log.Fatal("statsd url not set")
+	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
 	if err != nil {
 		fmt.Println(err)
 	}
