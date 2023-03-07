@@ -26,6 +26,6 @@ scrape_configs:
   - job_name: "grafana"
     static_configs:
       - targets: ["grafana:3000"]
-  - job_name: "statsd"
+  - job_name: "statsdexporter"
     static_configs:
-      - targets: ["statsd:9102"]
+      - targets: ["statsdexporter:9102"]

@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
+	"github.com/smira/go-statsd"
 
 	locations "github.com/elonsoc/center/backend/locations"
 	"github.com/elonsoc/center/backend/service"
@@ -34,7 +35,6 @@ func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 	// for a call to our database to verify the API key
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			log.Info("Checking auth")
 			auth := r.Header.Get("Authorization")
 			if auth == "" {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -47,6 +47,9 @@ func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
+
+			// if both are okay, then we're free to further this request.
+			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)
 	}
@@ -80,6 +83,35 @@ func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			// pass along the http request before we log it
+			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
+			next.ServeHTTP(ww, r)
+
+			scheme := "http"
+
+			if r.TLS != nil {
+				scheme = "https"
+			}
+
+			log.WithFields(logrus.Fields{
+				"method":     r.Method,
+				"path":       r.URL.Path,
+				"request_id": middleware.GetReqID(r.Context()),
+				"ip":         r.RemoteAddr,
+				"scheme":     scheme,
+				"status":     ww.Status(),
+			}).Info("Request received")
+			stat.Incr("request", 1, statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
+		}
+
+		return http.HandlerFunc(fn)
+	}
+}
+
 // initialize begins the startup process for the backend of launchpad.
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
@@ -104,12 +136,13 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This means that the first middleware that is declared will be the last one to be executed.
 
 	// middleware.Logger prints a log line for each request (access log)
-	r.Use(middleware.Logger)
+	r.Use(CustomLogger(Services.Logger, Services.Stat))
+	r.Use(middleware.RequestID)
+	// middleware.RealIP is used to get the real IP address of the client
+	r.Use(middleware.RealIP)
 	// middleware.Recoverer recovers from panics without crashing the server and supplies
 	// a 500 error page (Internal Server Error)
 	r.Use(middleware.Recoverer)
-	// middleware.RealIP is used to get the real IP address of the client
-	r.Use(middleware.RealIP)
 
 	// This is where we mount the various routers for the various APIs that we will be serving
 	// again, in the future we can split these up into separate services if we want to for the above reasons

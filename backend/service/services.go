@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
+	statsd "github.com/smira/go-statsd"
 )
 
 // Service, here, describes the services that we will be using
@@ -26,6 +27,7 @@ import (
 type Service struct {
 	Logger *logrus.Logger
 	Db     *pgx.Conn
+	Stat   *statsd.Client
 }
 
 // NewService creates a new instance of the Service struct
@@ -48,17 +50,17 @@ func NewService(loggingURL, databaseURL, statsdURL string) *Service {
 	log.AddHook(hook)
 	db := InitDB(databaseURL, log)
 
+	stat := InitStatsD(statsdURL, log)
+
 	return &Service{
 		Logger: log,
 		Db:     db,
+		Stat:   stat,
 	}
 }
 
 func InitStatsD(statsdURL string, log *logrus.Logger) *statsd.Client {
-	client, err := statsd.New(statsdURL)
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := statsd.NewClient(statsdURL, statsd.MetricPrefix("backend."))
 	return client
 }
 

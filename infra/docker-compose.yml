@@ -10,13 +10,21 @@ volumes: #volumes are used to persist data in the docker containers and are link
 
 
 services: # this is where services are defined. A service is a docker container, which is defined by an image.
-  stasdExporter: 
+  statsdexporter: 
     image: prom/statsd-exporter
     ports:
       - 9102:9102
+      - 9125:9125
+      - 9125:9125/udp
     command: --statsd.mapping-config=/etc/statsd-exporter/mapping.yml
     volumes:
       - ./statsd-exporter.yml:/etc/statsd-exporter/mapping.yml
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:9102/-/ready"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   prometheus:
     image: prom/prometheus:v2.30.3
@@ -32,6 +40,11 @@ services: # this is where services are defined. A service is a docker container,
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   promtail:
     image: grafana/promtail:2.7.4
     volumes:
@@ -69,10 +82,6 @@ services: # this is where services are defined. A service is a docker container,
     depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
       postgres:
         condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
-      loki:
-        condition: service_healthy # service_healthy waits for a dependent service to be healthy (i.e., it has started and is accepting connections)
-      prometheus:
-        condition: service_healthy
     ports:
       - 3000:3000
     environment:
@@ -80,7 +89,7 @@ services: # this is where services are defined. A service is a docker container,
         - LOGGING_URL=http://loki:3100/loki/api/v1/push
         - PROMETHEUS_URL=http://prometheus:9090
         - REDIS_URL=redis://redis:6379
-        - STATSD_URL=http://statsd:9102
+        - STATSD_URL=statsdexporter:9125
         - PORT=3000
     build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
       context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.

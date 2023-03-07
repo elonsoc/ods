@@ -1,7 +1,32 @@
 mappings:
-    # usage: test_api_call.product-api.timer./v1/product
-  - match: "test_api_call.*.timer.*"
-    name: "test_api_call"
+  #   # usage: test_api_call.product-api.timer./v1/product
+  # - match: "test_api_call.*.timer.*"
+  #   name: "test_api_call"
+  #   labels:
+  #       api_name: "$1"
+  #       api_endpoint: "$2"
+  # - match: "backend.locations.*.*.time"
+  #   name: "backend_locations_runtime"
+  #   labels:
+  #     provider: "locations"
+  #     version: "$3"
+  #     method: "$4"
+  # - match: "backend.request"
+  #   name: "backend_request"
+  #   labels:
+      
+  # - match: "backend.*.*.*.*"
+  #   name: "backend_locations_${5}_total"
+  #   labels:
+  #     version: "$3"
+  #     method: "$4"
+  # - match: "backend.*"
+  #   name: "backend_${1}_total"
+  #   labels:
+  #     version: "$2"
+  #     method: "$3"
+  - match: ".+"
+    match_type: regex
+    name: "$0"
     labels:
-        api_name: "$1"
-        api_endpoint: "$2"
+      statsd_metric_name: "$0"   

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/elonsoc/center/backend/service"
 	"github.com/go-chi/chi/v5"
@@ -67,6 +68,8 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	// At this point, the BuildingsRouter struct has been created
 	// but the chi router has not been defined.
 
+	b.Svcs.Stat = b.Svcs.Stat.CloneWithPrefixExtension("buildings.v1.")
+
 	// We need to define the chi router here so that we can
 	// add the handlers to it.
 	// Also, the service package is available to us here because
@@ -98,6 +101,7 @@ func (be *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 // The endpoint for this handler is locations/v1/buildings/{buildingID}
 // where buildingID is the id of the building that you want to get the data for.
 func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
@@ -105,5 +109,7 @@ func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	be.Svcs.Stat.Timing("by_id.time", time.Since(start).Milliseconds())
+	be.Svcs.Stat.Incr("by_id.success", 1)
 	json.NewEncoder(w).Encode(BUILDINGS[buildingId])
 }
