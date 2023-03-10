@@ -1,0 +1,107 @@
+# This is a docker-compose file, which is used to run the applications locally.
+# It is usually not used in a production context.
+version: "3"
+name: elon-launchpad
+volumes: #volumes are used to persist data in the docker containers and are linked to the host machine(s) fs
+  data:
+  grafana: # this volume, which is used by grafana, is used to persist the dashboards and other information gf stores.
+  loki:
+  prometheus:
+
+
+services: # this is where services are defined. A service is a docker container, which is defined by an image.
+  statsdexporter: 
+    image: prom/statsd-exporter
+    ports:
+      - 9102:9102
+      - 9125:9125
+      - 9125:9125/udp
+    command: --statsd.mapping-config=/etc/statsd-exporter/mapping.yml
+    volumes:
+      - ./statsd-exporter.yml:/etc/statsd-exporter/mapping.yml
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:9102/-/ready"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+  loki:
+    image: grafana/loki:2.7.4
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  promtail:
+    image: grafana/promtail:2.7.4
+    volumes:
+      - data:/var/log
+    command: -config.file=/etc/promtail/config.yml
+  grafana: # this is the grafana service, which is used to visualize the data from prometheus and loki
+    image: grafana/grafana:latest # the image defines what the contianer will be based on
+    ports: # we expose ports on both the machine and locally to be able to access the service
+      - "3002:3000" # the grafana service expects to be accessed on port 3000, but we expose it locally on port 3002. This is done to avoid conflicts with other services.
+    environment: # this is where we define the EnvVars in the containers as variable=value.
+      - GF_SECURITY_ADMIN_PASSWORD=grafanapw
+    volumes: # this is where we define what volumes to attach to the container. This is done to persist data in the container.
+      - grafana:/var/lib/grafana
+    healthcheck: # In healthchecking we're defining how to see if the service is up or not. This is done to avoid starting services that depend on this service before it is ready.
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  postgres:
+    image: postgres:15.2
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7.0.9
+  backend: # this is the backend service, which is the main service of the application
+    depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
+      postgres:
+        condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
+    ports:
+      - 3000:3000
+    environment:
+        - DATABASE_URL=postgres://postgres:postgrespw@postgres:5432/postgres
+        - LOGGING_URL=http://loki:3100/loki/api/v1/push
+        - PROMETHEUS_URL=http://prometheus:9090
+        - REDIS_URL=redis://redis:6379
+        - STATSD_URL=statsdexporter:9125
+        - PORT=3000
+    build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
+      context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
+      dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service. 
+      # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
+      # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
+  frontend:
+    ports:
+      - 3001:3001
+    environment:
+        - BACKEND_URL=http://backend:3000
+        - PORT=3001
+    build:
+      context: ../frontend/
+      dockerfile: ../frontend/Dockerfile
