@@ -5,16 +5,23 @@ info:
   version: 1.0.0
   contact:
     email: api@elonsoc.org
+
+# Define servers on which this API can be accessed
 servers:
   - url: https://api.elon.edu/locations/v1/buildings
   - url: http://localhost:1337/locations/v1/buildings
 
+# Define tags to group related endpoints
 tags:
   - name: building
     description: Information on the Buildings on Campus
+
+# Define endpoints that this API supports
 paths:
+  # Endpoint to get specific building by ID
   /{building_id}:
     get:
+      # Define request parameters
       parameters:
         - in: path
           name: building_id
@@ -22,6 +29,7 @@ paths:
             type: string
           required: true
           description: The Building ID
+
         - in: header
           name: Authorization
           schema:
@@ -32,7 +40,7 @@ paths:
       tags:
         - building
       summary: Get a specific building by ID
-      description: Retrieves available building data for sepcified building
+      description: Retrieves available building data for specified building
       responses:
         "200":
           description: OK
@@ -43,7 +51,9 @@ paths:
         "401":
           description: API Key provided is not valid.
         "404":
-          description: Provided building key is not found.
+          description: Building ID not found.
+
+  # Endpoint to get all buildings
   /:
     get:
       parameters:
@@ -68,8 +78,9 @@ paths:
                 items:
                   $ref: "#/components/schemas/Building"
         "404":
-          description: Invalid
+          description: Building not found.
 
+# Define data response objects and properties
 components:
   schemas:
     Building:
@@ -88,6 +99,7 @@ components:
           type: string
         type:
           type: string
+          #allowed building types
           enum:
             [
               BuildingTypeUnknown,
@@ -96,11 +108,13 @@ components:
               BuildingTypeOffice,
               BuildingTypeRetail,
               BuildingTypeAcademic,
-              BuildingTypeOther,
+              BuildingTypeOther
             ]
         id:
           type: string
           description: The unique id of a building
+          
+    #location coordinates
     LatLng:
       type: object
       properties:
@@ -118,14 +132,15 @@ components:
       properties:
         name:
           type: string
-        level:
+        floor_level:
           type: integer
+          
     Floor:
       type: object
       properties:
         name:
           type: string
-        level:
+        floor_level:
           type: integer
         Room:
           type: array
