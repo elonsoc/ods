@@ -36,6 +36,7 @@ paths:
             type: string
           required: true
           description: API Key
+          
       operationId: GetBuildingById
       tags:
         - building
@@ -49,9 +50,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Building"
         "401":
-          description: API Key provided is not valid.
+          description: Provided key not valid
         "404":
-          description: Building ID not found.
+          description: Invalid
 
   # Endpoint to get all buildings
   /:
@@ -78,7 +79,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Building"
         "404":
-          description: Building not found.
+          description: Invalid
 
 # Define data response objects and properties
 components:
@@ -126,23 +127,23 @@ components:
           type: number
           format: float64
           description: longitude
-
-    Room:
-      type: object
-      properties:
-        name:
-          type: string
-        floor_level:
-          type: integer
-          
+    
+    #floor array containing room objects
     Floor:
       type: object
       properties:
         name:
           type: string
-        floor_level:
+        level:
           type: integer
+          
         Room:
           type: array
           items:
-            $ref: "#/components/schemas/Room"
+            type: object
+            properties:
+              name:
+                type: string
+              floor_level:
+                type: integer
+                
