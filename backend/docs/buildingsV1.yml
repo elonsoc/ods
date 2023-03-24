@@ -5,23 +5,33 @@ info:
   version: 1.0.0
   contact:
     email: api@elonsoc.org
+    
+
+# Define servers on which API can be accessed
 servers:
   - url: https://api.elon.edu/locations/v1/buildings
   - url: http://localhost:1337/locations/v1/buildings
 
+# Define tags to group related endpoints
 tags:
   - name: building
     description: Information on the Buildings on Campus
+    
+# Define endpoints that API supports
 paths:
+  # Endpoint to get building by ID
   /{building_id}:
     get:
+      summary: Get a specific building by ID
+      description: Retrieves available building data for specified building
+      # Define request parameters
       parameters:
         - in: path
           name: building_id
           schema:
             type: string
           required: true
-          description: The Building ID
+          description: ID of building
         - in: header
           name: Authorization
           schema:
@@ -31,8 +41,6 @@ paths:
       operationId: GetBuildingById
       tags:
         - building
-      summary: Get a specific building by ID
-      description: Retrieves available building data for sepcified building
       responses:
         "200":
           description: OK
@@ -41,23 +49,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/Building"
         "401":
-          description: API Key provided is not valid.
+          description: Unauthorized - Invalid API key
         "404":
           description: Provided building key is not found.
+  # Endpoint to get all buildings
   /:
     get:
+      summary: Get All Buildings
+      description: Retrieves available building data for all buildings on campus
+      operationId: GetAllBuildings
+      tags:
+        - Building
       parameters:
-        - in: header
-          name: Authorization
+        - name: Authorization
+          in: header
           schema:
             type: string
           required: true
           description: API Key
-      operationId: GetAllBuildings
-      tags:
-        - building
-      summary: Get All Buildings
-      description: Retrieves available building data for all buildings on campus
       responses:
         "200":
           description: OK
@@ -75,44 +84,76 @@ components:
     Building:
       type: object
       properties:
+        id:
+          type: string
+          description: Unique ID of building
         name:
           type: string
-          format: string
         floors:
           type: array
           items:
             $ref: "#/components/schemas/Floor"
         location:
-          $ref: "#/components/schemas/LatLng"
-        address:
-          type: string
-        type:
+          $ref: "#/components/schemas/Location"
+        energy:
+          type: integer
+        elevator:
+          type: boolean
+        # Allowed building types
+        buildingType:
           type: string
           enum:
             [
-              BuildingTypeUnknown,
-              BuildingTypeResidence,
-              BuildingTypeDining,
-              BuildingTypeOffice,
-              BuildingTypeRetail,
-              BuildingTypeAcademic,
-              BuildingTypeOther,
+              residential,
+              dining,
+              retail,
+              academic,
+              athletic,
+              admin,
+              studentLife,
+              support
             ]
-        id:
+          description: Building type
+        school:
           type: string
-          description: The unique id of a building
-    LatLng:
+          enum:
+            [
+              schoolCollegeArtScience
+              schoolHealth,
+              schoolCommunication,
+              schoolLaw,
+              schoolBusiness,
+              schoolEducation
+            ]
+          description: School assiciated with academic buildings
+    Location:
       type: object
       properties:
         lat:
           type: number
           format: float64
-          description: latitude
+          description: latitude of location
         lng:
           type: number
           format: float64
-          description: longitude
-
+          description: longitude of location
+        address:
+          type: string
+          description: street address
+        neighborhood:
+          type: string
+          enum:
+            [
+              historic,
+              colonnades,
+              danieley,
+              east,
+              global,
+              loy,
+              oaks,
+              millPoint
+            ]
+          description: Neignborhood associated with residential buildings.
     Room:
       type: object
       properties:
@@ -120,14 +161,34 @@ components:
           type: string
         level:
           type: integer
+        length:
+          type: number
+          format: float64
+        width:
+          type: number
+          format: float64
+        roomType:
+          type: string
+          enum:
+            [
+              single,
+              double,
+              triple,
+              pod,
+              flat,
+              office,
+              lab,
+              classroom,
+              bathroom,
+              other
+            ]
     Floor:
       type: object
       properties:
-        name:
-          type: string
         level:
           type: integer
         Room:
           type: array
           items:
             $ref: "#/components/schemas/Room"
+            
