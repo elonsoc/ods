@@ -1,7 +1,10 @@
 openapi: 3.0.0
 info:
   title: Buildings API
-  description: "This API returns building information for Elon University."
+  description:
+    The Open Data Service at Elon University is a service that provides programmatic access to data about Elon University. 
+    This service is developed and maintained by the Elon Society of Computing Project Team and is open to active affiliates of the university.
+    As this service is still curently in development, endpoints and their responses may change at any time.
   version: 1.0.0
   contact:
     email: api@elonsoc.org
@@ -9,18 +12,21 @@ info:
 
 # Define servers on which API can be accessed
 servers:
-  - url: https://api.elon.edu/locations/v1/buildings
-  - url: http://localhost:1337/locations/v1/buildings
+  - url: https://ods.elon.edu
+    description: Production
+  - url: https://odstest.elon.edu
+    description: Staging
+  - url: http://odstest.elon.edu
+    description: Local
 
 # Define tags to group related endpoints
 tags:
-  - name: building
-    description: Information on the Buildings on Campus
+  - name: Locations
+    description: Information about locations on Campus
     
 # Define endpoints that API supports
 paths:
-  # Endpoint to get building by ID
-  /{building_id}:
+  /locations/v1/buildings/{building_id}:
     get:
       summary: Get a specific building by ID
       description: Retrieves available building data for specified building
@@ -31,7 +37,7 @@ paths:
           schema:
             type: string
           required: true
-          description: ID of building
+          description: Building ID
         - in: header
           name: Authorization
           schema:
@@ -40,7 +46,7 @@ paths:
           description: API Key
       operationId: GetBuildingById
       tags:
-        - building
+        - Locations
       responses:
         "200":
           description: OK
@@ -51,15 +57,14 @@ paths:
         "401":
           description: Unauthorized - Invalid API key
         "404":
-          description: Provided building key is not found.
-  # Endpoint to get all buildings
-  /:
+          description: Provided building key not found.
+  /locations/v1/buildings:
     get:
       summary: Get All Buildings
       description: Retrieves available building data for all buildings on campus
       operationId: GetAllBuildings
       tags:
-        - Building
+        - Locations
       parameters:
         - name: Authorization
           in: header
@@ -76,8 +81,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Building"
+        "401":
+          description: Unauthorizd - Invalid API key
         "404":
-          description: Invalid
+          description: Unauthorized
 
 components:
   schemas:
@@ -104,14 +111,15 @@ components:
           type: string
           enum:
             [
-              residential,
-              dining,
-              retail,
-              academic,
-              athletic,
-              admin,
-              studentLife,
-              support
+              buildingTypeResidential,
+              BuildingTypeDining,
+              BuildingTypeRetail,
+              BuildingTypeAcademic,
+              BuildingTypeAthletic,
+              BuildingTypeAdmin,
+              BuildingTypeStudentLife,
+              BuildingTypeSupport,
+              BuildingTypeOther
             ]
           description: Building type
         school:
@@ -132,11 +140,11 @@ components:
         lat:
           type: number
           format: float64
-          description: latitude of location
+          description: latitude of building location
         lng:
           type: number
           format: float64
-          description: longitude of location
+          description: longitude of building location
         address:
           type: string
           description: street address
@@ -144,14 +152,14 @@ components:
           type: string
           enum:
             [
-              historic,
-              colonnades,
-              danieley,
-              east,
-              global,
-              loy,
-              oaks,
-              millPoint
+              neighborhoodHistoric,
+              neighborhoodColonnades,
+              neighborhoodDanieley,
+              neighborhoodEast,
+              neighborhoodGlobal,
+              neighborhoodLoy,
+              neighborhoodOaks,
+              neighborhoodMillPoint
             ]
           description: Neignborhood associated with residential buildings.
     Room:
@@ -171,16 +179,16 @@ components:
           type: string
           enum:
             [
-              single,
-              double,
-              triple,
-              pod,
-              flat,
-              office,
-              lab,
-              classroom,
-              bathroom,
-              other
+              roomSingle,
+              roomDouble,
+              roomTriple,
+              roomPod,
+              roomFlat,
+              roomOffice,
+              roomLab,
+              roomClassroom,
+              roomBathroom,
+              roomOther
             ]
     Floor:
       type: object
@@ -191,4 +199,3 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Room"
-            
