@@ -1,0 +1,10 @@
+.container {
+    display: grid;
+    place-content: center;
+    height: 100%;
+}
+
+.introTitle {
+    font-size: 1.25rem;
+    text-align: center;
+}
