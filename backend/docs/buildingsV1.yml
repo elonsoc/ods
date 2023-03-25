@@ -112,14 +112,14 @@ components:
           enum:
             [
               buildingTypeResidential,
-              BuildingTypeDining,
-              BuildingTypeRetail,
-              BuildingTypeAcademic,
-              BuildingTypeAthletic,
-              BuildingTypeAdmin,
-              BuildingTypeStudentLife,
-              BuildingTypeSupport,
-              BuildingTypeOther
+              buildingTypeDining,
+              buildingTypeRetail,
+              buildingTypeAcademic,
+              buildingTypeAthletic,
+              buildingTypeAdmin,
+              buildingTypeStudentLife,
+              buildingTypeSupport,
+              buildingTypeOther
             ]
           description: Building type
         school:
