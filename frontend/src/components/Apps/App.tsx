@@ -1,0 +1,20 @@
+import styles from './App.module.css';
+
+interface AppInformation {
+	information: string[];
+}
+
+const App: React.FunctionComponent<AppInformation> = ({
+	information,
+}: AppInformation) => {
+	const [title, description, owners] = information;
+	return (
+		<div className={styles.appContainer}>
+			<h3>{title}</h3>
+			<p>{description}</p>
+			<p>{owners}</p>
+		</div>
+	);
+};
+
+export default App;
