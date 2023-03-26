@@ -1,0 +1,9 @@
+.appContainer {
+    flex: 1 1 200px;
+    height: 200px;
+    display: grid;
+    gap: .5rem;
+    padding: 1rem;
+    background: var(--figma-gray);
+    border-radius: var(--border-radius);
+}
