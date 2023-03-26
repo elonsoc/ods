@@ -1,0 +1,45 @@
+.container {
+    position: fixed;
+    display: grid;
+    place-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, .3);
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+.contentWrapper {
+    position: relative;
+    display: grid;
+    background: white;
+    width: clamp(300px, 50vw, 700px);
+    padding: 2rem 8%;
+}
+
+.contentWrapper form {
+    display: grid;
+    gap: 1rem;
+}
+
+.input {
+    display: grid;
+}
+
+.input input {
+    padding: .25rem .5rem;
+}
+
+.input label {
+    font-size: .90rem;
+}
+
+.closeButton {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 1.5rem;
+    height: 1.5rem;
+}
