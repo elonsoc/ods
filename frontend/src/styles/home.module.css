@@ -2,9 +2,30 @@
     display: grid;
     place-content: center;
     height: 100%;
+    padding: 1rem 8%;
+    gap: 1rem;
+    margin: 0 auto;
+    position: relative;
 }
 
 .introTitle {
+    display: inline-block;
     font-size: 1.25rem;
     text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.status {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    font-weight: 800;
+}
+
+.loginButton {
+    padding: .5rem 1rem;
+    background-color: var(--figma-gray);
+    width: fit-content;
+    margin: 0 auto;
 }
