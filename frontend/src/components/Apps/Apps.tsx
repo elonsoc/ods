@@ -13,7 +13,6 @@ const Apps: React.FunctionComponent = () => {
 		setApps(result);
 		setHasApps(true);
 		setModalActive(false);
-		console.log('here');
 	}
 	console.log(modalActive);
 	return (
