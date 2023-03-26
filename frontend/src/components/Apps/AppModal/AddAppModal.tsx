@@ -43,7 +43,8 @@ const AddAppModal: React.FunctionComponent<ModalProps> = ({
 						></input>
 					</div>
 					<button
-						type='button'
+						className={styles.addButton}
+						type='submit'
 						onClick={() => onAdd(name, description, owners)}
 					>
 						Add
