@@ -1,0 +1,21 @@
+.appContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 3rem;
+    padding: 5rem 8%;
+    position: relative;
+    height: 100%;
+}
+
+.topRight {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+.centered {
+    position: relative;
+    height: fit-content;
+    place-self: center;
+    margin: 0 auto;
+}
