@@ -43,3 +43,9 @@
     width: 1.5rem;
     height: 1.5rem;
 }
+
+.addButton {
+    width: fit-content;
+    padding: .5rem 1rem;
+    margin: 0 auto;
+}
