@@ -5,8 +5,8 @@ import AddAppModal from './AppModal/AddAppModal';
 
 const Apps: React.FunctionComponent = () => {
 	const [apps, setApps] = useState<string[][]>([]);
-	const [hasApps, setHasApps] = useState(false);
-	const [modalActive, setModalActive] = useState(false);
+	const [hasApps, setHasApps] = useState<boolean>(false);
+	const [modalActive, setModalActive] = useState<boolean>(false);
 
 	function handleAddApp(name: string, description: string, owners: string) {
 		const result: string[][] = [...apps, [name, description, owners]];

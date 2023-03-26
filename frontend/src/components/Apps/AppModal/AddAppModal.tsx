@@ -10,9 +10,9 @@ const AddAppModal: React.FunctionComponent<ModalProps> = ({
 	onAdd,
 	onClose,
 }: ModalProps) => {
-	const [name, setName] = useState('');
-	const [description, setDescription] = useState('');
-	const [owners, setOwners] = useState('');
+	const [name, setName] = useState<string>('');
+	const [description, setDescription] = useState<string>('');
+	const [owners, setOwners] = useState<string>('');
 
 	return (
 		<div className={styles.container}>
