@@ -1,27 +1,43 @@
 openapi: 3.0.0
 info:
   title: Buildings API
-  description: "This API returns building information for Elon University."
+  description:
+    The Open Data Service at Elon University is a service that provides programmatic access to data about Elon University. 
+    This service is developed and maintained by the Elon Society of Computing Project Team and is open to active affiliates of the university.
+    As this service is still curently in development, endpoints and their responses may change at any time.
   version: 1.0.0
   contact:
     email: api@elonsoc.org
-servers:
-  - url: https://api.elon.edu/locations/v1/buildings
-  - url: http://localhost:1337/locations/v1/buildings
+    
 
+# Define servers on which API can be accessed
+servers:
+  - url: https://ods.elon.edu
+    description: Production
+  - url: https://odstest.elon.edu
+    description: Staging
+  - url: http://odstest.elon.edu
+    description: Local
+
+# Define tags to group related endpoints
 tags:
-  - name: building
-    description: Information on the Buildings on Campus
+  - name: Locations
+    description: Information about locations on Campus
+    
+# Define endpoints that API supports
 paths:
-  /{building_id}:
+  /locations/v1/buildings/{building_id}:
     get:
+      summary: Get a specific building by ID
+      description: Retrieves available building data for specified building
+      # Define request parameters
       parameters:
         - in: path
           name: building_id
           schema:
             type: string
           required: true
-          description: The Building ID
+          description: Building ID
         - in: header
           name: Authorization
           schema:
@@ -30,9 +46,7 @@ paths:
           description: API Key
       operationId: GetBuildingById
       tags:
-        - building
-      summary: Get a specific building by ID
-      description: Retrieves available building data for sepcified building
+        - Locations
       responses:
         "200":
           description: OK
@@ -41,23 +55,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/Building"
         "401":
-          description: API Key provided is not valid.
+          description: Unauthorized - Invalid API key
         "404":
-          description: Provided building key is not found.
-  /:
+          description: Provided building key not found.
+  /locations/v1/buildings:
     get:
+      summary: Get All Buildings
+      description: Retrieves available building data for all buildings on campus
+      operationId: GetAllBuildings
+      tags:
+        - Locations
       parameters:
-        - in: header
-          name: Authorization
+        - name: Authorization
+          in: header
           schema:
             type: string
           required: true
           description: API Key
-      operationId: GetAllBuildings
-      tags:
-        - building
-      summary: Get All Buildings
-      description: Retrieves available building data for all buildings on campus
       responses:
         "200":
           description: OK
@@ -67,52 +81,87 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Building"
+        "401":
+          description: Unauthorizd - Invalid API key
         "404":
-          description: Invalid
+          description: Unauthorized
 
 components:
   schemas:
     Building:
       type: object
       properties:
+        id:
+          type: string
+          description: Unique ID of building
         name:
           type: string
-          format: string
         floors:
           type: array
           items:
             $ref: "#/components/schemas/Floor"
         location:
-          $ref: "#/components/schemas/LatLng"
-        address:
-          type: string
-        type:
+          $ref: "#/components/schemas/Location"
+        energy:
+          type: integer
+        elevator:
+          type: boolean
+        # Allowed building types
+        buildingType:
           type: string
           enum:
             [
-              BuildingTypeUnknown,
-              BuildingTypeResidence,
-              BuildingTypeDining,
-              BuildingTypeOffice,
-              BuildingTypeRetail,
-              BuildingTypeAcademic,
-              BuildingTypeOther,
+              buildingTypeResidential,
+              buildingTypeDining,
+              buildingTypeRetail,
+              buildingTypeAcademic,
+              buildingTypeAthletic,
+              buildingTypeAdmin,
+              buildingTypeStudentLife,
+              buildingTypeSupport,
+              buildingTypeOther
             ]
-        id:
+          description: Building type
+        school:
           type: string
-          description: The unique id of a building
-    LatLng:
+          enum:
+            [
+              schoolCollegeArtScience
+              schoolHealth,
+              schoolCommunication,
+              schoolLaw,
+              schoolBusiness,
+              schoolEducation
+            ]
+          description: School assiciated with academic buildings
+    Location:
       type: object
       properties:
         lat:
           type: number
           format: float64
-          description: latitude
+          description: latitude of building location
         lng:
           type: number
           format: float64
-          description: longitude
-
+          description: longitude of building location
+        address:
+          type: string
+          description: street address
+        neighborhood:
+          type: string
+          enum:
+            [
+              neighborhoodHistoric,
+              neighborhoodColonnades,
+              neighborhoodDanieley,
+              neighborhoodEast,
+              neighborhoodGlobal,
+              neighborhoodLoy,
+              neighborhoodOaks,
+              neighborhoodMillPoint
+            ]
+          description: Neignborhood associated with residential buildings.
     Room:
       type: object
       properties:
@@ -120,11 +169,30 @@ components:
           type: string
         level:
           type: integer
+        length:
+          type: number
+          format: float64
+        width:
+          type: number
+          format: float64
+        roomType:
+          type: string
+          enum:
+            [
+              roomSingle,
+              roomDouble,
+              roomTriple,
+              roomPod,
+              roomFlat,
+              roomOffice,
+              roomLab,
+              roomClassroom,
+              roomBathroom,
+              roomOther
+            ]
     Floor:
       type: object
       properties:
-        name:
-          type: string
         level:
           type: integer
         Room:
