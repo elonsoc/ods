@@ -7,9 +7,9 @@ interface Props {
 }
 
 const Meta: React.FunctionComponent<Props> = ({
-	title,
-	keywords,
-	description,
+	title = 'Elon ODS',
+	keywords = "'data access, api provider, Elon University, open source, open data service, ods, elon'",
+	description = 'Elon ODS is an Open Data Service at Elon University that provides API keys for students to access data about Elon University. Our API provider service offers data about buildings, courses, and more. Register an application today to get started!',
 }: Props) => {
 	return (
 		<Head>
@@ -21,14 +21,6 @@ const Meta: React.FunctionComponent<Props> = ({
 			<title>{title}</title>
 		</Head>
 	);
-};
-
-Meta.defaultProps = {
-	title: 'Elon ODS',
-	keywords:
-		'data access, api provider, Elon University, open source, open data service, ods, elon',
-	description:
-		'Elon ODS is an Open Data Service at Elon University that provides API keys for students to access data about Elon University. Our API provider service offers data about buildings, courses, and more. Register an application today to get started!',
 };
 
 export default Meta;
