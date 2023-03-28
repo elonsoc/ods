@@ -1,36 +1,30 @@
 openapi: 3.0.0
 info:
-  title: Buildings API
-  description:
+  title: Open Data Service at Elon University
+  description: 
     The Open Data Service at Elon University is a service that provides programmatic access to data about Elon University. 
     This service is developed and maintained by the Elon Society of Computing Project Team and is open to active affiliates of the university.
     As this service is still curently in development, endpoints and their responses may change at any time.
-  version: 1.0.0
+  version: 0.0.1
   contact:
-    email: api@elonsoc.org
-    
-
-# Define servers on which API can be accessed
+    email: ods@elonsoc.org
 servers:
   - url: https://ods.elon.edu
     description: Production
   - url: https://odstest.elon.edu
     description: Staging
-  - url: http://odstest.elon.edu
+  - url: http://localhost:3000
     description: Local
-
-# Define tags to group related endpoints
 tags:
+  - name: v1
+    description: Version 1 of the API
   - name: Locations
-    description: Information about locations on Campus
-    
-# Define endpoints that API supports
+    description: Information about locations on campus
 paths:
   /locations/v1/buildings/{building_id}:
     get:
       summary: Get a specific building by ID
-      description: Retrieves available building data for specified building
-      # Define request parameters
+      description: Retrieves available building data for sepcified building
       parameters:
         - in: path
           name: building_id
@@ -46,6 +40,7 @@ paths:
           description: API Key
       operationId: GetBuildingById
       tags:
+        - v1
         - Locations
       responses:
         "200":
@@ -57,13 +52,13 @@ paths:
         "401":
           description: Unauthorized - Invalid API key
         "404":
-          description: Provided building key not found.
+          description: Provided building key is not found.
   /locations/v1/buildings:
     get:
       summary: Get All Buildings
       description: Retrieves available building data for all buildings on campus
-      operationId: GetAllBuildings
       tags:
+        - v1
         - Locations
       parameters:
         - name: Authorization
@@ -72,6 +67,7 @@ paths:
             type: string
           required: true
           description: API Key
+      operationId: GetAllBuildings
       responses:
         "200":
           description: OK
@@ -84,6 +80,8 @@ paths:
         "401":
           description: Unauthorizd - Invalid API key
         "404":
+          description: Invalid
+        "401":
           description: Unauthorized
 
 components:
