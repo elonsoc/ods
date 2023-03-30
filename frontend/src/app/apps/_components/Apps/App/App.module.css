@@ -1,3 +1,4 @@
+/* Make each individual app responsive */
 .appContainer {
     flex: 1 1 200px;
     height: 200px;

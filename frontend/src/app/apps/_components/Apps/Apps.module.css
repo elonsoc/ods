@@ -1,3 +1,4 @@
+/* Make container of individual apps make them wrap around */
 .appContainer {
     display: flex;
     flex-wrap: wrap;
@@ -7,6 +8,7 @@
     height: 100%;
 }
 
+/* Button placement if no projects vs existing projects */
 .topRight {
     position: absolute;
     right: 15px;
