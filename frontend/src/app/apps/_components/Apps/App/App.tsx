@@ -1,13 +1,12 @@
 import styles from './App.module.css';
 
 interface AppInformation {
-	information: string[];
+	title: string;
+	description: string;
+	owners: string;
 }
 
-const App: React.FunctionComponent<AppInformation> = ({
-	information,
-}: AppInformation) => {
-	const [title, description, owners] = information;
+const App = ({ title, description, owners }: AppInformation) => {
 	return (
 		<div className={styles.appContainer}>
 			<h3>{title}</h3>

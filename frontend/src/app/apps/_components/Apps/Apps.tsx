@@ -3,23 +3,39 @@ import { useState } from 'react';
 import App from './App/App';
 import AddAppModal from './AppModal/AddAppModal';
 
-const Apps: React.FunctionComponent = () => {
-	const [apps, setApps] = useState<string[][]>([]);
+interface AppInformation {
+	name: string;
+	description: string;
+	owners: string;
+}
+
+const Apps = () => {
+	const [apps, setApps] = useState<AppInformation[]>([]);
 	const [hasApps, setHasApps] = useState<boolean>(false);
 	const [modalActive, setModalActive] = useState<boolean>(false);
 
 	function handleAddApp(name: string, description: string, owners: string) {
-		const result: string[][] = [...apps, [name, description, owners]];
+		const result: AppInformation[] = [
+			...apps,
+			{ name: name, description: description, owners: owners },
+		];
 		setApps(result);
 		setHasApps(true);
 		setModalActive(false);
 	}
-	console.log(modalActive);
+
 	return (
 		<>
 			<div className={styles.appContainer}>
 				{hasApps &&
-					apps.map((app, index) => <App information={app} key={index} />)}
+					apps.map((app, index) => (
+						<App
+							title={app.name}
+							description={app.description}
+							owners={app.owners}
+							key={index}
+						/>
+					))}
 				<button
 					type='button'
 					onClick={() => setModalActive(true)}

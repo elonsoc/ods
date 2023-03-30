@@ -11,6 +11,7 @@
     position: absolute;
     right: 15px;
     top: 15px;
+    padding: .5rem 1rem;
 }
 
 .centered {
@@ -18,4 +19,5 @@
     height: fit-content;
     place-self: center;
     margin: 0 auto;
+    padding: .5rem 1rem;
 }

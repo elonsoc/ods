@@ -2,50 +2,59 @@ import styles from './AddAppModal.module.css';
 import { useState } from 'react';
 
 interface ModalProps {
-	onAdd: (a: string, b: string, c: string) => void;
-	onClose: (a: boolean) => void;
+	onAdd: (name: string, description: string, owners: string) => void;
+	onClose: (isClosed: boolean) => void;
 }
 
-const AddAppModal: React.FunctionComponent<ModalProps> = ({
-	onAdd,
-	onClose,
-}: ModalProps) => {
-	const [name, setName] = useState<string>('');
-	const [description, setDescription] = useState<string>('');
-	const [owners, setOwners] = useState<string>('');
+const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
+	const [state, setState] = useState({ name: '', description: '', owners: '' });
+
+	const handleInputChange = (event: any) => {
+		const { name, value } = event.target;
+		setState((prevInfo) => ({
+			...prevInfo,
+			[name]: value,
+		}));
+	};
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.contentWrapper}>
+		<div className={styles.fullScreenContainer}>
+			<div className={styles.modalWindow}>
 				<form>
-					<div className={styles.input}>
+					<div className={styles.inputWrapper}>
 						<label htmlFor='name'>Name</label>
 						<input
 							type='text'
 							id='name'
-							onChange={(e) => setName(e.target.value)}
+							name='name'
+							value={state.name}
+							onChange={handleInputChange}
 						></input>
 					</div>
-					<div className={styles.input}>
+					<div className={styles.inputWrapper}>
 						<label htmlFor='description'>Description</label>
 						<input
 							type='text'
 							id='description'
-							onChange={(e) => setDescription(e.target.value)}
+							name='description'
+							value={state.description}
+							onChange={handleInputChange}
 						></input>
 					</div>
-					<div className={styles.input}>
+					<div className={styles.inputWrapper}>
 						<label htmlFor='owners'>Owners</label>
 						<input
 							type='text'
 							id='owners'
-							onChange={(e) => setOwners(e.target.value)}
+							name='owners'
+							value={state.owners}
+							onChange={handleInputChange}
 						></input>
 					</div>
 					<button
 						className={styles.addButton}
 						type='submit'
-						onClick={() => onAdd(name, description, owners)}
+						onClick={() => onAdd(state.name, state.description, state.owners)}
 					>
 						Add
 					</button>
