@@ -1,7 +1,7 @@
 import styles from './Apps.module.css';
 import { useState } from 'react';
-import App from './App/App';
-import AddAppModal from './AppModal/AddAppModal';
+import App from '../App/App';
+import AddAppModal from '../AppModal/AddAppModal';
 
 interface AppInformation {
 	name: string;
