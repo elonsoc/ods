@@ -1,6 +1,6 @@
 import styles from './UserApps.module.css';
 import { useState } from 'react';
-import UserApp from '../UserAppDisplay/UserApp';
+import UserApp from '../UserApp/UserApp';
 import AddAppModal from '../UserAppModal/AddAppModal';
 
 interface InformationDetails {
