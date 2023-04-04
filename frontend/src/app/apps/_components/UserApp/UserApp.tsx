@@ -6,11 +6,11 @@ interface UserAppInformation {
 	owners: string;
 }
 
-interface UserAppProp {
+interface UserAppInfoProp {
 	info: UserAppInformation;
 }
 
-const UserApp = ({ info: { title, description, owners } }: UserAppProp) => {
+const UserApp = ({ info: { title, description, owners } }: UserAppInfoProp) => {
 	return (
 		<div className={styles.appContainer}>
 			<h3>{title}</h3>
