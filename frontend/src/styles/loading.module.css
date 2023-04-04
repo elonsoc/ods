@@ -1,6 +1,7 @@
 .loading {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     margin: 0 auto;
     text-align: center;
     width: 100%;
