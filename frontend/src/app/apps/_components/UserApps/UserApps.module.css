@@ -1,11 +1,13 @@
 /* Make container of individual apps make them wrap around */
 .appContainer {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(auto-fill, 250px);
     gap: 1rem 3rem;
     padding: 5rem 8%;
     position: relative;
     height: 100%;
+    width: 100%;
 }
 
 /* Button placement if no projects vs existing projects */
@@ -17,7 +19,7 @@
 }
 
 .centered {
-    position: relative;
+    position: absolute;
     height: fit-content;
     place-self: center;
     margin: 0 auto;
