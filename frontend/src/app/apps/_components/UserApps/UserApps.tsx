@@ -1,7 +1,7 @@
-import styles from './Apps.module.css';
+import styles from './UserApps.module.css';
 import { useState } from 'react';
-import App from '../App/App';
-import AddAppModal from '../AppModal/AddAppModal';
+import UserApp from '../UserAppDisplay/UserApp';
+import AddAppModal from '../UserAppModal/AddAppModal';
 
 interface InformationDetails {
 	title: string;
@@ -9,7 +9,7 @@ interface InformationDetails {
 	owners: string;
 }
 
-const Apps = () => {
+const UserApps = () => {
 	const [apps, setApps] = useState<InformationDetails[]>([]);
 	const [hasApps, setHasApps] = useState<boolean>(false);
 	const [modalActive, setModalActive] = useState<boolean>(false);
@@ -28,7 +28,7 @@ const Apps = () => {
 		<>
 			<div className={styles.appContainer}>
 				{hasApps &&
-					apps.map((app, index) => <App appInformation={app} key={index} />)}
+					apps.map((app, index) => <UserApp info={app} key={index} />)}
 				<button
 					type='button'
 					onClick={() => setModalActive(true)}
@@ -44,4 +44,4 @@ const Apps = () => {
 	);
 };
 
-export default Apps;
+export default UserApps;
