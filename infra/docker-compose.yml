@@ -1,7 +1,7 @@
 # This is a docker-compose file, which is used to run the applications locally.
 # It is usually not used in a production context.
 version: "3"
-name: elon-ods
+name: elon-launchpad
 volumes: #volumes are used to persist data in the docker containers and are linked to the host machine(s) fs
   data:
   grafana: # this volume, which is used by grafana, is used to persist the dashboards and other information gf stores.
@@ -10,7 +10,7 @@ volumes: #volumes are used to persist data in the docker containers and are link
 
 
 services: # this is where services are defined. A service is a docker container, which is defined by an image.
-  statsdexporter:
+  statsdexporter: 
     image: prom/statsd-exporter
     ports:
       - 9102:9102
@@ -93,7 +93,7 @@ services: # this is where services are defined. A service is a docker container,
         - PORT=3000
     build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
       context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
-      dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
+      dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service. 
       # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
       # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
   frontend:

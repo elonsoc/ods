@@ -9,7 +9,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-RUN yarn global add pnpm@8.1.1
+RUN yarn global add pnpm 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm fetch --prod

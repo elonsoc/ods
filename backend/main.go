@@ -21,14 +21,14 @@ import (
 // and are used to determine what data the user can access.
 // this map is just a proof of concept, in the future we would swap this out and call our database.
 var IdentityKeys = map[string]string{
-	"elon_ods:12345": "elon",
+	"elon_launchpad:12345": "elon",
 }
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
 func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 	// this mocks a database of API keys
 	APIKEYS := map[string]bool{
-		"elon_ods:12345": true,
+		"elon_launchpad:12345": true,
 	}
 
 	// this middleware is a proof of concept, in the future we would swap this out
@@ -112,7 +112,7 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 	}
 }
 
-// initialize begins the startup process for the backend of ods.
+// initialize begins the startup process for the backend of launchpad.
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
@@ -224,8 +224,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			}
 			// if the token is valid, we commit it to memory
 
-			IdentityKeys[res.token] = "elon_ods:12345"
-			w.Write([]byte("elon_ods:12345"))
+			IdentityKeys[res.token] = "elon_launchpad:12345"
+			w.Write([]byte("elon_launchpad:12345"))
 		})
 	}))
 

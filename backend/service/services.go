@@ -23,7 +23,7 @@ import (
 )
 
 // Service, here, describes the services that we will be using
-// in the backend of ods.
+// in the backend of launchpad.
 type Service struct {
 	Logger *logrus.Logger
 	Db     *pgx.Conn
