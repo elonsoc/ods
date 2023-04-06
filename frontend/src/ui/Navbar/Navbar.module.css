@@ -1,0 +1,8 @@
+.container {
+    align-self: flex-start;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--figma-gray);
+    padding: .75rem;
+}
