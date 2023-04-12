@@ -1,12 +1,29 @@
-package apps
+package applications
 
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"net/http"
 	"strings"
 
-	"net/http"
+	"github.com/elonsoc/center/backend/service"
+	"github.com/go-chi/chi/v5"
 )
+
+// Defining the struct for the applications router
+type ApplicationsRouter struct {
+	chi.Router
+	Svcs *service.Service
+}
+
+// NewApplicationsRouter is a function that returns a new applications router
+func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
+	r := chi.NewRouter()
+	a.Svcs.Logger.Info("Initializing applications router")
+	a.Router = r
+	a.Svcs.Logger.Info("Applications router initialized")
+	return a
+}
 
 // create a registration structure
 // more can be added to this later (api key for example)
