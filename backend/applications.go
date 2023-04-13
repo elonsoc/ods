@@ -1,4 +1,4 @@
-package applications
+package main
 
 import (
 	"crypto/rand"
@@ -18,8 +18,11 @@ type ApplicationsRouter struct {
 
 // NewApplicationsRouter is a function that returns a new applications router
 func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
-	r := chi.NewRouter()
 	a.Svcs.Logger.Info("Initializing applications router")
+
+	r := chi.NewRouter()
+	r.Post("/", newApp)
+
 	a.Router = r
 	a.Svcs.Logger.Info("Applications router initialized")
 	return a
@@ -27,7 +30,7 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 // create a registration structure
 // more can be added to this later (api key for example)
-type project struct {
+type application struct {
 	projName    string
 	projID      string
 	description string
@@ -36,18 +39,33 @@ type project struct {
 	apiKey      string
 }
 
-// Everytime a registration is filled out, a new registration variable is created
+// Everytime a registration is filled out, a new application variable is created
 // This will then be passed through to the DB once the DB is figured out
 
 // Database Design can be found: https://docs.google.com/document/d/1zEK9K7crTcCcE9bMKm87qRHCyqa5I0_vjuI9eqYSaLg/edit?usp=sharing
 
-func newApp(w http.ResponseWriter, r *http.Request) {
+func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
+	app := application{}
+	// parse the request body into the registration variable
+	app.apiKey = apiKeyGenerate()
+	app.projName = r.FormValue("title")
+	app.description = r.FormValue("description")
+	app.owner = r.FormValue("owners")
+	app.projID = 
 
+	// TODO: Create Project ID function.
+	//       Make apiKey and projID generation functions struct methods.
+	//       This means we can use the database (and logger) connection in the struct.
+	//       This allows us to check if the generated string is unique.
+	//       Once that is done, we can store the new application info in the database.
+	//       Prepare the response and send it back to the client.
+	
+	
 }
 
 func apiKeyGenerate() string {
-	// generate 36 random bytes using crypto/rand
-	bytes := make([]byte, 36)
+	// generate 32 random bytes using crypto/rand
+	bytes := make([]byte, 32)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		// log error
@@ -59,7 +77,7 @@ func apiKeyGenerate() string {
 	base62 := strings.Replace(base63, "/", "1", -1)
 
 	// Return the API key string
-	return "ods_App_" + base62
+	return "ods_key_" + base62
 }
 
 func apiKeyRefresh(projID string) {

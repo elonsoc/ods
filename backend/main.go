@@ -232,6 +232,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
 		r.Use(CheckIdentity(Services.Logger))
 
+		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: Services}).Router)
+
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("you're a true affiliate."))
 		})
