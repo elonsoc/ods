@@ -176,6 +176,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
 
+		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: Services}).Router)
+
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
 			w.Write([]byte("you're a true affiliate."))
