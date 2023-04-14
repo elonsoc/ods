@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -115,6 +116,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
 func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string) chi.Router {
+	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
 	// in the future, we could split up the apis into separate services
@@ -200,7 +202,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			}
 			resp, err := http.Get("http://localhost:1338/validate?token=" + req.Token)
 			type validationResponse struct {
-				token string `json:"token"`
+				Token string `json:"token"`
 			}
 			if err != nil {
 				w.WriteHeader(http.StatusServiceUnavailable)
@@ -222,7 +224,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			}
 			// if the token is valid, we commit it to memory
 
-			IdentityKeys[res.token] = "elon_ods:12345"
+			IdentityKeys[res.Token] = "elon_ods:12345"
 			w.Write([]byte("elon_ods:12345"))
 		})
 	}))
@@ -236,6 +238,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	}))
 
 	Services.Log.Info("Server running on port", servicePort)
+	Services.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
 }
 
