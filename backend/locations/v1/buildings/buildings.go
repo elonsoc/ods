@@ -53,7 +53,7 @@ var BUILDINGS = map[string]Building{
 // and a pointer to the service struct which is defined in the service package.
 type BuildingsRouter struct {
 	chi.Router
-	Svcs *service.Service
+	Svcs *service.Services
 }
 
 // NewBuildingsRouter creates a new instance of the BuildingsRouter struct
@@ -67,8 +67,6 @@ type BuildingsRouter struct {
 func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	// At this point, the BuildingsRouter struct has been created
 	// but the chi router has not been defined.
-
-	b.Svcs.Stat = b.Svcs.Stat.CloneWithPrefixExtension("buildings.v1.")
 
 	// We need to define the chi router here so that we can
 	// add the handlers to it.
@@ -105,11 +103,12 @@ func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		be.Svcs.Logger.Println("Building not found:", buildingId)
+		be.Svcs.Log.Error("Building not found:" + buildingId)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	be.Svcs.Stat.Timing("by_id.time", time.Since(start).Milliseconds())
-	be.Svcs.Stat.Incr("by_id.success", 1)
+
+	be.Svcs.Stat.TimeElapsed("by_id.time", time.Since(start).Milliseconds())
+	be.Svcs.Stat.Increment("by_id.count")
 	json.NewEncoder(w).Encode(BUILDINGS[buildingId])
 }

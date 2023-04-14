@@ -25,7 +25,7 @@ var IdentityKeys = map[string]string{
 }
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
+func CheckAPIKey() func(next http.Handler) http.Handler {
 	// this mocks a database of API keys
 	APIKEYS := map[string]bool{
 		"elon_ods:12345": true,
@@ -57,24 +57,23 @@ func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 
 // func(next http.Handler) http.Handler
 
-func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
+func CheckIdentity() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			log.Info("Checking identity")
 			token_cookie, err := r.Cookie("identity")
 			if err != nil {
-				log.Error(err)
+				// may log this?
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			auth := token_cookie.Value
 			if auth == "" {
-				log.Error("no auth")
+
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			if IdentityKeys[auth] == "" {
-				log.Println("no identity key associated with token")
+
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
@@ -83,7 +82,7 @@ func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handler) http.Handler {
+func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// pass along the http request before we log it
@@ -92,20 +91,19 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 			next.ServeHTTP(ww, r)
 
 			scheme := "http"
-
 			if r.TLS != nil {
 				scheme = "https"
 			}
 
-			log.WithFields(logrus.Fields{
+			log.InfoWithFields(logrus.Fields{
 				"method":     r.Method,
 				"path":       r.URL.Path,
 				"request_id": middleware.GetReqID(r.Context()),
 				"ip":         r.RemoteAddr,
 				"scheme":     scheme,
 				"status":     ww.Status(),
-			}).Info("Request received")
-			stat.Incr("request", 1, statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
+			}, "Request received")
+			stat.Increment("request", statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
 		}
 
 		return http.HandlerFunc(fn)
@@ -136,7 +134,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This means that the first middleware that is declared will be the last one to be executed.
 
 	// middleware.Logger prints a log line for each request (access log)
-	r.Use(CustomLogger(Services.Logger, Services.Stat))
+	r.Use(CustomLogger(Services.Log, Services.Stat))
 	r.Use(middleware.RequestID)
 	// middleware.RealIP is used to get the real IP address of the client
 	r.Use(middleware.RealIP)
@@ -154,7 +152,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Group(func(r chi.Router) {
 		// This custom middleware checks the Authorization header for a valid API key
 		// and if it's not valid, it returns a 401 Unauthorized error
-		r.Use(CheckAPIKey(Services.Logger))
+		r.Use(CheckAPIKey())
 
 		// This get request is just a simple ping endpoint to test that the server is running
 		// and that the API key is valid.
@@ -230,14 +228,14 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	}))
 
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		r.Use(CheckIdentity(Services.Logger))
+		r.Use(CheckIdentity())
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("you're a true affiliate."))
 		})
 	}))
 
-	Services.Logger.Info("Server running on port", servicePort)
+	Services.Log.Info("Server running on port", servicePort)
 	return r
 }
 
@@ -265,7 +263,8 @@ func main() {
 		log.Fatal("statsd url not set")
 	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
+		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
 	if err != nil {
 		fmt.Println(err)
 	}
