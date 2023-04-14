@@ -237,7 +237,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 		})
 	}))
 
-	Services.Logger.Info("Server running on port %s", servicePort)
+	Services.Logger.Info("Server running on port", servicePort)
 	return r
 }
 
