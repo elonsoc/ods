@@ -10,7 +10,7 @@ import (
 	buildings_v1 "github.com/elonsoc/center/backend/locations/v1/buildings"
 	"github.com/elonsoc/center/backend/mocks"
 	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
+	chi "github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

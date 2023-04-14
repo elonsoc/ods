@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	pgx "github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
 

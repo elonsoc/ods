@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi/v5"
+	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"github.com/smira/go-statsd"
+	statsd "github.com/smira/go-statsd"
 
 	locations "github.com/elonsoc/center/backend/locations"
 	"github.com/elonsoc/center/backend/service"

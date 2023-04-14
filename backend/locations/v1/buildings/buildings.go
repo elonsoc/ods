@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
+	chi "github.com/go-chi/chi/v5"
 )
 
 // this map is a mock database of buildings
