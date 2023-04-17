@@ -8,6 +8,7 @@ require (
 	github.com/schoentoon/logrus-loki v0.0.0-20220814020030-a5527cd7f206
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smira/go-statsd v1.3.2
+	github.com/stretchr/testify v1.8.2
 )
 
 require (
@@ -16,12 +17,11 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx v3.6.2+incompatible // indirect
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/common v0.7.0 // indirect
+	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
