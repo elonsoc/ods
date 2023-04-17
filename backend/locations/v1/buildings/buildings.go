@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elonsoc/center/backend/service"
+	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
 )
 
