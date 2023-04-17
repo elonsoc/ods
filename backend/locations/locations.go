@@ -24,7 +24,7 @@ type LocationsRouter struct {
 // in the top level to mount the router defined here to the main router.
 func NewLocationsRouter(l *LocationsRouter) *LocationsRouter {
 	r := chi.NewRouter()
-	l.Svcs.Log.Info("Initializing locations router")
+	l.Svcs.Log.Info("Initializing locations router", nil)
 	// Here we're mounting a group of routers to the v1 route.
 	// The reason why we're nesting a group of routers is because
 	// we want to be able to version the API.
@@ -36,7 +36,7 @@ func NewLocationsRouter(l *LocationsRouter) *LocationsRouter {
 		r.Mount("/buildings", buildings_v1.NewBuildingsRouter(&buildings_v1.BuildingsRouter{Svcs: l.Svcs}).Router)
 	}))
 
-	l.Svcs.Log.Info("Finished initializing locations router")
+	l.Svcs.Log.Info("Finished initializing locations router", nil)
 	return &LocationsRouter{
 		Router: r,
 	}

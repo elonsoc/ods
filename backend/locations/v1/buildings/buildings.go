@@ -103,7 +103,7 @@ func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		be.Svcs.Log.Error("Building not found:" + buildingId)
+		be.Svcs.Log.Error("Building not found:" + buildingId, nil)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

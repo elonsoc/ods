@@ -16,23 +16,18 @@ func initLogging(loggingURL string) *Log {
 }
 
 type LoggerIFace interface {
-	Info(...string)
-	InfoWithFields(logrus.Fields, ...string)
-	Error(...string)
+	Info(string, logrus.Fields)
+	Error(string, logrus.Fields)
 }
 
 type Log struct {
 	logger *logrus.Logger
 }
 
-func (s *Log) Info(message ...string) {
-	s.logger.Info(message)
-}
-
-func (s *Log) InfoWithFields(fields logrus.Fields, message ...string) {
+func (s *Log) Info(message string, fields logrus.Fields) {
 	s.logger.WithFields(fields).Info(message)
 }
 
-func (s *Log) Error(message ...string) {
-	s.logger.Error(message)
+func (s *Log) Error(message string, fields logrus.Fields) {
+	s.logger.WithFields(fields).Error(message)
 }

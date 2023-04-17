@@ -96,14 +96,14 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 				scheme = "https"
 			}
 
-			log.InfoWithFields(logrus.Fields{
+			log.Info("Request received", logrus.Fields{
 				"method":     r.Method,
 				"path":       r.URL.Path,
 				"request_id": middleware.GetReqID(r.Context()),
 				"ip":         r.RemoteAddr,
 				"scheme":     scheme,
 				"status":     ww.Status(),
-			}, "Request received")
+			})
 			stat.Increment("request", statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
 		}
 
@@ -237,7 +237,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 		})
 	}))
 
-	Services.Log.Info("Server running on port", servicePort)
+	Services.Log.Info("Server running on port " + servicePort, nil)
 	Services.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
 }

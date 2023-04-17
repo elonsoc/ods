@@ -12,38 +12,14 @@ type LoggerIFace struct {
 	mock.Mock
 }
 
-// Error provides a mock function with given fields: _a0
-func (_m *LoggerIFace) Error(_a0 ...string) {
-	_va := make([]interface{}, len(_a0))
-	for _i := range _a0 {
-		_va[_i] = _a0[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _va...)
-	_m.Called(_ca...)
+// Error provides a mock function with given fields: _a0, _a1
+func (_m *LoggerIFace) Error(_a0 string, _a1 logrus.Fields) {
+	_m.Called(_a0, _a1)
 }
 
-// Info provides a mock function with given fields: _a0
-func (_m *LoggerIFace) Info(_a0 ...string) {
-	_va := make([]interface{}, len(_a0))
-	for _i := range _a0 {
-		_va[_i] = _a0[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _va...)
-	_m.Called(_ca...)
-}
-
-// InfoWithFields provides a mock function with given fields: _a0, _a1
-func (_m *LoggerIFace) InfoWithFields(_a0 logrus.Fields, _a1 ...string) {
-	_va := make([]interface{}, len(_a1))
-	for _i := range _a1 {
-		_va[_i] = _a1[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _a0)
-	_ca = append(_ca, _va...)
-	_m.Called(_ca...)
+// Info provides a mock function with given fields: _a0, _a1
+func (_m *LoggerIFace) Info(_a0 string, _a1 logrus.Fields) {
+	_m.Called(_a0, _a1)
 }
 
 type mockConstructorTestingTNewLoggerIFace interface {
