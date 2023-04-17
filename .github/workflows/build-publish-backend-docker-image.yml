@@ -14,7 +14,7 @@ name: Create and publish the ODS Backend Docker image
 on:
   push:
     branches: [ "main" ]
-    paths: ["/backend/**"]
+    paths: ["backend/**"]
 
 env:
   REGISTRY: ghcr.io
