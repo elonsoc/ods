@@ -15,6 +15,7 @@ import (
 
 	locations "github.com/elonsoc/center/backend/locations"
 	"github.com/elonsoc/center/backend/service"
+	"github.com/denisenkom/go-mssqldb"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user
@@ -116,7 +117,7 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string) chi.Router {
+func initialize(servicePort, postgresURL, mssqlbURL, redisURL, loggingURL, statsdURL string) chi.Router {
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
 	// in the future, we could split up the apis into separate services
@@ -125,7 +126,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	Services := service.NewService(loggingURL, databaseURL, statsdURL)
+	Services := service.NewService(loggingURL, postgresURL, mssqlURL, statsdURL)
 
 	// get port from environment variable
 
@@ -244,7 +245,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 func main() {
 	// get our pertinent information from the environment variables or the command line
 	servicePort := flag.String("port", os.Getenv("PORT"), "port to run server on")
-	databaseURL := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
+	postgresURL := flag.String("postgres_url", os.Getenv("POSTGRES_URL"), "postgres url")
+	mssqlURL := flag.String("mssql_URL", os.Getenv("MSSQL_URL"), "mssql url")
 	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
 	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
 	statsdURL := flag.String("statsd_url", os.Getenv("STATSD_URL"), "statsd url")
@@ -252,8 +254,11 @@ func main() {
 	if *servicePort == "" {
 		log.Fatal("port not set")
 	}
-	if *databaseURL == "" {
-		log.Fatal("database url not set")
+	if *postgresURL == "" {
+		log.Fatal("postgres url not set")
+	}
+	if *mssqlURL == "" {
+		log.Fatal("mssql url not set")
 	}
 	if *redisURL == "" {
 		log.Fatal("redis url not set")
