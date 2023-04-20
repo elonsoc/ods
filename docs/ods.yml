@@ -89,111 +89,36 @@ components:
     Building:
       type: object
       properties:
-        id:
+        buildings_id:
           type: string
           description: Unique ID of building
-        name:
+        bldg_desc:
           type: string
-        floors:
-          type: array
-          items:
-            $ref: "#/components/schemas/Floor"
-        location:
-          $ref: "#/components/schemas/Location"
-        energy:
-          type: integer
-        elevator:
-          type: boolean
-        # Allowed building types
-        buildingType:
+        bldg_location:
           type: string
-          enum:
-            [
-              buildingTypeResidential,
-              buildingTypeDining,
-              buildingTypeRetail,
-              buildingTypeAcademic,
-              buildingTypeAthletic,
-              buildingTypeAdmin,
-              buildingTypeStudentLife,
-              buildingTypeSupport,
-              buildingTypeOther
-            ]
-          description: Building type
-        school:
+        bldg_location_representation:
           type: string
-          enum:
-            [
-              schoolCollegeArtScience
-              schoolHealth,
-              schoolCommunication,
-              schoolLaw,
-              schoolBusiness,
-              schoolEducation
-            ]
-          description: School assiciated with academic buildings
-    Location:
-      type: object
-      properties:
-        lat:
+        bldg_type:
+          type: string
+        bldg_type_representation:
+          type: string
+        bldg_long_desc:
+          type: string
+        bldg_city:
+          type: string
+        bldg_state:
+          type: string
+        bldg_zip:
+          type: string
+        bldg_sector:
+          type: string
+        bldg_latitude:
           type: number
-          format: float64
-          description: latitude of building location
-        lng:
+          format: double
+        bldg_longitude:
           type: number
-          format: float64
-          description: longitude of building location
-        address:
+          format: double
+        buildings_add_date:
           type: string
-          description: street address
-        neighborhood:
+        buildings_chg_date:
           type: string
-          enum:
-            [
-              neighborhoodHistoric,
-              neighborhoodColonnades,
-              neighborhoodDanieley,
-              neighborhoodEast,
-              neighborhoodGlobal,
-              neighborhoodLoy,
-              neighborhoodOaks,
-              neighborhoodMillPoint
-            ]
-          description: Neignborhood associated with residential buildings.
-    Room:
-      type: object
-      properties:
-        name:
-          type: string
-        level:
-          type: integer
-        length:
-          type: number
-          format: float64
-        width:
-          type: number
-          format: float64
-        roomType:
-          type: string
-          enum:
-            [
-              roomSingle,
-              roomDouble,
-              roomTriple,
-              roomPod,
-              roomFlat,
-              roomOffice,
-              roomLab,
-              roomClassroom,
-              roomBathroom,
-              roomOther
-            ]
-    Floor:
-      type: object
-      properties:
-        level:
-          type: integer
-        Room:
-          type: array
-          items:
-            $ref: "#/components/schemas/Room"

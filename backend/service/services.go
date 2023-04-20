@@ -15,7 +15,8 @@ package service
 
 import (
 	"context"
-
+	
+	"github.com/denisenkom/go-mssqldb"
 	"github.com/jackc/pgx/v5"
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
@@ -26,7 +27,8 @@ import (
 // in the backend of ods.
 type Service struct {
 	Logger *logrus.Logger
-	Db     *pgx.Conn
+	PgDb   *pgx.Conn
+	MsDb   *mssql.DB
 	Stat   *statsd.Client
 }
 
@@ -38,7 +40,7 @@ type Service struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL, statsdURL string) *Service {
+func NewService(loggingURL, pgdbURL, msdbURL, statsdURL string) *Service {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
@@ -48,13 +50,16 @@ func NewService(loggingURL, databaseURL, statsdURL string) *Service {
 		log.Fatal(err)
 	}
 	log.AddHook(hook)
-	db := InitDB(databaseURL, log)
+	
+	pgdb := InitPgDB(pgdbURL, log)
+	msdb := InitMsDB(msdbURL, log)
 
 	stat := InitStatsD(statsdURL, log)
 
 	return &Service{
 		Logger: log,
-		Db:     db,
+		PgDb:   pgdb,
+		MsDb:   msdb,
 		Stat:   stat,
 	}
 }
@@ -64,8 +69,18 @@ func InitStatsD(statsdURL string, log *logrus.Logger) *statsd.Client {
 	return client
 }
 
-func InitDB(databaseURL string, log *logrus.Logger) *pgx.Conn {
-	connection, err := pgx.Connect(context.Background(), databaseURL)
+func InitPgDB(pgdbURL string, log *logrus.Logger) *pgx.Conn {
+	connection, err := pgx.Connect(context.Background(), pgdbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return connection
+}
+
+func InitMsDB(msdbURL string, log *logrus.Logger) *mssql.DB {
+	// connection string with placeholders user, password, database
+	connString := "server=" + msdbURL + ";user id=user;password=password;database=database"
+	connection, err := mssql.Connect(context.Background(), connString)
 	if err != nil {
 		log.Fatal(err)
 	}
