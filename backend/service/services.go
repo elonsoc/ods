@@ -16,6 +16,8 @@ package service
 import (
 	"context"
 
+	"github.com/crewjam/saml/samlsp"
+	"github.com/elonsoc/center/backend/authentication"
 	"github.com/jackc/pgx/v5"
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
@@ -28,6 +30,7 @@ type Service struct {
 	Logger *logrus.Logger
 	Db     *pgx.Conn
 	Stat   *statsd.Client
+	Saml   *samlsp.Middleware
 }
 
 // NewService creates a new instance of the Service struct
@@ -56,6 +59,7 @@ func NewService(loggingURL, databaseURL, statsdURL string) *Service {
 		Logger: log,
 		Db:     db,
 		Stat:   stat,
+		Saml:   authentication.InitializeSaml(),
 	}
 }
 
