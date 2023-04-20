@@ -15,7 +15,6 @@ import (
 
 	locations "github.com/elonsoc/center/backend/locations"
 	"github.com/elonsoc/center/backend/service"
-	"github.com/denisenkom/go-mssqldb"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user
