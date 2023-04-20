@@ -35,6 +35,7 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 	r := chi.NewRouter()
 	r.Post("/", a.newApp)
+	r.Get("/", a.myApps)
 
 	a.Router = r
 	a.Svcs.Logger.Info("Applications router initialized")
@@ -44,11 +45,11 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 // create a registration structure (This is not entirely necessary, but it makes things easier)
 // Contents of this might change as the project progresses
 type application struct {
-	projName    string
-	projID      string
+	appName     string
+	appID       string
 	description string
-	owner       string
-	members     string
+	owners      string
+	teamName    string
 	apiKey      string
 	isValid     bool
 }
@@ -57,46 +58,66 @@ type application struct {
 // It will parse the form, generate a project ID and API key, and store the information in the database.
 // It will then return the pertinent information to the user.
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	// Create a new Application struct
 	app := application{}
 	// parse the request body into the registration variable
 	app.apiKey = ar.apiKeyGenerate()
-	app.projName = r.FormValue("title")
+	app.appName = r.FormValue("title")
 	app.description = r.FormValue("description")
-	app.owner = r.FormValue("owners")
-	app.projID = ar.appIDGenerate()
+	app.owners = r.FormValue("owners")
+	app.teamName = r.FormValue("teamName")
+	app.appID = ar.appIDGenerate()
 	app.isValid = true
-	//app.members = r.FormValue("members") Members are not implemented yet
 
-	// Storing the information in the database. Using a transaction to ensure that the information is stored correctly.
-	ctx := context.Background()
+	/* Storing information in the Database*/
+
+	// Initiating a transaction
 	tx, err := ar.Svcs.Db.Begin(ctx)
 	if err != nil {
-		ar.Svcs.Logger.Info(err)
+		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error initiating database transaction")
+		return
 	}
 	defer tx.Rollback(ctx)
 
-	// Storing info in the keys table
-	query1 := `INSERT INTO keys (id, apiKey, isValid) VALUES ($1, $2, $3)`
-	_, err = tx.Exec(ctx, query1, app.projID, app.apiKey, app.isValid)
+	// Getting prepared statements ready to use later
+	keyStmt, err := tx.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (id, apiKey, isValid) VALUES ($1, $2, $3)")
 	if err != nil {
-		ar.Svcs.Logger.Info(err)
+		ar.Svcs.Logger.Error(err)
+		ar.Svcs.Logger.Info("Error preparing database statement")
+		return
+	}
+	appStmt, err := tx.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (id, appName, description, owners, teamName) VALUES ($1, $2, $3, $4, $5)")
+	if err != nil {
+		ar.Svcs.Logger.Error(err)
+		ar.Svcs.Logger.Info("Error preparing database statement")
+		return
+	}
+
+	// Storing info in the keys table
+	_, err = keyStmt.Exec(ctx, app.appID, app.apiKey, app.isValid)
+	if err != nil {
+		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (keys table)")
+		return
 	}
 
 	// Storing info in the applications table
-	query2 := `INSERT INTO applications (id, projName, description, owner, members) VALUES ($1, $2, $3, $4, $5)`
-	_, err = tx.Exec(ctx, query2, app.projID, app.projName, app.description, app.owner, app.members)
+	query2 := `INSERT INTO applications (id, appName, description, owners, teamName) VALUES ($1, $2, $3, $4, $5)`
+	_, err = tx.Exec(ctx, query2, app.appID, app.appName, app.description, app.owners, app.teamName)
 	if err != nil {
-		ar.Svcs.Logger.Info(err)
+		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (applications table)")
+		return
 	}
 
 	// Commit the transaction
 	err = tx.Commit(ctx)
 	if err != nil {
-		ar.Svcs.Logger.Info(err)
+		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error committing database transaction")
+		return
 	}
 
 }
@@ -106,8 +127,14 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	// How do we get the user's email?
-	query := "SELECT projName, projID, description, owner, members FROM applications WHERE owner=$1"
+	query := "SELECT appName, appID, description, owners FROM applications WHERE owners=$1" // Need to fix this so that it checks if the string in the owners column contains the user's email
 	rows, err := ar.Svcs.Db.Query(ctx, query, "email")
+	if err != nil {
+		ar.Svcs.Logger.Error(err)
+		ar.Svcs.Logger.Info("Error querying database for user's applications")
+		return
+	}
+	// How do I package this information into the response?
 
 }
 
@@ -127,8 +154,9 @@ func (ar *ApplicationsRouter) apiKeyGenerate() string {
 		bytes := make([]byte, 32)
 		_, err := rand.Read(bytes)
 		if err != nil {
-			ar.Svcs.Logger.Info(err)
+			ar.Svcs.Logger.Error(err)
 			ar.Svcs.Logger.Info("Error generating API key")
+			return ""
 		}
 
 		// convert bytes to a base62 string
@@ -142,8 +170,9 @@ func (ar *ApplicationsRouter) apiKeyGenerate() string {
 		query := `SELECT apiKey FROM keys WHERE id=$1`
 		rows, err := ar.Svcs.Db.Query(ctx, query, key)
 		if err != nil {
-			ar.Svcs.Logger.Info(err)
-			ar.Svcs.Logger.Info("Error querying database for API key")
+			ar.Svcs.Logger.Error(err)
+			ar.Svcs.Logger.Info("Error querying database for API key (while generating new API key)")
+			return ""
 		}
 
 		// if the key is unique, set isUnique to true
@@ -173,8 +202,9 @@ func (ar *ApplicationsRouter) appIDGenerate() string {
 		bytes := make([]byte, 32)
 		_, err := rand.Read(bytes)
 		if err != nil {
-			ar.Svcs.Logger.Info(err)
+			ar.Svcs.Logger.Error(err)
 			ar.Svcs.Logger.Info("Error generating App ID")
+			return ""
 		}
 
 		// convert bytes to a base62 string
@@ -188,8 +218,9 @@ func (ar *ApplicationsRouter) appIDGenerate() string {
 		query := `SELECT id FROM keys WHERE id=$1`
 		rows, err := ar.Svcs.Db.Query(ctx, query, appID)
 		if err != nil {
-			ar.Svcs.Logger.Info(err)
-			ar.Svcs.Logger.Info("Error querying database for App ID")
+			ar.Svcs.Logger.Error(err)
+			ar.Svcs.Logger.Info("Error querying database for App ID (while generating new App ID)")
+			return ""
 		}
 
 		// if the appID is unique, set isUnique to true
@@ -209,11 +240,11 @@ func (ar *ApplicationsRouter) appIDGenerate() string {
 /*
 All the code below has not been implemented yet or extensively worked on.
 
-func apiKeyRefresh(projID string) {
+func apiKeyRefresh(appID string) {
 	// generate a new key with apiKeyGenerate()
 	sqlQuery := "UPDATE Keys SET \"Api Key\" = $1 WHERE \"Project ID\" = $2"
 	// store new key in database
-	res, err := db.Exec(sqlQuery, apiKeyGenerate(), projID)
+	res, err := db.Exec(sqlQuery, apiKeyGenerate(), appID)
 	if err != nil {
 		// log error
 	}
