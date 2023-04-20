@@ -1,4 +1,4 @@
-package migration
+package buildings_v1
 
 // import MSSQL and PSQL drivers and libraries that allow us to connect
 import (
