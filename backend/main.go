@@ -13,15 +13,9 @@ import (
 	"github.com/sirupsen/logrus"
 	statsd "github.com/smira/go-statsd"
 
+	"github.com/crewjam/saml/samlsp"
 	locations "github.com/elonsoc/ods/backend/locations"
 	"github.com/elonsoc/ods/backend/service"
-	"github.com/crewjam/saml/samlsp"
-	locations "github.com/elonsoc/center/backend/locations"
-	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sirupsen/logrus"
-	"github.com/smira/go-statsd"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user
@@ -140,7 +134,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This means that the first middleware that is declared will be the last one to be executed.
 
 	// middleware.Logger prints a log line for each request (access log)
-	r.Use(CustomLogger(Services.Log, Services.Stat))
+	r.Use(CustomLogger(svc.Log, svc.Stat))
 	r.Use(middleware.RequestID)
 	// middleware.RealIP is used to get the real IP address of the client
 	r.Use(middleware.RealIP)
@@ -187,8 +181,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 		})
 	}))
 
-	Services.Log.Info("Server running on port " + servicePort, nil)
-	Services.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
+	svc.Log.Info("Server running on port "+servicePort, nil)
+	svc.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
 }
 
