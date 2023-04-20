@@ -22,13 +22,13 @@ jobs:
       - uses: actions/setup-go@v3
 
       - name: generate test coverage
-        run: go test ./... -coverprofile=../cover.out
+        run: go test ./... -coverprofile=./cover.out
 
       - name: check test coverage
         uses: vladopajic/go-test-coverage@v2
         with:
           profile: cover.out
-          local-prefix: github.com/elonsoc/ods/backend
+          local-prefix: ./
           threshold-file: 80
           threshold-package: 80
           threshold-total: 95
