@@ -101,6 +101,16 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// The applications/myApps endpoint.
+// This function will return a list of all the applications that the user owns.
+func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	// How do we get the user's email?
+	query := "SELECT projName, projID, description, owner, members FROM applications WHERE owner=$1"
+	rows, err := ar.Svcs.Db.Query(ctx, query, "email")
+
+}
+
 // TODO: Prepare the response and send it back to the client.
 //		 Properly handle errors.
 
