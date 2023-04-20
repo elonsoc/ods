@@ -19,6 +19,7 @@ type Services struct {
 	Log  LoggerIFace
 	Db   DbIFace
 	Stat StatIFace
+	Saml SamlIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -34,12 +35,14 @@ func NewService(loggingURL, databaseURL, statsdURL string) *Services {
 	// that will be used to log messages to the console.
 
 	log := initLogging(loggingURL)
-	db := initDb(databaseURL, log.logger)
-	stat := initStatsD(statsdURL, log.logger)
+	db := initDb(databaseURL, log)
+	stat := initStatsD(statsdURL, log)
+	saml := initializeSaml(log)
 
 	return &Services{
 		Log:  log,
 		Db:   db,
 		Stat: stat,
+		Saml: saml,
 	}
 }

@@ -4,10 +4,9 @@ import (
 	"context"
 
 	pgx "github.com/jackc/pgx/v5"
-	"github.com/sirupsen/logrus"
 )
 
-func initDb(databaseURL string, log *logrus.Logger) *Db {
+func initDb(databaseURL string, log LoggerIFace) *Db {
 	connection, err := pgx.Connect(context.Background(), databaseURL)
 	if err != nil {
 		log.Fatal(err)

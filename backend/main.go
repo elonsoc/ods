@@ -126,6 +126,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
 	svc := service.NewService(loggingURL, databaseURL, statsdURL)
+	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
 	r := chi.NewRouter()
@@ -152,8 +153,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Mount("/saml", r.Group(func(r chi.Router) {
 		r.Use(middleware.NoCache)
 
-		r.Get("/metadata", svc.Saml.ServeMetadata)
-		r.Post("/acs", svc.Saml.ServeACS)
+		r.Get("/metadata", samlMiddleware.ServeMetadata)
+		r.Post("/acs", samlMiddleware.ServeACS)
 	}))
 
 	// this group is for the API that will be used by applications to access the data
@@ -173,7 +174,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 
 	// This represents endpoints that humans will access with their browser and thus need to affiliate themselves with Elon University
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		r.Use(svc.Saml.RequireAccount)
+		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
