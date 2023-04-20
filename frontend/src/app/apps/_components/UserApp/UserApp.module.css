@@ -2,10 +2,44 @@
 .appContainer {
     min-height: 200px;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
     gap: .5rem;
     padding: 1rem;
     background: var(--figma-gray);
+    background: var(--primary-background);
+    border: 1px solid var(--border-gray);
+    color: var(--default-text-color);
     border-radius: var(--border-radius);
     overflow-y: scroll;
+    cursor: pointer;
+}
+
+.appContainer:hover {
+    background: var(--primary-button-hover);
+}
+
+.teamName {
+    text-transform: uppercase;
+    color: var(--subheading-text-color);
+    font-size: .75rem;
+    letter-spacing: .15ch;
+}
+.description {
+    font-size: .95rem;
+    overflow-y: auto;
+    position: relative;
+    line-height: 1.15rem;
+    letter-spacing: .05ch;
+}
+
+.ownerList {
+    display: -webkit-box;
+    font-size: .90rem;
+    padding-top: 1rem;
+    color: var(--subheading-text-color);
+    border-top: 1px solid var(--border-dark);
+    overflow: hidden;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    /* height: 1ch; */
 }

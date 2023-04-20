@@ -3,6 +3,48 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--figma-gray);
-    padding: .75rem;
+    background-color: var(--nav-background);
+    color: var(--nav-text-color);
+    padding: 1.15rem 1.75rem;
+    border-bottom: 1px solid var(--border-gray);
+}
+
+.logo {
+    display: inline-flex;
+    font-size: 1.45rem;
+    letter-spacing: .05ch;
+    gap: .25rem;
+}
+
+.odsLogo {
+    font-weight: 300;
+    letter-spacing: 0;
+}
+
+.profileIconButton {
+    fill: var(--nav-text-color);
+    height: 40px;
+    width: 40px;
+    cursor: pointer;
+}
+
+.profileIconButton:hover {
+    fill: var(--subheading-text-color);
+}
+
+.navOptions, .links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.links {
+    list-style: none;
+    border-right: 1px solid var(--nav-text-color);
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.link:hover {
+    color: var(--subheading-text-color);
 }

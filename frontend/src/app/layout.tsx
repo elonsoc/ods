@@ -1,14 +1,20 @@
 import Navbar from '@/ui/Navbar/Navbar';
 import Footer from '@/ui/Footer/Footer';
-import { Inter } from 'next/font/google';
+// import { Inter } from 'next/font/google';
 import styles from '@/styles/layout.module.css';
 import '../styles/globals.css';
 import { Metadata } from 'next';
 
-const inter = Inter({ subsets: ['latin'] });
+// const inter = Inter({ subsets: ['latin'] });
+import { Raleway } from 'next/font/google';
+
+const raleway = Raleway({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-	title: 'Elon ODS',
+	title: {
+		default: 'Elon ODS',
+		template: '%s | Elon ODS',
+	},
 	keywords:
 		"'data access, api provider, Elon University, open source, open data service, ods, elon'",
 	description:
@@ -23,7 +29,7 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<head></head>
-			<body className={inter.className}>
+			<body className={raleway.className}>
 				<div className={styles.container}>
 					<Navbar />
 					<main>{children}</main>
