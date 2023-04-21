@@ -16,3 +16,12 @@ run:
 	REDIS_URL=redis://localhost:6379 \
 	STATSD_URL=localhost:9125 \
 	go run ./...
+
+.PHONY: test
+test:
+	go test -v ./...
+
+.PHONY: test-coverage
+test-coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out

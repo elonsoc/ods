@@ -88,6 +88,9 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 // The endpoint for this handler is locations/v1/buildings
 // As of right now, This endpoint returns a list of
 // all the buildings and all of their attributes.
+//
+// It might be interesting to add a query parameter to this endpoint
+// for filtering the buildings by building type.
 func (be *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -103,7 +106,7 @@ func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		be.Svcs.Log.Error("Building not found:" + buildingId, nil)
+		be.Svcs.Log.Error("Building not found: "+buildingId, nil)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

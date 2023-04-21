@@ -51,7 +51,6 @@ func setup(t *testing.T) (*httptest.Server, *mocks.DbIFace,
 			t.Fatal(err)
 		}
 		defer resp.Body.Close()
-		t.Logf("Response: %s", string(respBody))
 		return resp, respBody
 	}
 	return ts, db, logger, stat, testRequest
@@ -94,4 +93,83 @@ func TestBuildingByIdHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Equal(t, mcewenBuildingMock, respBuilding)
+}
+
+func TestBuildingByIdHandlerNotFound(t *testing.T) {
+	// Arrange - setup the test
+	ts, db, log, stat, testRequest := setup(t)
+	defer ts.Close()
+
+	log.Mock.On("Error", mock.Anything, mock.Anything)
+
+	// Act - make the request
+	resp, body := testRequest(t, ts, http.MethodGet, "/buildings/nothere", nil)
+
+	// Assert - check the response
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	log.AssertCalled(t, "Error", "Building not found: nothere", mock.Anything)
+	// the following should, one day, be called.
+	stat.AssertNotCalled(t, "Increment", mock.Anything)
+	stat.AssertNotCalled(t, "TimeElapsed", mock.Anything)
+	db.AssertNotCalled(t, "GetBuildingById", mock.Anything)
+	assert.Empty(t, body)
+}
+
+func TestRootHandler(t *testing.T) {
+	// Arrange
+	ts, _, _, _, testRequest := setup(t)
+	defer ts.Close()
+
+	// we will, one day, make a call to the database to get all the buildings
+	// so it is mocked here.
+	// db.Mock.On("GetAllBuildings").Return([]buildings_v1.Building{
+	// 	{
+	// 		Name: "McEwen Dining Hall",
+	// 		Floors: []buildings_v1.Floor{
+	// 			{Name: "Floor 1", Level: 1, Rooms: []buildings_v1.Room{{Name: "Room 1", Level: 1}, {Name: "Room 2", Level: 1}}},
+	// 			{Name: "Floor 2", Level: 2, Rooms: []buildings_v1.Room{{Name: "Room 3", Level: 2}, {Name: "Room 4", Level: 2}}},
+	// 		},
+	// 		Location:     buildings_v1.LatLng{Lat: 37.422, Lng: -122.084},
+	// 		Address:      "1600 Amphitheatre Parkway, Mountain View, CA 94043",
+	// 		BuildingType: buildings_v1.BuildingTypeDining,
+	// 		Id:           "mcewen",
+	// 	},
+	// })
+
+	// Act - make the request
+	resp, body := testRequest(t, ts, http.MethodGet, "/buildings", nil)
+
+	// Assert - check the response
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+	assert.Contains(t, string(body), "mcewen")
+}
+
+func TestBuildingTypes(t *testing.T) {
+	// Arrange
+
+	buildingTypes := map[string]buildings_v1.BuildingType{
+		"Unknown":   buildings_v1.BuildingTypeUnknown,
+		"Residence": buildings_v1.BuildingTypeResidence,
+		"Dining":    buildings_v1.BuildingTypeDining,
+		"Office":    buildings_v1.BuildingTypeOffice,
+		"Academic":  buildings_v1.BuildingTypeAcademic,
+		"Retail":    buildings_v1.BuildingTypeRetail,
+		"Other":     buildings_v1.BuildingTypeOther,
+	}
+
+	mockBuildingWithIncorrectType := buildings_v1.Building{
+		BuildingType: 10,
+	}
+
+	// Act
+	// make sure we spell the strings correctly
+	for s, b := range buildingTypes {
+		// Assert
+		assert.Equal(t, s, b.String())
+	}
+
+	// test for default case
+	assert.Equal(t, "Unknown", mockBuildingWithIncorrectType.BuildingType.String())
 }
