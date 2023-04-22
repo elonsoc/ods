@@ -1,5 +1,5 @@
 export interface UserAppInformation {
-	title: string;
+	name: string;
 	description: string;
 	owners: string;
 	teamName: string;

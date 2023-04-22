@@ -2,9 +2,9 @@
 .appContainer {
     display: grid;
     /* grid-template-columns: repeat(3, 1fr); */
-    grid-template-columns: repeat(auto-fit, 250px);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     grid-template-rows: repeat(auto-fill, 250px);
-    gap: 1rem 3rem;
+    gap: 2rem 3rem;
     padding: 5rem 8%;
     position: relative;
     height: 100%;

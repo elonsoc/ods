@@ -1,21 +1,18 @@
 import styles from './AddAppModal.module.css';
 import { useState } from 'react';
 import { Raleway } from 'next/font/google';
+import { InformationDetails } from '../UserApps/UserApps';
+import { useRouter } from 'next/navigation';
 
 const raleway = Raleway({ subsets: ['latin'] });
-// const inter = ({ subsets: ['latin'] });
 
 interface ModalProps {
-	onAdd: (
-		name: string,
-		description: string,
-		owners: string,
-		teamName: string
-	) => void;
+	onAdd: (state: InformationDetails) => void;
 	onClose: (isClosed: boolean) => void;
 }
 
 const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
+	const router = useRouter();
 	const [state, setState] = useState({
 		name: '',
 		description: '',
@@ -33,18 +30,16 @@ const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
 
 	const handleSubmit = async (event: any) => {
 		event.preventDefault();
-		const result = await fetch('/api/applications', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(state),
-		});
-		const resJSON = await result.json();
-		console.log('success');
-		console.log(JSON.stringify(resJSON));
+		// const result = await fetch('http://localhost:3000/api/applications', {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json',
+		// 	},
+		// 	body: JSON.stringify(state),
+		// });
+		// const resJSON = await result.json();
 		// setSuccess(true); // -> sets sucess alert for system transparency UX
-		onAdd(state.name, state.description, state.owners, state.teamName);
+		onAdd(state);
 	};
 
 	return (

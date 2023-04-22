@@ -1,0 +1,9 @@
+.applicationContainer {
+    display: grid;
+    color: var(--default-text-color);
+    max-width: 58rem;
+    padding: 2rem 8%;
+    margin: 0 auto;
+    gap: 1rem;
+}
+

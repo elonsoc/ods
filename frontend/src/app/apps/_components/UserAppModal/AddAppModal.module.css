@@ -58,7 +58,7 @@
 
 .inputWrapper input[type="text"] {
     padding: .65rem .5rem;
-    background: rgb(52, 52, 52);
+    background: var(--input-background-color);
     border: none;
     border-radius: 5px;
     margin: .2rem 0;
@@ -92,42 +92,22 @@
     cursor: pointer;
 }
 
-/* .closeTextButton {
-    font-size: 1rem;
-    background: none;
-    border: none;
-    color: var(--default-text-color);
-    text-decoration: underline;
-    cursor: pointer;
-} */
-
 .closeTextButton {
     font-size: 1rem;
     padding: .6rem 1rem;
-    background-color: var(--nav-background);
-    color: var(--nav-text-color);
-    border: 1px solid var(--border-gray);
+    background-color: var(--primary-background);
+    color: var(--heading-text-color);
+    border: 1px solid var(--application-border);
     border-radius: var(--border-radius);
     letter-spacing: .10ch;
     cursor: pointer;
 }
 
-/* .addButton {
-    font-size: 1rem;
-    padding: .6rem 1rem;
-    background-color: var(--nav-background);
-    color: var(--nav-text-color);
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    letter-spacing: .10ch;
-    cursor: pointer;
-} */
-
 .addButton {
     font-size: 1rem;
     padding: .6rem 1rem;
-    background-color: var(--nav-text-color);
-    color: var(--nav-background);
+    background-color: var(--heading-text-color);
+    color: var(--primary-background);
     border: 1px solid var(--border-gray);
     border-radius: var(--border-radius);
     letter-spacing: .10ch;

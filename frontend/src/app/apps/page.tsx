@@ -1,7 +1,94 @@
 'use client';
 
-import Apps from '@/app/apps/_components/UserApps/UserApps';
+import Apps, {
+	InformationDetails,
+} from '@/app/apps/_components/UserApps/UserApps';
+import { AppInfo } from './_components/UserApp/UserApp';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import AddAppModal from './_components/UserAppModal/AddAppModal';
+import styles from './_components/UserApps/UserApps.module.css';
 
 export default function App() {
-	return <Apps />;
+	const router = useRouter();
+	const [applications, setApplications] = useState([]);
+	const [modalActive, setModalActive] = useState<boolean>(false);
+	const [loading, setLoading] = useState(true);
+	const [hasApplications, setHasApplications] = useState(false);
+
+	async function fetchApplications() {
+		const res = await fetch('http://localhost:3000/api/applications', {
+			cache: 'no-store',
+		});
+		const applications = await res.json();
+		setApplications(applications);
+		setHasApplications(applications.length);
+		setLoading(false);
+	}
+
+	useEffect(() => {
+		fetchApplications();
+	}, []);
+
+	async function handleAppSubmit(appInfo: InformationDetails) {
+		const result = await fetch('http://localhost:3000/api/applications', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(appInfo),
+		});
+		setModalActive(false);
+		fetchApplications();
+		router.refresh();
+	}
+
+	if (loading) {
+		return <h1>Loading for now</h1>;
+	}
+
+	return (
+		<>
+			{!hasApplications ? (
+				<NoAppsPage setModalActive={setModalActive} />
+			) : (
+				<div className={styles.appContainer}>
+					{hasApplications && (
+						<Apps applications={applications} handleSubmit={handleAppSubmit} />
+					)}
+					<button
+						type='button'
+						onClick={() => setModalActive(true)}
+						className={`${styles.button} ${styles.topRight}`}
+					>
+						Add App
+					</button>
+				</div>
+			)}
+
+			{modalActive && (
+				<AddAppModal onAdd={handleAppSubmit} onClose={setModalActive} />
+			)}
+		</>
+	);
+}
+
+function NoAppsPage({ setModalActive }: any) {
+	return (
+		<div className={styles.noAppContainer}>
+			<header className={styles.statusContainer}>
+				<h1 className={styles.statusTitle}>No Apps?</h1>{' '}
+				<p className={styles.statusDescription}>
+					You currently have no registered applications.
+				</p>
+			</header>
+			<button
+				type='button'
+				onClick={() => setModalActive(true)}
+				className={styles.button}
+			>
+				Register an Application
+			</button>
+		</div>
+	);
 }

@@ -15,9 +15,11 @@
   --border-gray: transparent;
   --border-radius: 12px;
   --modal-background: rgba(0, 0, 0, .3); 
-  --input-background-color: var(--figma-gray);
   --input-text-color: #171717;
+  --input-background-color: var(--figma-gray);
   --primary-button-hover: rgb(22, 22, 22); 
+  --application-border: #0A0A0A;
+  --application-hover: #e8e8e8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,8 +33,11 @@
     --border-gray: #3C4257;
     --modal-background: rgba(69, 69, 69, 0.3); 
     --input-text-color: #FAFAFA;
+    --input-background-color: rgb(52, 52, 52);
     --primary-button-hover: rgb(22, 22, 22); 
     --border-dark: #5b5b5b;
+    --application-border: #5b5b5b;
+    --application-hover: rgb(22, 22, 22);
   }
 }
 
