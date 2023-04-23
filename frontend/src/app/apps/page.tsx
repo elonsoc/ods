@@ -3,11 +3,11 @@
 import Apps, {
 	InformationDetails,
 } from '@/app/apps/_components/UserApps/UserApps';
-import { AppInfo } from './_components/UserApp/UserApp';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddAppModal from './_components/UserAppModal/AddAppModal';
-import styles from './_components/UserApps/UserApps.module.css';
+import styles from '@/styles/pages/applicationGallery.module.css';
+import Loader from '@/ui/Loader/Loader';
 
 export default function App() {
 	const router = useRouter();
@@ -44,7 +44,7 @@ export default function App() {
 	}
 
 	if (loading) {
-		return <h1>Loading for now</h1>;
+		return <Loader />;
 	}
 
 	return (

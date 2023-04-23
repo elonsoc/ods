@@ -1,6 +1,6 @@
 'use client';
 
-import styles from '@/styles/home.module.css';
+import styles from '@/styles/pages/home.module.css';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Raleway } from 'next/font/google';
@@ -34,7 +34,7 @@ export default function Home() {
 					viewBox='0 0 24 24'
 					className={styles.rightArrowSVG}
 				>
-					<title>arrow-right-thin</title>
+					<title>Forward</title>
 					<path d='M14 16.94V12.94H5.08L5.05 10.93H14V6.94L19 11.94Z' />
 				</svg>
 			</Link>

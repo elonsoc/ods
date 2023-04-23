@@ -1,0 +1,53 @@
+.applicationContainer, .skeletonContainer {
+    display: grid;
+    color: var(--default-text-color);
+    max-width: 58rem;
+    padding: 2rem 8%;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+}
+
+.leftArrow {
+    fill: var(--subheading-text-color);
+    width: 30px;
+    height: fit-content;
+}
+
+.backLink:hover{
+    text-decoration: underline;
+}
+
+.skeleton {
+    border-radius: var(--border-radius);
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: hsl(200, 20%, 80%);
+    }
+    100% {
+        background-color: hsl(200, 20%, 95%);
+    }
+}
+
+.skeletonTeam {
+    width: 30%;
+    height: .9rem; 
+}
+
+.skeletonName {
+    height: 3rem;
+    margin: .5rem 0;
+}
+
+.skeletonText {
+    width: 100%;
+    height: 1.2rem;
+}
+

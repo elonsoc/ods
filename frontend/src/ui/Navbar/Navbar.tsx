@@ -16,7 +16,7 @@ const Navbar: React.FunctionComponent = () => {
 						<Link href='/'>Docs</Link>
 					</li>
 					<li className={styles.link}>
-						<Link href='/'>Apps</Link>
+						<Link href='/apps'>Apps</Link>
 					</li>
 				</ul>
 				<div className={styles.profileIconButton}>

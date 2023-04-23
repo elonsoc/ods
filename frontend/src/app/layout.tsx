@@ -1,11 +1,8 @@
 import Navbar from '@/ui/Navbar/Navbar';
 import Footer from '@/ui/Footer/Footer';
-// import { Inter } from 'next/font/google';
-import styles from '@/styles/layout.module.css';
-import '../styles/globals.css';
+import styles from '@/styles/pages/layout.module.css';
+import '../styles/global/globals.css';
 import { Metadata } from 'next';
-
-// const inter = Inter({ subsets: ['latin'] });
 import { Raleway } from 'next/font/google';
 
 const raleway = Raleway({ subsets: ['latin'] });
