@@ -45,13 +45,13 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 // create a registration structure (This is not entirely necessary, but it makes things easier)
 // Contents of this might change as the project progresses
 type application struct {
-	AppName     string `json:"appName"`
-	AppID       string `json:"appID"`
-	Description string `json:"description"`
-	Owners      string `json:"owners"`
-	TeamName    string `json:"teamName"`
-	ApiKey      string `json:"apiKey"`
-	IsValid     bool   `json:"isValid"`
+	AppName     string `json:"appName" 		db:"app_name"`
+	AppID       string `json:"appID" 		db:"app_ID"`
+	Description string `json:"description" 	db:"description"`
+	Owners      string `json:"owners" 		db:"owners"`
+	TeamName    string `json:"teamName" 	db:"team_name"`
+	ApiKey      string `json:"apiKey" 		db:"api_key"`
+	IsValid     bool   `json:"isValid" 		db:"is_valid"`
 }
 
 // This function handles the registration form. It is called when the user submits a registration form.
@@ -82,7 +82,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	defer tx.Rollback(ctx)
 
 	// Getting prepared statements ready to use later
-	keyStmt, err := tx.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (id, apiKey, isValid) VALUES ($1, $2, $3)")
+	keyStmt, err := tx.Exec(ctx, "insert_into_keys", "INSERT INTO keys (id, apiKey, isValid) VALUES ($1, $2, $3)")
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error preparing database statement")
