@@ -81,22 +81,8 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
-	// Getting prepared statements ready to use later
-	keyStmt, err := tx.Exec(ctx, "insert_into_keys", "INSERT INTO keys (id, apiKey, isValid) VALUES ($1, $2, $3)")
-	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error preparing database statement")
-		return
-	}
-	appStmt, err := tx.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (id, appName, description, owners, teamName) VALUES ($1, $2, $3, $4, $5)")
-	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error preparing database statement")
-		return
-	}
-
 	// Storing info in the keys table
-	_, err = keyStmt.Exec(ctx, app.AppID, app.ApiKey, app.IsValid)
+	_, err = tx.Exec(ctx, "insert_into_keys", app.AppID, app.ApiKey, app.IsValid)
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (keys table)")
@@ -104,8 +90,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Storing info in the applications table
-	query2 := `INSERT INTO applications (id, appName, description, owners, teamName) VALUES ($1, $2, $3, $4, $5)`
-	_, err = tx.Exec(ctx, query2, app.AppID, app.AppName, app.Description, app.Owners, app.TeamName)
+	_, err = tx.Exec(ctx, "insert_into_applications", app.AppID, app.AppName, app.Description, app.Owners, app.TeamName)
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (applications table)")
@@ -126,14 +111,29 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 // This function will return a list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	// How do we get the user's email?
-	query := "SELECT appName, appID, description, owners FROM applications WHERE owners=$1" // Need to fix this so that it checks if the string in the owners column contains the user's email
-	rows, err := ar.Svcs.Db.Query(ctx, query, "email")
+	rows, err := ar.Svcs.Db.Query(ctx, "SELECT * FROM applications")
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error querying database for user's applications")
 		return
 	}
+	defer rows.Close()
+
+	apps := []application{}
+
+	for rows.Next() {
+		app := application{}
+		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
+		if err != nil {
+			ar.Svcs.Logger.Error(err)
+			ar.Svcs.Logger.Info("Error scanning database rows")
+			return
+		}
+		apps = append(apps, app)
+	}
+
+	
+
 	// How do I package this information into the response?
 
 }
@@ -167,7 +167,7 @@ func (ar *ApplicationsRouter) apiKeyGenerate() string {
 		key = "ods_key_" + base62
 
 		// query the database to see if the key is unique
-		query := `SELECT apiKey FROM keys WHERE id=$1`
+		query := `SELECT * FROM keys WHERE api_key = $1`
 		rows, err := ar.Svcs.Db.Query(ctx, query, key)
 		if err != nil {
 			ar.Svcs.Logger.Error(err)
@@ -215,7 +215,7 @@ func (ar *ApplicationsRouter) appIDGenerate() string {
 		appID = "ods_app_" + base62
 
 		// query the database to see if the key is unique
-		query := `SELECT id FROM keys WHERE id=$1`
+		query := `SELECT * FROM keys WHERE app_ID = $1`
 		rows, err := ar.Svcs.Db.Query(ctx, query, appID)
 		if err != nil {
 			ar.Svcs.Logger.Error(err)
