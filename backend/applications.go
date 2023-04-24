@@ -45,13 +45,13 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 // create a registration structure (This is not entirely necessary, but it makes things easier)
 // Contents of this might change as the project progresses
 type application struct {
-	appName     string
-	appID       string
-	description string
-	owners      string
-	teamName    string
-	apiKey      string
-	isValid     bool
+	AppName     string `json:"appName"`
+	AppID       string `json:"appID"`
+	Description string `json:"description"`
+	Owners      string `json:"owners"`
+	TeamName    string `json:"teamName"`
+	ApiKey      string `json:"apiKey"`
+	IsValid     bool   `json:"isValid"`
 }
 
 // This function handles the registration form. It is called when the user submits a registration form.
@@ -62,13 +62,13 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	// Create a new Application struct
 	app := application{}
 	// parse the request body into the registration variable
-	app.apiKey = ar.apiKeyGenerate()
-	app.appName = r.FormValue("title")
-	app.description = r.FormValue("description")
-	app.owners = r.FormValue("owners")
-	app.teamName = r.FormValue("teamName")
-	app.appID = ar.appIDGenerate()
-	app.isValid = true
+	app.ApiKey = ar.apiKeyGenerate()
+	app.AppName = r.FormValue("title")
+	app.Description = r.FormValue("description")
+	app.Owners = r.FormValue("owners")
+	app.TeamName = r.FormValue("teamName")
+	app.AppID = ar.appIDGenerate()
+	app.IsValid = true
 
 	/* Storing information in the Database*/
 
@@ -96,7 +96,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Storing info in the keys table
-	_, err = keyStmt.Exec(ctx, app.appID, app.apiKey, app.isValid)
+	_, err = keyStmt.Exec(ctx, app.AppID, app.ApiKey, app.IsValid)
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (keys table)")
@@ -105,7 +105,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 
 	// Storing info in the applications table
 	query2 := `INSERT INTO applications (id, appName, description, owners, teamName) VALUES ($1, $2, $3, $4, $5)`
-	_, err = tx.Exec(ctx, query2, app.appID, app.appName, app.description, app.owners, app.teamName)
+	_, err = tx.Exec(ctx, query2, app.AppID, app.AppName, app.Description, app.Owners, app.TeamName)
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error storing new app info in database (applications table)")
