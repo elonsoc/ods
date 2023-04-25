@@ -11,9 +11,9 @@ export default function Home() {
 	const [validUser, setValidUser] = useState<boolean>(false);
 	return (
 		<div className={styles.container}>
-			<header>
-				<h2 className={styles.elonSubheading}>Elon University</h2>
-			</header>
+			<h2 className={`${styles.subheading} ${styles.elonSubheading}`}>
+				Elon University
+			</h2>
 			<h1 className={styles.introTitle}>Open Data Service</h1>
 			<p className={styles.heroDescription}>
 				Access data about Elon University's buildings, courses, and more through
@@ -21,10 +21,7 @@ export default function Home() {
 				innovative applications for the Elon community.
 			</p>
 
-			<Link
-				href={validUser ? '/apps' : '/denied'}
-				className={`${raleway.className} ${styles.loginButton}`}
-			>
+			<Link href={validUser ? '/apps' : '/denied'} className={styles.button}>
 				Get Started
 			</Link>
 			<Link href='/' className={styles.learnMoreLink}>
@@ -46,6 +43,73 @@ export default function Home() {
 				></input>
 				<label htmlFor='validUser'>Valid User</label>
 			</div>
+			<section className={styles.accessibleDataSection}>
+				<div className={styles.dataSectionInfo}>
+					<h3 className={`${styles.subheading} ${styles.dataFormatSubheading}`}>
+						Data Formats
+					</h3>
+					<h2 className={styles.dataFormatHeading}>Easily Accessible Data</h2>
+					<p className={styles.dataFormatDescription}>
+						Elon ODS provides a simple and easy way to access comprehensive data
+						about Elon University through our API.
+						<br />
+						<br />
+						With just a few lines of code, you can retrieve information about
+						buildings, courses, and more in a format that's easy to integrate
+						into your applications.
+						<br />
+						<br />
+						Our API is designed to be developer-friendly, with standardized
+						endpoints and data formats that make it simple to get the data you
+						need. Whether you're a student, researcher, or developer, our API
+						provides a powerful tool for accessing data about Elon University.
+						<br />
+						<br />
+						Click the "Getting Started" button below to learn more about how to
+						get started with our API and start accessing the data you need.
+					</p>
+					<Link
+						href='/'
+						className={`${styles.button} ${styles.dataFormatButton}`}
+					>
+						Data Formats
+					</Link>
+				</div>
+				<div className={styles.jsonContainer}>
+					<p className={styles.jsonHeader}>
+						<strong>JSON</strong>
+					</p>
+					<pre className={styles.jsonCode}>
+						<code>
+							{`{
+  course_id: 1234,
+  name: Computer Science II,
+  description: This course continues the study of object-oriented programming with an emphasis on graphical user interfaces, event handling...,
+  instructor: Ryan Mattfeld,
+  schedule: [
+	{
+	  day: Monday,
+	  start_time: 12:30 PM,
+	  end_time: 1:40 PM
+	},
+	{
+	  day: Wednesday,
+	  start_time: 12:30 PM,
+	  end_time: 1:40 PM
+	},
+  ],
+  rotation : {
+	  semesters: [Fall, Spring]
+	  periodical: yearly
+  },
+  location: Mooney Building, Room 202,
+  credits: 4,
+  prerequisites: [CSC 1300]
+}`}
+						</code>
+					</pre>
+				</div>
+			</section>
 		</div>
 	);
 }

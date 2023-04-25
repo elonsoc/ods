@@ -20,6 +20,7 @@
   --primary-button-hover: rgb(22, 22, 22); 
   --application-border: #0A0A0A;
   --application-hover: #e8e8e8;
+  --code-color: #e8e8e8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +39,7 @@
     --border-dark: #5b5b5b;
     --application-border: #5b5b5b;
     --application-hover: rgb(22, 22, 22);
+    --code-color: #9c9c9c;
   }
 }
 

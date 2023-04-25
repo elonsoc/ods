@@ -1,43 +1,44 @@
 .container {
-    display: grid;
-    place-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     height: 100%;
     padding: 1rem 8%;
-    /* gap: 1rem; */
     margin: 0 auto;
+    margin-top: 7.5rem;
     position: relative;
 }
 
-.elonSubheading {
-    text-transform: uppercase;
-    color: var(--subheading-text-color);
+.subheading {
     font-size: 1rem;
     letter-spacing: .15ch;
+    text-transform: uppercase;
+    color: var(--subheading-text-color);
+}
+
+.elonSubheading {
     text-align: center;
 }
 
 .introTitle {
-    display: inline-block;
     font-size: 2.5rem;
     font-weight: 500;
     letter-spacing: .10ch;
     text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
     color: var(--heading-text-color);
 }
 
 .heroDescription {
     color: var(--default-text-color);
     text-align: center;
-    margin: 1rem 0;
+    margin: 1rem auto;
     font-weight: 300;
     letter-spacing: .10ch;
     max-width: 750px;
     line-height: 2.25ch;
 }
 
-.loginButton {
+.button {
     padding: .6rem 3rem;
     margin: 0 auto;
     background-color: var(--nav-background);
@@ -47,7 +48,7 @@
     letter-spacing: .10ch;
 }
 
-.loginButton:hover {
+.button:hover {
     background: var(--primary-button-hover);
 }
 
@@ -80,6 +81,72 @@
     margin: 1rem auto;
 }
 
+.accessibleDataSection {
+    max-width: 1100px;
+    margin: 1rem auto;
+    margin-top: 7.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.dataSectionInfo {
+    flex: 0 1 50%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding-right: 2rem;
+    color: var(--default-text-color);
+    font-weight: 300;
+    letter-spacing: .10ch;
+    line-height: 2.25ch;
+}
+
+.dataFormatSubheading {
+    font-size: .90rem;
+}
+
+.dataFormatHeading {
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.dataFormatButton {
+    margin: 1rem 0;
+    font-size: .90rem;
+    width: fit-content;
+    padding: .6rem 1rem;
+}
+
+.jsonContainer {
+    flex: 0 1 50%;
+    border: 1px solid var(--application-border);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background-color: var(--nav-background);
+}
+
+.jsonHeader {
+    color: var(--code-color);
+    font-size: .90rem;
+    padding-bottom: .5rem;
+    margin-bottom: .5rem;
+    border-bottom: 1px solid var(--subheading-text-color);
+}
+
+.jsonCode {
+    display: flex;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    color: var(--code-color);
+    font-size: .8rem;
+    font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+}
+
 @media (max-width: 600px) {
     .elonSubheading {
         font-size: .90rem;
@@ -89,5 +156,15 @@
     }
     .heroDescription {
         font-size: .90rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .accessibleDataSection {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .dataSectionInfo {
+        padding: 0;
     }
 }

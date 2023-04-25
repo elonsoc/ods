@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 		id: applications.length ? applications[applications.length - 1].id + 1 : 1,
 		...body,
 	});
-	console.log(applications);
+	// console.log(applications);
 	return NextResponse.json(body);
 	// const endpoint = 'http://localhost:1337/applications';
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 	// const res = await fetch(`http://localhost:1337/applications/${id}`, {
 	// 	headers: {
 	// 		'Content-Type': 'application/json',
-	// //      'credentials': 'include',
+	//      'credentials': 'include',
 	// 	},
 	// });
 	// const application = await res.json();
