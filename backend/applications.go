@@ -9,7 +9,6 @@ import (
 
 	"github.com/elonsoc/center/backend/service"
 	"github.com/go-chi/chi/v5"
-	_ "github.com/lib/pq"
 )
 
 /*
