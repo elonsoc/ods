@@ -2,13 +2,28 @@ import React from 'react';
 import styles from '@/styles/pages/application.module.css';
 import Link from 'next/link';
 
-async function fetchApplication(id: any) {
-	const res = await fetch(`http://localhost:3000/api/applications?id=${id}`);
-	const application = await res.json();
-	return application[0];
+interface ApplicationProps {
+	params: {
+		id: string;
+	};
 }
 
-const ApplicationPage = async ({ params: { id } }: any) => {
+interface Application {
+	name: string;
+	description: string;
+	owners: string;
+	teamName: string;
+}
+
+async function fetchApplication(id: String): Promise<Application> {
+	const res = await fetch(`http://localhost:3000/api/applications?id=${id}`, {
+		cache: 'no-cache',
+	});
+	const [application] = await res.json();
+	return application;
+}
+
+const ApplicationPage = async ({ params: { id } }: ApplicationProps) => {
 	const { name, description, owners, teamName } = await fetchApplication(id);
 	return (
 		<div className={styles.applicationContainer}>
@@ -30,10 +45,5 @@ const ApplicationPage = async ({ params: { id } }: any) => {
 		</div>
 	);
 };
-
-// slash login, redirect user to Elon -> login blah blah blah -> redirected to some website
-// push them to dashboard
-
-// if have token/otherwise unauthorized
 
 export default ApplicationPage;
