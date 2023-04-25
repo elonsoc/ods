@@ -1,18 +1,13 @@
 import styles from './AddAppModal.module.css';
-import { useState } from 'react';
-import { Raleway } from 'next/font/google';
-import { InformationDetails } from '../UserApps/UserApps';
-import { useRouter } from 'next/navigation';
-
-const raleway = Raleway({ subsets: ['latin'] });
+import { FormEvent, useState } from 'react';
+import { UserAppInformation } from '@/app/api/applications/application.d';
 
 interface ModalProps {
-	onAdd: (state: InformationDetails) => void;
+	onAdd: (state: UserAppInformation) => void;
 	onClose: (isClosed: boolean) => void;
 }
 
 const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
-	const router = useRouter();
 	const [state, setState] = useState({
 		name: '',
 		description: '',
@@ -20,25 +15,18 @@ const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
 		teamName: ``,
 	});
 
-	const handleInputChange = (event: any) => {
-		const { name, value } = event.target;
+	const handleInputChange = (event: FormEvent<HTMLInputElement>): void => {
+		const { name, value } = event.currentTarget;
 		setState((prevInfo) => ({
 			...prevInfo,
 			[name]: value,
 		}));
 	};
 
-	const handleSubmit = async (event: any) => {
+	const handleSubmit = async (
+		event: FormEvent<HTMLFormElement>
+	): Promise<void> => {
 		event.preventDefault();
-		// const result = await fetch('http://localhost:3000/api/applications', {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 	},
-		// 	body: JSON.stringify(state),
-		// });
-		// const resJSON = await result.json();
-		// setSuccess(true); // -> sets sucess alert for system transparency UX
 		onAdd(state);
 	};
 
@@ -46,9 +34,7 @@ const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
 		<div className={styles.fullScreenContainer}>
 			<div className={styles.modalWindow}>
 				<header className={styles.formHeader}>
-					<h1 className={`${raleway.className} ${styles.modalTitle}`}>
-						Application Registration
-					</h1>
+					<h1 className={styles.modalTitle}>Application Registration</h1>
 					<p className={styles.requirementText}>
 						Required input fields are marked with{' '}
 						<span className={styles.requiredRed}>*</span>

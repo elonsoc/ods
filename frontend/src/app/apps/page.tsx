@@ -1,17 +1,16 @@
 'use client';
 
-import Apps, {
-	InformationDetails,
-} from '@/app/apps/_components/UserApps/UserApps';
+import Apps from '@/app/apps/_components/UserApps/UserApps';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddAppModal from './_components/UserAppModal/AddAppModal';
 import styles from '@/styles/pages/applicationGallery.module.css';
 import Loader from '@/ui/Loader/Loader';
+import { UserAppInformation } from '../api/applications/application.d';
 
 export default function App() {
 	const router = useRouter();
-	const [applications, setApplications] = useState([]);
+	const [applications, setApplications] = useState<UserAppInformation[]>([]);
 	const [modalActive, setModalActive] = useState<boolean>(false);
 	const [loading, setLoading] = useState(true);
 	const [hasApplications, setHasApplications] = useState(false);
@@ -22,7 +21,7 @@ export default function App() {
 		});
 		const applications = await res.json();
 		setApplications(applications);
-		setHasApplications(applications.length);
+		setHasApplications(applications.length > 0);
 		setLoading(false);
 	}
 
@@ -30,7 +29,7 @@ export default function App() {
 		fetchApplications();
 	}, []);
 
-	async function handleAppSubmit(appInfo: InformationDetails) {
+	async function handleAppSubmit(appInfo: UserAppInformation) {
 		const result = await fetch('http://localhost:3000/api/applications', {
 			method: 'POST',
 			headers: {
@@ -73,7 +72,11 @@ export default function App() {
 	);
 }
 
-function NoAppsPage({ setModalActive }: any) {
+interface NoAppsPageProps {
+	setModalActive: (active: boolean) => void;
+}
+
+function NoAppsPage({ setModalActive }: NoAppsPageProps) {
 	return (
 		<div className={styles.noAppContainer}>
 			<header className={styles.statusContainer}>

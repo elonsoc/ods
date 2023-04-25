@@ -3,9 +3,6 @@
 import styles from '@/styles/pages/home.module.css';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Raleway } from 'next/font/google';
-
-const raleway = Raleway({ subsets: ['latin'] });
 
 export default function Home() {
 	const [validUser, setValidUser] = useState<boolean>(false);
