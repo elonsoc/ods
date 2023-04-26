@@ -47,8 +47,8 @@ export default function Home() {
 					</h3>
 					<h2 className={styles.dataFormatHeading}>Easily Accessible Data</h2>
 					<p className={styles.dataFormatDescription}>
-						Open Data Service provides a simple and easy way to access
-						comprehensive data about Elon University through our API.
+						Elon ODS provides a simple and easy way to access comprehensive data
+						about Elon University through our API.
 						<br />
 						<br />
 						With just a few lines of code, you can retrieve information about

@@ -7,9 +7,6 @@ import AddAppModal from './_components/UserAppModal/AddAppModal';
 import styles from '@/styles/pages/applicationGallery.module.css';
 import Loader from '@/ui/Loader/Loader';
 import { UserAppInformation } from '../api/applications/application.d';
-import { config } from '@/config/Constants';
-
-const URL = config.url.API_URL;
 
 export default function App() {
 	const router = useRouter();
@@ -19,8 +16,7 @@ export default function App() {
 	const [hasApplications, setHasApplications] = useState(false);
 
 	async function fetchApplications() {
-		console.log(URL);
-		const res = await fetch(`${URL}/api/applications`, {
+		const res = await fetch('http://localhost:3000/api/applications', {
 			cache: 'no-store',
 		});
 		const applications = await res.json();

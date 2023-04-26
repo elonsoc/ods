@@ -1,5 +1,0 @@
-.docsContainer {
-    display: grid;
-    grid-template-columns: minmax(200px, 300px) 1fr;
-    height: 100%;
-}

@@ -2,9 +2,6 @@ import React from 'react';
 import styles from '@/styles/pages/application.module.css';
 import Link from 'next/link';
 import { UserAppInformation } from '@/app/api/applications/application.d';
-import { config } from '@/config/Constants';
-
-const URL = config.url.API_URL;
 
 interface ApplicationProps {
 	params: {
@@ -13,7 +10,7 @@ interface ApplicationProps {
 }
 
 async function fetchApplication(id: String): Promise<UserAppInformation> {
-	const res = await fetch(`${URL}/api/applications?id=${id}`, {
+	const res = await fetch(`http://localhost:3000/api/applications?id=${id}`, {
 		cache: 'no-cache',
 	});
 	const [application] = await res.json();

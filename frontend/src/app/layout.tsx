@@ -9,8 +9,8 @@ const raleway = Raleway({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
 	title: {
-		default: 'Open Data Service',
-		template: '%s | ODS',
+		default: 'Elon ODS',
+		template: '%s | Elon ODS',
 	},
 	keywords:
 		"'data access, api provider, Elon University, open source, open data service, ods, elon'",
@@ -30,7 +30,7 @@ export default function RootLayout({
 				<div className={styles.container}>
 					<Navbar />
 					<main>{children}</main>
-					{/* <Footer /> */}
+					<Footer />
 				</div>
 			</body>
 		</html>
