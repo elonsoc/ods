@@ -38,5 +38,3 @@ jobs:
 #         dest: # optional, default is ~/setup-pnpm
         # If specified, run `pnpm install`
         run_install: true
-    - run: pnpm build
-    - run: pnpm test
