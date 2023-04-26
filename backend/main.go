@@ -6,14 +6,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
-	"github.com/crewjam/saml/samlsp"
-	locations "github.com/elonsoc/center/backend/locations"
-	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
+	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"github.com/smira/go-statsd"
+	statsd "github.com/smira/go-statsd"
+
+	"github.com/crewjam/saml/samlsp"
+	locations "github.com/elonsoc/ods/backend/locations"
+	"github.com/elonsoc/ods/backend/service"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user
@@ -24,7 +26,7 @@ var IdentityKeys = map[string]string{
 }
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
+func CheckAPIKey() func(next http.Handler) http.Handler {
 	// this mocks a database of API keys
 	APIKEYS := map[string]bool{
 		"elon_ods:12345": true,
@@ -56,24 +58,23 @@ func CheckAPIKey(log *logrus.Logger) func(next http.Handler) http.Handler {
 
 // func(next http.Handler) http.Handler
 
-func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
+func CheckIdentity() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			log.Info("Checking identity")
 			token_cookie, err := r.Cookie("identity")
 			if err != nil {
-				log.Error(err)
+				// may log this?
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			auth := token_cookie.Value
 			if auth == "" {
-				log.Error("no auth")
+
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			if IdentityKeys[auth] == "" {
-				log.Println("no identity key associated with token")
+
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
@@ -82,7 +83,7 @@ func CheckIdentity(log *logrus.Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handler) http.Handler {
+func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// pass along the http request before we log it
@@ -91,20 +92,19 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 			next.ServeHTTP(ww, r)
 
 			scheme := "http"
-
 			if r.TLS != nil {
 				scheme = "https"
 			}
 
-			log.WithFields(logrus.Fields{
+			log.Info("Request received", logrus.Fields{
 				"method":     r.Method,
 				"path":       r.URL.Path,
 				"request_id": middleware.GetReqID(r.Context()),
 				"ip":         r.RemoteAddr,
 				"scheme":     scheme,
 				"status":     ww.Status(),
-			}).Info("Request received")
-			stat.Incr("request", 1, statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
+			})
+			stat.Increment("request", statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
 		}
 
 		return http.HandlerFunc(fn)
@@ -116,6 +116,7 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
 func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string) chi.Router {
+	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
 	// in the future, we could split up the apis into separate services
@@ -125,6 +126,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
 	svc := service.NewService(loggingURL, databaseURL, statsdURL)
+	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
 	r := chi.NewRouter()
@@ -133,7 +135,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This means that the first middleware that is declared will be the last one to be executed.
 
 	// middleware.Logger prints a log line for each request (access log)
-	r.Use(CustomLogger(svc.Logger, svc.Stat))
+	r.Use(CustomLogger(svc.Log, svc.Stat))
 	r.Use(middleware.RequestID)
 	// middleware.RealIP is used to get the real IP address of the client
 	r.Use(middleware.RealIP)
@@ -151,15 +153,15 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Mount("/saml", r.Group(func(r chi.Router) {
 		r.Use(middleware.NoCache)
 
-		r.Get("/metadata", svc.Saml.ServeMetadata)
-		r.Post("/acs", svc.Saml.ServeACS)
+		r.Get("/metadata", samlMiddleware.ServeMetadata)
+		r.Post("/acs", samlMiddleware.ServeACS)
 	}))
 
 	// this group is for the API that will be used by applications to access the data
 	r.Group(func(r chi.Router) {
 		// This custom middleware checks the Authorization header for a valid API key
 		// and if it's not valid, it returns a 401 Unauthorized error
-		r.Use(CheckAPIKey(svc.Logger))
+		r.Use(CheckAPIKey())
 
 		// This get request is just a simple ping endpoint to test that the server is running
 		// and that the API key is valid.
@@ -172,7 +174,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 
 	// This represents endpoints that humans will access with their browser and thus need to affiliate themselves with Elon University
 	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		r.Use(svc.Saml.RequireAccount)
+		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
@@ -180,7 +182,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 		})
 	}))
 
-	svc.Logger.Info("Server running on port", servicePort)
+	svc.Log.Info("Server running on port "+servicePort, nil)
+	svc.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
 }
 
@@ -213,7 +216,8 @@ func main() {
 		log.Fatal("statsd url not set")
 	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
+		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
 	if err != nil {
 		fmt.Println(err)
 	}

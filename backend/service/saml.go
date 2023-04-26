@@ -1,4 +1,4 @@
-package authentication
+package service
 
 import (
 	"context"
@@ -11,7 +11,15 @@ import (
 	"github.com/crewjam/saml/samlsp"
 )
 
-func InitializeSaml() *samlsp.Middleware {
+type Saml struct {
+	saml *samlsp.Middleware
+}
+
+type SamlIFace interface {
+	GetSamlMiddleware() *samlsp.Middleware
+}
+
+func initializeSaml(log LoggerIFace) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair("myservice.cert", "myservice.key")
 	if err != nil {
 		panic(err) // TODO handle error
@@ -46,5 +54,11 @@ func InitializeSaml() *samlsp.Middleware {
 		IDPMetadata: idpMetadata,
 	})
 
-	return samlSP
+	return &Saml{
+		saml: samlSP,
+	}
+}
+
+func (s *Saml) GetSamlMiddleware() *samlsp.Middleware {
+	return s.saml
 }

@@ -27,8 +27,8 @@ jobs:
       - name: check test coverage
         uses: vladopajic/go-test-coverage@v2
         with:
-          profile: cover.out
-          local-prefix: ./
+          profile: ./backend/cover.out
+          local-prefix: github.com/elonsoc/ods
           threshold-file: 80
           threshold-package: 80
           threshold-total: 95
