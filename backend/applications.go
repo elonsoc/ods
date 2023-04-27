@@ -12,12 +12,13 @@ import (
 )
 
 /*
-	This file deals with application registration and everything that comes with it.
+	This file deals with all things applications
 	- recieving the registration form
-	- generating a project ID
-	- generating an API key
+	- generating a project ID and an API key
 	- storing the information in the database
-	- returning the pertinent information to the user
+	- querying the database for the user's applications
+	- revoking an API key
+	- refreshing an API key
 
 	Database Design can be found: https://docs.google.com/document/d/1zEK9K7crTcCcE9bMKm87qRHCyqa5I0_vjuI9eqYSaLg/edit?usp=sharing
 */
@@ -41,8 +42,7 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	return a
 }
 
-// create a registration structure (This is not entirely necessary, but it makes things easier)
-// Contents of this might change as the project progresses
+// The Application type defines the structure of an application.
 type application struct {
 	AppName     string `json:"appName" 		db:"app_name"`
 	AppID       string `json:"appID" 		db:"app_ID"`
@@ -106,18 +106,32 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// The applications/myApps endpoint.
-// This function will return a list of all the applications that the user owns.
+/* THIS IS A DUMMY END POINT RIGHT NOW */
+// This function returns a list of all the applications that exist right now.
+// Once accessing the users email is figured out, this function will return a
+// list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	// How do we get the user's email?
-	query := "SELECT app_name, appID, description, owners FROM applications WHERE owners=$1" // Need to fix this so that it checks if the string in the owners column contains the user's email
-	rows, err := ar.Svcs.Db.Query(ctx, query, "email")
+	rows, err := ar.Svcs.Db.Query(ctx, "SELECT * FROM applications")
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error querying database for user's applications")
 		return
 	}
+
+	apps := []application{}
+
+	for rows.Next() {
+		app := application{}
+		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
+		if err != nil {
+			ar.Svcs.Logger.Error(err)
+			ar.Svcs.Logger.Info("Error scanning database rows")
+			return
+		}
+		apps = append(apps, app)
+	}
+
 	// How do I package this information into the response?
 
 }
