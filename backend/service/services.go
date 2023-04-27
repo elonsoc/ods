@@ -72,13 +72,13 @@ func InitDB(databaseURL string, log *logrus.Logger) *pgx.Conn {
 	}
 
 	// Preparing a few statements that we will be using in other functions and files.
-	// Presumably this will be expanded on later and really should be organized better.
-	insertIntoKeys, err := connection.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (app_ID, api_key, is_valid) VALUES ($1, $2, $3)")
+	// Presumably this will be expanded on later and really should be better organized.
+	connection.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (app_ID, api_key, is_valid) VALUES ($1, $2, $3)")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	insertIntoApplications, err := connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name) VALUES ($1, $2, $3, $4, $5)")
+	connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name) VALUES ($1, $2, $3, $4, $5)")
 	if err != nil {
 		log.Fatal(err)
 	}
