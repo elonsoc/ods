@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -237,9 +238,9 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	}))
 
 	r.Group(func(r chi.Router) {
-		r.Use(CheckIdentity(Services.Logger))
+		r.Use(CheckIdentity())
 
-		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: Services}).Router)
+		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: svc}).Router)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
