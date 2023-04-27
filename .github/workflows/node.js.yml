@@ -39,5 +39,6 @@ jobs:
         # Where to store pnpm files
 #         dest: # optional, default is ~/setup-pnpm
         # If specified, run `pnpm install`
-        run_install: true
+        run_install: false
+    - run: pnpm install
     - run: pnpm build
