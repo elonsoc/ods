@@ -39,6 +39,7 @@ jobs:
         # Where to store pnpm files
 #         dest: # optional, default is ~/setup-pnpm
         # If specified, run `pnpm install`
-        run_install: false
+        run_install: true
+        dest: ~/ods/frontend
     - run: pnpm install
     - run: pnpm build
