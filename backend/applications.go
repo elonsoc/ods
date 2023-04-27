@@ -113,7 +113,6 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	rows, err := ar.Svcs.Db.Query(ctx, "SELECT * FROM applications")
-	rows, err := ar.Svcs.Db.Query(ctx, "SELECT * FROM applications")
 	if err != nil {
 		ar.Svcs.Logger.Error(err)
 		ar.Svcs.Logger.Info("Error querying database for user's applications")
