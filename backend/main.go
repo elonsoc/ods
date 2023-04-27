@@ -172,9 +172,72 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 		r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: svc}).Router)
 	})
 
-	// This represents endpoints that humans will access with their browser and thus need to affiliate themselves with Elon University
-	r.Mount("/affiliate", r.Group(func(r chi.Router) {
-		r.Use(samlMiddleware.RequireAccount)
+	// this group is for the API that will be used by the frontend to validate the user's identity
+	r.Mount("/identity", r.Group(func(r chi.Router) {
+		r.Use(middleware.NoCache)
+		r.Use(middleware.AllowContentType("application/json"))
+		// Here, we take the token that is passed in the request body and validate it
+		// by making a call to the identity service.
+		// If the token is valid, we commit this to memory and use it to verify
+		// actions that the user takes on the website.
+		// So, it works like this:
+		// 1. User clicks "Log In" and is redirected to the identity service
+		// 2. User logs in and is redirected back to the frontend with a token, we call this a dirty token
+		// because it's not yet validated and has been touched by the user
+		// 3. We make a call to the identity service to validate the token, and if it's valid,
+		// we commit a new token pair to memory, one that is clean (only on the server) and one that is dirty (on the client)
+		// the dirty token is a JWT that is used to verify the user's identity and is stored in a cookie.
+		// the clean token, instead, is durable and is stored in on our side for a longer period of time.
+		// This allows us to verify the user's identity without having to make a call to the identity service every time
+		r.Post("/validate", func(w http.ResponseWriter, r *http.Request) {
+			type request struct {
+				Token string `json:"token"`
+			}
+
+			var req request
+			err := json.NewDecoder(r.Body).Decode(&req)
+			if err != nil {
+				fmt.Println("Error decoding request body: ", err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			if req.Token == "" {
+				fmt.Println("Token is empty")
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			resp, err := http.Get("http://localhost:1338/validate?token=" + req.Token)
+			type validationResponse struct {
+				token string `json:"token"`
+			}
+			if err != nil {
+				w.WriteHeader(http.StatusServiceUnavailable)
+				return
+			}
+
+			if resp.StatusCode != 200 {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			// read the response body into validationresponse
+			res := validationResponse{}
+			err = json.NewDecoder(resp.Body).Decode(&res)
+			if err != nil {
+				fmt.Println("Error decoding response body: ", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			// if the token is valid, we commit it to memory
+
+			IdentityKeys[res.token] = "elon_ods:12345"
+			w.Write([]byte("elon_ods:12345"))
+		})
+	}))
+
+	r.Group(func(r chi.Router) {
+		r.Use(CheckIdentity(Services.Logger))
 
 		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: Services}).Router)
 
@@ -182,7 +245,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
 			w.Write([]byte("you're a true affiliate."))
 		})
-	}))
+	})
 
 	svc.Log.Info("Server running on port "+servicePort, nil)
 	svc.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
