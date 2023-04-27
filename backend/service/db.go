@@ -25,6 +25,7 @@ func initDb(databaseURL string, log LoggerIFace) *Db {
 
 type DbIFace interface {
 	GetConn() *pgx.Conn
+	NewApp()  error
 }
 
 type Db struct {
@@ -33,4 +34,8 @@ type Db struct {
 
 func (s *Db) GetConn() *pgx.Conn {
 	return s.db
+}
+
+func (db *Db) NewApp() error {
+	return nil
 }
