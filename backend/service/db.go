@@ -25,16 +25,25 @@ func initDb(databaseURL string, log LoggerIFace) *Db {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = connection.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (app_ID, api_key, is_valid) VALUES ($1, $2, $3)")
+	err = prepareStatements(connection, ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	return &Db{db: connection}
+}
+
+func prepareStatements(connection *pgx.Conn, ctx context.Context) (err error) {
+	_, err = connection.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (app_ID, api_key, is_valid) VALUES ($1, $2, $3)")
+	if err != nil {
+		return err
+	}
+
 	_, err = connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name) VALUES ($1, $2, $3, $4, $5)")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	return &Db{db: connection}
+	return nil
 }
 
 func (s *Db) GetConn() *pgx.Conn {
@@ -100,15 +109,12 @@ func (db *Db) CheckDuplicate(column string, newGen string) (bool, error) {
 	}
 
 	// Querying the database for duplicates
-	rows, err := db.db.Query(ctx, query, newGen)
-	if err != nil {
+	err := db.db.QueryRow(ctx, query, newGen).Scan()
+	if err == pgx.ErrNoRows {
+		return false, nil
+	} else if err != nil {
 		return false, err
 	}
 
-	// If there are no duplicates, return true
-	if rows.Next() {
-		return false, nil
-	} else {
-		return true, nil
-	}
+	return true, nil
 }

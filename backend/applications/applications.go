@@ -86,7 +86,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/* THIS IS A DUMMY END POINT RIGHT NOW */
+// todo(@SheedGuy)
 // This function returns a list of all the applications that exist right now.
 // Once accessing the users email is figured out, this function will return a
 // list of all the applications that the user owns.
@@ -152,8 +152,8 @@ func (ar *ApplicationsRouter) apiKeyGenerate() (string, error) {
 // and logger. The function will keep generating a new ID until it finds one that is unique.
 func (ar *ApplicationsRouter) appIDGenerate() (string, error) {
 	// Keep generating a new ID until a unique one is found
-	isUnique := false
-	appID := ""
+	var isUnique bool
+	var appID string
 
 	for !isUnique {
 		// generate 32 random bytes using crypto/rand
