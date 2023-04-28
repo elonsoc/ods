@@ -44,13 +44,13 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 // The Application type defines the structure of an application.
 type Application struct {
-	AppName     string `json:"appName" 		db:"app_name"`
-	AppID       string `json:"appID" 		db:"app_ID"`
-	Description string `json:"description" 	db:"description"`
-	Owners      string `json:"owners" 		db:"owners"`
-	TeamName    string `json:"teamName" 	db:"team_name"`
-	ApiKey      string `json:"apiKey" 		db:"api_key"`
-	IsValid     bool   `json:"isValid" 		db:"is_valid"`
+	AppName     string `json:"appName" db:"app_name"`
+	AppID       string `json:"appID" db:"app_ID"`
+	Description string `json:"description" db:"description"`
+	Owners      string `json:"owners" db:"owners"`
+	TeamName    string `json:"teamName" db:"team_name"`
+	ApiKey      string `json:"apiKey" db:"api_key"`
+	IsValid     bool   `json:"isValid" db:"is_valid"`
 }
 
 // This function handles the registration form. It is called when the user submits a registration form.

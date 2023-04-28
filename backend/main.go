@@ -15,6 +15,7 @@ import (
 	statsd "github.com/smira/go-statsd"
 
 	"github.com/crewjam/saml/samlsp"
+	"github.com/elonsoc/ods/backend/applications"
 	locations "github.com/elonsoc/ods/backend/locations"
 	"github.com/elonsoc/ods/backend/service"
 )
@@ -210,7 +211,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			}
 			resp, err := http.Get("http://localhost:1338/validate?token=" + req.Token)
 			type validationResponse struct {
-				token string `json:"token"`
+				Token string `json:"token"`
 			}
 			if err != nil {
 				w.WriteHeader(http.StatusServiceUnavailable)
@@ -232,7 +233,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 			}
 			// if the token is valid, we commit it to memory
 
-			IdentityKeys[res.token] = "elon_ods:12345"
+			IdentityKeys[res.Token] = "elon_ods:12345"
 			w.Write([]byte("elon_ods:12345"))
 		})
 	}))
@@ -240,7 +241,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	r.Group(func(r chi.Router) {
 		r.Use(CheckIdentity())
 
-		r.Mount("/applications", NewApplicationsRouter(&ApplicationsRouter{Svcs: svc}).Router)
+		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
