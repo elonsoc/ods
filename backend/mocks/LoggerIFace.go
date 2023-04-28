@@ -18,7 +18,7 @@ func (_m *LoggerIFace) Error(_a0 string, _a1 logrus.Fields) {
 }
 
 // Fatal provides a mock function with given fields: _a0
-func (_m *LoggerIFace) Fatal(_a0 error) {
+func (_m *LoggerIFace) Fatal(_a0 string) {
 	_m.Called(_a0)
 }
 

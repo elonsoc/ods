@@ -9,7 +9,7 @@ import (
 func initDb(databaseURL string, log LoggerIFace) *Db {
 	connection, err := pgx.Connect(context.Background(), databaseURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 	return &Db{db: connection}
 }
