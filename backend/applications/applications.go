@@ -1,14 +1,14 @@
-package main
+package applications
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"strings"
 
-	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
+	"github.com/elonsoc/ods/backend/service"
+	chi "github.com/go-chi/chi/v5"
 )
 
 /*
@@ -26,24 +26,24 @@ import (
 // Defining the struct for the applications router
 type ApplicationsRouter struct {
 	chi.Router
-	Svcs *service.Service
+	Svcs *service.Services
 }
 
 // NewApplicationsRouter is a function that returns a new applications router
 func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
-	a.Svcs.Logger.Info("Initializing applications router")
+	a.Svcs.Log.Info("Initializing applications router", nil)
 
 	r := chi.NewRouter()
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
 
 	a.Router = r
-	a.Svcs.Logger.Info("Applications router initialized")
+	a.Svcs.Log.Info("Applications router initialized", nil)
 	return a
 }
 
 // The Application type defines the structure of an application.
-type application struct {
+type Application struct {
 	AppName     string `json:"appName" 		db:"app_name"`
 	AppID       string `json:"appID" 		db:"app_ID"`
 	Description string `json:"description" 	db:"description"`
@@ -57,53 +57,33 @@ type application struct {
 // It will parse the form, generate a project ID and API key, and store the information in the database.
 // It will then return the pertinent information to the user.
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	var err error
 	// Create a new Application struct
-	app := application{}
-	// parse the request body into the registration variable
-	app.ApiKey = ar.apiKeyGenerate()
+	app := Application{}
+	// parse the request body into the application variable
 	app.AppName = r.FormValue("title")
 	app.Description = r.FormValue("description")
 	app.Owners = r.FormValue("owners")
 	app.TeamName = r.FormValue("teamName")
-	app.AppID = ar.appIDGenerate()
 	app.IsValid = true
-
-	/* Storing information in the Database*/
-
-	// Initiating a transaction
-	tx, err := ar.Svcs.Db.Begin(ctx)
+	// Generate a new AppID and API key
+	app.AppID, err = ar.appIDGenerate()
 	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error initiating database transaction")
+		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
-	defer tx.Rollback(ctx)
-
-	// Storing info in the keys table
-	_, err = tx.Exec(ctx, "insert_into_keys", app.AppID, app.ApiKey, app.IsValid)
+	app.ApiKey, err = ar.apiKeyGenerate()
 	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error storing new app info in database (keys table)")
+		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
 
-	// Storing info in the applications table
-	_, err = tx.Exec(ctx, "insert_into_applications", app.AppID, app.AppName, app.Description, app.Owners, app.TeamName)
+	// Store the application in the database
+	err = ar.Svcs.Db.NewApp(app.AppName, app.AppID, app.Description, app.Owners, app.TeamName, app.ApiKey, app.IsValid)
 	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error storing new app info in database (applications table)")
+		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
-
-	// Commit the transaction
-	err = tx.Commit(ctx)
-	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error committing database transaction")
-		return
-	}
-
 }
 
 /* THIS IS A DUMMY END POINT RIGHT NOW */
@@ -111,40 +91,34 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 // Once accessing the users email is figured out, this function will return a
 // list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	rows, err := ar.Svcs.Db.Query(ctx, "SELECT * FROM applications")
+	// Query db for all apps
+	rows, err := ar.Svcs.Db.UserApps()
 	if err != nil {
-		ar.Svcs.Logger.Error(err)
-		ar.Svcs.Logger.Info("Error querying database for user's applications")
+		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
 
-	apps := []application{}
-
+	// Scan the rows into an array of Applications
+	apps := []Application{}
 	for rows.Next() {
-		app := application{}
+		app := Application{}
 		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
 		if err != nil {
-			ar.Svcs.Logger.Error(err)
-			ar.Svcs.Logger.Info("Error scanning database rows")
+			ar.Svcs.Log.Error(err.Error(), nil)
 			return
 		}
 		apps = append(apps, app)
 	}
 
-	// How do I package this information into the response?
-
+	// Encode the apps array into JSON and send it back to the client
+	json.NewEncoder(w).Encode(apps)
 }
-
-// TODO: Prepare the response and send it back to the client.
-//		 Properly handle errors.
 
 // This function creates a new API key. It is a struct method because it needs to access the database
 // and logger. The function will keep generating a new key until it finds one that is unique.
-func (ar *ApplicationsRouter) apiKeyGenerate() string {
+func (ar *ApplicationsRouter) apiKeyGenerate() (string, error) {
 	// Keep generating a new key until a unique one is found
 	isUnique := false
-	ctx := context.Background()
 	key := ""
 
 	for !isUnique {
@@ -152,9 +126,8 @@ func (ar *ApplicationsRouter) apiKeyGenerate() string {
 		bytes := make([]byte, 32)
 		_, err := rand.Read(bytes)
 		if err != nil {
-			ar.Svcs.Logger.Error(err)
-			ar.Svcs.Logger.Info("Error generating API key")
-			return ""
+			ar.Svcs.Log.Error(err.Error(), nil)
+			return "", err
 		}
 
 		// convert bytes to a base62 string
@@ -165,44 +138,30 @@ func (ar *ApplicationsRouter) apiKeyGenerate() string {
 		key = "ods_key_" + base62
 
 		// query the database to see if the key is unique
-		query := `SELECT * FROM keys WHERE api_key = $1`
-		rows, err := ar.Svcs.Db.Query(ctx, query, key)
+		isUnique, err = ar.Svcs.Db.CheckDuplicate("api_key", key)
 		if err != nil {
-			ar.Svcs.Logger.Error(err)
-			ar.Svcs.Logger.Info("Error querying database for API key (while generating new API key)")
-			return ""
+			ar.Svcs.Log.Error(err.Error(), nil)
+			return "", err
 		}
-
-		// if the key is unique, set isUnique to true
-		if rows.Next() {
-			isUnique = false
-		} else {
-			isUnique = true
-		}
-
-		// close the rows
-		rows.Close()
 	}
 	// Return the API key string
-	return key
+	return key, nil
 }
 
 // This function creates a new Application ID. It is a struct method because it needs to access the database
 // and logger. The function will keep generating a new ID until it finds one that is unique.
-func (ar *ApplicationsRouter) appIDGenerate() string {
+func (ar *ApplicationsRouter) appIDGenerate() (string, error) {
 	// Keep generating a new ID until a unique one is found
 	isUnique := false
 	appID := ""
-	ctx := context.Background()
 
 	for !isUnique {
 		// generate 32 random bytes using crypto/rand
 		bytes := make([]byte, 32)
 		_, err := rand.Read(bytes)
 		if err != nil {
-			ar.Svcs.Logger.Error(err)
-			ar.Svcs.Logger.Info("Error generating App ID")
-			return ""
+			ar.Svcs.Log.Error(err.Error(), nil)
+			return "", err
 		}
 
 		// convert bytes to a base62 string
@@ -213,26 +172,14 @@ func (ar *ApplicationsRouter) appIDGenerate() string {
 		appID = "ods_app_" + base62
 
 		// query the database to see if the key is unique
-		query := `SELECT * FROM keys WHERE app_ID = $1`
-		rows, err := ar.Svcs.Db.Query(ctx, query, appID)
+		isUnique, err = ar.Svcs.Db.CheckDuplicate("app_ID", appID)
 		if err != nil {
-			ar.Svcs.Logger.Error(err)
-			ar.Svcs.Logger.Info("Error querying database for App ID (while generating new App ID)")
-			return ""
+			ar.Svcs.Log.Error(err.Error(), nil)
+			return "", err
 		}
-
-		// if the appID is unique, set isUnique to true
-		if rows.Next() {
-			isUnique = false
-		} else {
-			isUnique = true
-		}
-
-		// close the rows
-		rows.Close()
 	}
 	// Return the API key string
-	return appID
+	return appID, nil
 }
 
 /*
