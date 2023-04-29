@@ -10,6 +10,38 @@
 .backLink {
     display: inline-flex;
     align-items: center;
+    width: fit-content;
+}
+
+.backSettingsWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.settingsButton {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    background: var(--secondary-button-background);
+    border: none;
+    padding: .3rem .6rem;
+    color: var(--secondary-button-color);
+    gap: .25rem;
+    font-size: .9rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border: 1px solid var(--secondary-button-border);
+}
+
+.settingsButton > svg {
+    width: 1rem;
+    height: 1rem;
+    fill: var(--secondary-icon-color);
+}
+
+.settingsButton:hover {
+    background: var(--secondary-button-hover);
 }
 
 .leftArrow {

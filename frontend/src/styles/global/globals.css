@@ -21,6 +21,11 @@
   --application-border: #0A0A0A;
   --application-hover: #e8e8e8;
   --code-color: #e8e8e8;
+  --secondary-button-background: rgb(109, 109, 109);
+  --secondary-button-border: #676767;
+  --secondary-button-color: #dedede;
+  --secondary-icon-color: rgb(175, 175, 175);
+  --secondary-button-hover: rgb(71, 71, 71);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,6 +45,11 @@
     --application-border: #5b5b5b;
     --application-hover: rgb(22, 22, 22);
     --code-color: #9c9c9c;
+    --secondary-button-background: rgb(50, 50, 50);
+    --secondary-button-border: #A3A3A3;
+    --secondary-button-color: #C2C2C2;
+    --secondary-icon-color: rgb(140, 140, 140);
+    --secondary-button-hover: rgb(71, 71, 71);
   }
 }
 

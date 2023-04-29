@@ -19,7 +19,6 @@ export default function App() {
 	const [hasApplications, setHasApplications] = useState(false);
 
 	async function fetchApplications() {
-		console.log(URL);
 		const res = await fetch(`${URL}/api/applications`, {
 			cache: 'no-store',
 		});
