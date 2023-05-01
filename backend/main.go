@@ -244,7 +244,7 @@ func initialize(servicePort, postgresURL, mssqlbURL, redisURL, loggingURL, stats
 func main() {
 	// get our pertinent information from the environment variables or the command line
 	servicePort := flag.String("port", os.Getenv("PORT"), "port to run server on")
-	postgresURL := flag.String("postgres_url", os.Getenv("POSTGRES_URL"), "postgres url")
+	databaseURL := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
 	mssqlURL := flag.String("mssql_URL", os.Getenv("MSSQL_URL"), "mssql url")
 	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
 	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
@@ -253,8 +253,8 @@ func main() {
 	if *servicePort == "" {
 		log.Fatal("port not set")
 	}
-	if *postgresURL == "" {
-		log.Fatal("postgres url not set")
+	if *databaseURL == "" {
+		log.Fatal("database url not set")
 	}
 	if *mssqlURL == "" {
 		log.Fatal("mssql url not set")
