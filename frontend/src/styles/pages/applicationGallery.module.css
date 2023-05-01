@@ -30,7 +30,6 @@
 
 .button {
     padding: .6rem 1rem;
-    background-color: var(--figma-gray);
     margin: 0 auto;
     background-color: var(--nav-background);
     color: var(--nav-text-color);

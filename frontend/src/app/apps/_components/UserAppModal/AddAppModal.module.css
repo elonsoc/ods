@@ -25,7 +25,7 @@
 
 .formHeader {
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-gray);
+    border-bottom: 1px solid var(--separator-color);
     color: var(--heading-text-color);
 }
 

@@ -12,7 +12,6 @@ import { config } from '@/config/Constants';
 const URL = config.url.API_URL;
 
 export default function App() {
-	const router = useRouter();
 	const [applications, setApplications] = useState<UserAppInformation[]>([]);
 	const [modalActive, setModalActive] = useState<boolean>(false);
 	const [loading, setLoading] = useState(true);
@@ -33,7 +32,7 @@ export default function App() {
 	}, []);
 
 	async function handleAppSubmit(appInfo: UserAppInformation) {
-		const result = await fetch('http://localhost:3000/api/applications', {
+		const result = await fetch(`${URL}/api/applications`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -42,7 +41,6 @@ export default function App() {
 		});
 		setModalActive(false);
 		fetchApplications();
-		router.refresh();
 	}
 
 	if (loading) {
