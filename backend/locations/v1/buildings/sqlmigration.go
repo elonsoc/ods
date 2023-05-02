@@ -26,6 +26,8 @@ type Building struct {
 	AddDate			sql.NullTime
 	ChangeDate		sql.NullTime
 }
+
+//TODO(@ronydahdal) finish :)
 func migrate() {
 	// connecting to MSSQL Server Database (Elon's in the future)
 	// MSSQL connection string w/ server address, user, pass, database name
