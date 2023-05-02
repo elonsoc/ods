@@ -35,6 +35,7 @@ func encode() {
    defer rows.Close()
 
    // declare variable buildings as a slice of Building struct
+   // NOTE: type Building struct is defined in sql migration file
    var buildings []Building
    for rows.Next() {
 		// declare a new instance of building struct to hold row's data
