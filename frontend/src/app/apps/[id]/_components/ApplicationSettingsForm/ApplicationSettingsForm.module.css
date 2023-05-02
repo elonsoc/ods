@@ -48,7 +48,6 @@
     align-items: center;
     flex-direction: row-reverse;
     background: var(--secondary-button-background);
-    border: none;
     padding: .6rem 1rem;
     color: var(--secondary-button-color);
     gap: .25rem;

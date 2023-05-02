@@ -21,6 +21,7 @@
 .skeletonTeam {
     width: 30%;
     height: 1.25rem; 
+    background-color: hsla(201, 20%, 80%, 0.645);
 }
 
 .skeletonName {
