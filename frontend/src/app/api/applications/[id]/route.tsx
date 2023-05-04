@@ -1,7 +1,43 @@
 import { NextResponse } from 'next/server';
 import { UserAppInformation } from '../application.d';
 import applications from '../data.json';
+import { config } from '@/config/Constants';
+const CURRENT_URL = config.url.API_URL;
 
+// export async function GET(
+// 	request: Request,
+// 	{
+// 		params,
+// 	}: {
+// 		params: { id: string };
+// 	}
+// ): Promise<NextResponse> {
+// 	const id = params.id;
+// 	let application = applications.filter((app) => app.id === parseInt(id));
+// 	return NextResponse.json(application);
+// }
+
+// export async function PUT(
+// 	request: Request,
+// 	{
+// 		params,
+// 	}: {
+// 		params: { id: string };
+// 	}
+// ): Promise<NextResponse> {
+// 	const body: UserAppInformation = await request.json();
+// 	const id = params.id;
+// 	for (let i = 0; i < applications.length; i++) {
+// 		if (applications[i].id.toString() === id) {
+// 			applications[i] = { ...applications[i], ...body };
+// 		}
+// 	}
+
+// 	return NextResponse.json(applications);
+// }
+
+// Possible GET code for our backend
+// -----
 export async function GET(
 	request: Request,
 	{
@@ -11,10 +47,19 @@ export async function GET(
 	}
 ): Promise<NextResponse> {
 	const id = params.id;
-	let application = applications.filter((app) => app.id === parseInt(id));
+	const res = await fetch(`${CURRENT_URL}/applications/${id}`, {
+		headers: {
+			'Content-Type': 'application/json',
+			credentials: 'include',
+		},
+	});
+	const application = await res.json();
+
 	return NextResponse.json(application);
 }
 
+// PUT
+// -------
 export async function PUT(
 	request: Request,
 	{
@@ -25,11 +70,14 @@ export async function PUT(
 ): Promise<NextResponse> {
 	const body: UserAppInformation = await request.json();
 	const id = params.id;
-	for (let i = 0; i < applications.length; i++) {
-		if (applications[i].id.toString() === id) {
-			applications[i] = { ...applications[i], ...body };
-		}
-	}
+	const res = await fetch(`${CURRENT_URL}/applications/${id}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			credentials: 'include',
+		},
+	});
+	const applications = await res.json();
 
 	return NextResponse.json(applications);
 }

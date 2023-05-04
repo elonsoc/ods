@@ -37,7 +37,7 @@ const ApplicationSettingsForm = ({
 	return (
 		<form onSubmit={handleFormSubmit} className={styles.settingsFormContainer}>
 			<header className={styles.formHeader}>
-				<h1>Application Settings</h1>
+				<h1 className={styles.formHeading}>Application Settings</h1>
 				<div className={styles.formButtons}>
 					<button
 						type='button'
@@ -96,6 +96,20 @@ const ApplicationSettingsForm = ({
 					value={state.teamName}
 					onChange={handleInputChange}
 				></input>
+			</div>
+			<p className={styles.importantHeader}>
+				<strong>Important Changes</strong>
+			</p>
+			<div className={styles.importantOptions}>
+				<div className={styles.importantWrapper}>
+					<p>Delete this application</p>
+					<button
+						className={`${styles.button} ${styles.deleteApplicationButton}`}
+						type='button'
+					>
+						Delete Application
+					</button>
+				</div>
 			</div>
 		</form>
 	);
