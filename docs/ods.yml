@@ -1,0 +1,199 @@
+openapi: 3.0.0
+info:
+  title: Open Data Service at Elon University
+  description: 
+    The Open Data Service at Elon University is a service that provides programmatic access to data about Elon University. 
+    This service is developed and maintained by the Elon Society of Computing Project Team and is open to active affiliates of the university.
+    As this service is still curently in development, endpoints and their responses may change at any time.
+  version: 0.0.1
+  contact:
+    email: ods@elonsoc.org
+servers:
+  - url: https://ods.elon.edu
+    description: Production
+  - url: https://odstest.elon.edu
+    description: Staging
+  - url: http://localhost:3000
+    description: Local
+tags:
+  - name: v1
+    description: Version 1 of the API
+  - name: Locations
+    description: Information about locations on campus
+paths:
+  /locations/v1/buildings/{building_id}:
+    get:
+      summary: Get a specific building by ID
+      description: Retrieves available building data for sepcified building
+      parameters:
+        - in: path
+          name: building_id
+          schema:
+            type: string
+          required: true
+          description: Building ID
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: API Key
+      operationId: GetBuildingById
+      tags:
+        - v1
+        - Locations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Building"
+        "401":
+          description: Unauthorized - Invalid API key
+        "404":
+          description: Provided building key is not found.
+  /locations/v1/buildings:
+    get:
+      summary: Get All Buildings
+      description: Retrieves available building data for all buildings on campus
+      tags:
+        - v1
+        - Locations
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: API Key
+      operationId: GetAllBuildings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Building"
+        "401":
+          description: Unauthorizd - Invalid API key
+        "404":
+          description: Invalid
+        "401":
+          description: Unauthorized
+
+components:
+  schemas:
+    Building:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of building
+        name:
+          type: string
+        floors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Floor"
+        location:
+          $ref: "#/components/schemas/Location"
+        energy:
+          type: integer
+        elevator:
+          type: boolean
+        # Allowed building types
+        buildingType:
+          type: string
+          enum:
+            [
+              buildingTypeResidential,
+              buildingTypeDining,
+              buildingTypeRetail,
+              buildingTypeAcademic,
+              buildingTypeAthletic,
+              buildingTypeAdmin,
+              buildingTypeStudentLife,
+              buildingTypeSupport,
+              buildingTypeOther
+            ]
+          description: Building type
+        school:
+          type: string
+          enum:
+            [
+              schoolCollegeArtScience
+              schoolHealth,
+              schoolCommunication,
+              schoolLaw,
+              schoolBusiness,
+              schoolEducation
+            ]
+          description: School assiciated with academic buildings
+    Location:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: float64
+          description: latitude of building location
+        lng:
+          type: number
+          format: float64
+          description: longitude of building location
+        address:
+          type: string
+          description: street address
+        neighborhood:
+          type: string
+          enum:
+            [
+              neighborhoodHistoric,
+              neighborhoodColonnades,
+              neighborhoodDanieley,
+              neighborhoodEast,
+              neighborhoodGlobal,
+              neighborhoodLoy,
+              neighborhoodOaks,
+              neighborhoodMillPoint
+            ]
+          description: Neignborhood associated with residential buildings.
+    Room:
+      type: object
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+        length:
+          type: number
+          format: float64
+        width:
+          type: number
+          format: float64
+        roomType:
+          type: string
+          enum:
+            [
+              roomSingle,
+              roomDouble,
+              roomTriple,
+              roomPod,
+              roomFlat,
+              roomOffice,
+              roomLab,
+              roomClassroom,
+              roomBathroom,
+              roomOther
+            ]
+    Floor:
+      type: object
+      properties:
+        level:
+          type: integer
+        Room:
+          type: array
+          items:
+            $ref: "#/components/schemas/Room"

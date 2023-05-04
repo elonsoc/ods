@@ -13,21 +13,13 @@
 
 package service
 
-import (
-	"context"
-
-	"github.com/jackc/pgx/v5"
-	logrusLoki "github.com/schoentoon/logrus-loki"
-	"github.com/sirupsen/logrus"
-	statsd "github.com/smira/go-statsd"
-)
-
 // Service, here, describes the services that we will be using
-// in the backend of launchpad.
-type Service struct {
-	Logger *logrus.Logger
-	Db     *pgx.Conn
-	Stat   *statsd.Client
+// in the backend of ods.
+type Services struct {
+	Log  LoggerIFace
+	Db   DbIFace
+	Stat StatIFace
+	Saml SamlIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -38,36 +30,19 @@ type Service struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL, statsdURL string) *Service {
+func NewService(loggingURL, databaseURL, statsdURL string) *Services {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
-	log := logrus.New()
-	hook, err := logrusLoki.NewLokiDefaults(loggingURL)
-	if err != nil {
-		log.Fatal(err)
+	log := initLogging(loggingURL)
+	db := initDb(databaseURL, log)
+	stat := initStatsD(statsdURL, log)
+	saml := initializeSaml(log)
+
+	return &Services{
+		Log:  log,
+		Db:   db,
+		Stat: stat,
+		Saml: saml,
 	}
-	log.AddHook(hook)
-	db := InitDB(databaseURL, log)
-
-	stat := InitStatsD(statsdURL, log)
-
-	return &Service{
-		Logger: log,
-		Db:     db,
-		Stat:   stat,
-	}
-}
-
-func InitStatsD(statsdURL string, log *logrus.Logger) *statsd.Client {
-	client := statsd.NewClient(statsdURL, statsd.MetricPrefix("backend."))
-	return client
-}
-
-func InitDB(databaseURL string, log *logrus.Logger) *pgx.Conn {
-	connection, err := pgx.Connect(context.Background(), databaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return connection
 }

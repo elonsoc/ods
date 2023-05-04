@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elonsoc/center/backend/service"
-	"github.com/go-chi/chi/v5"
+	"github.com/elonsoc/ods/backend/service"
+	chi "github.com/go-chi/chi/v5"
 )
 
 // this map is a mock database of buildings
@@ -53,7 +53,7 @@ var BUILDINGS = map[string]Building{
 // and a pointer to the service struct which is defined in the service package.
 type BuildingsRouter struct {
 	chi.Router
-	Svcs *service.Service
+	Svcs *service.Services
 }
 
 // NewBuildingsRouter creates a new instance of the BuildingsRouter struct
@@ -67,8 +67,6 @@ type BuildingsRouter struct {
 func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 	// At this point, the BuildingsRouter struct has been created
 	// but the chi router has not been defined.
-
-	b.Svcs.Stat = b.Svcs.Stat.CloneWithPrefixExtension("buildings.v1.")
 
 	// We need to define the chi router here so that we can
 	// add the handlers to it.
@@ -90,6 +88,9 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 // The endpoint for this handler is locations/v1/buildings
 // As of right now, This endpoint returns a list of
 // all the buildings and all of their attributes.
+//
+// It might be interesting to add a query parameter to this endpoint
+// for filtering the buildings by building type.
 func (be *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -105,11 +106,12 @@ func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
 	if BUILDINGS[buildingId].Name == "" {
-		be.Svcs.Logger.Println("Building not found:", buildingId)
+		be.Svcs.Log.Error("Building not found: "+buildingId, nil)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	be.Svcs.Stat.Timing("by_id.time", time.Since(start).Milliseconds())
-	be.Svcs.Stat.Incr("by_id.success", 1)
+
+	be.Svcs.Stat.TimeElapsed("by_id.time", time.Since(start).Milliseconds())
+	be.Svcs.Stat.Increment("by_id.count")
 	json.NewEncoder(w).Encode(BUILDINGS[buildingId])
 }
