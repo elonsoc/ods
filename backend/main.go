@@ -116,7 +116,7 @@ func CustomLogger(log *logrus.Logger, stat *statsd.Client) func(next http.Handle
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, postgresURL, mssqlbURL, redisURL, loggingURL, statsdURL string) chi.Router {
+func initialize(servicePort, postgresURL, mssqldbURL, redisURL, loggingURL, statsdURL string) chi.Router {
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
 	// in the future, we could split up the apis into separate services
@@ -125,7 +125,7 @@ func initialize(servicePort, postgresURL, mssqlbURL, redisURL, loggingURL, stats
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	Services := service.NewService(loggingURL, postgresURL, mssqlURL, statsdURL)
+	Services := service.NewService(loggingURL, postgresURL, mssqldbURL, statsdURL)
 
 	// get port from environment variable
 
@@ -269,7 +269,7 @@ func main() {
 		log.Fatal("statsd url not set")
 	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort), initialize(*servicePort, *databaseURL, *mssqlURL, *redisURL, *loggingURL, *statsdURL))
 	if err != nil {
 		fmt.Println(err)
 	}

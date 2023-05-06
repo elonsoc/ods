@@ -14,10 +14,10 @@
 package service
 
 import (
-	"database/sql/driver"
-	
-	mssql "github.com/denisenkom/go-mssqldb"
+	"context"
+	"database/sql"
 	"github.com/jackc/pgx/v5"
+	_ "github.com/microsoft/go-mssqldb"
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
 	statsd "github.com/smira/go-statsd"
@@ -28,7 +28,7 @@ import (
 type Service struct {
 	Logger *logrus.Logger
 	PgDb   *pgx.Conn
-	MsDb   *mssql.DB
+	MsDb   *sql.DB
 	Stat   *statsd.Client
 }
 
@@ -50,7 +50,7 @@ func NewService(loggingURL, pgURL, mssqlURL, statsdURL string) *Service {
 		log.Fatal(err)
 	}
 	log.AddHook(hook)
-	
+
 	pgdb := InitPgDB(pgURL, log)
 	msdb := InitMsDB(mssqlURL, log)
 
@@ -77,15 +77,11 @@ func InitPgDB(pgdbURL string, log *logrus.Logger) *pgx.Conn {
 	return connection
 }
 
-func InitMsDB(msdbURL string, log *logrus.Logger) *driver.Conn {
-	connector, err := mssql.NewConnector(mssqlURL)
+func InitMsDB(msdbURL string, log *logrus.Logger) *sql.DB {
+	db, err := sql.Open("sqlserver", msdbURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	connection, err := connector.Connect(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	return connection
+
+	return db
 }

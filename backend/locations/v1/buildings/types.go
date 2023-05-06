@@ -64,7 +64,7 @@ func (t BuildingType) String() string {
 // It contains the name of the building, the floors of the building,
 // the location of the building, the address of the building,
 // the type of the building, and the id of the building.
-type Building struct {
+type EnhancedBuilding struct {
 	Name         string       `json:"name"`
 	Floors       []Floor      `json:"floors"`
 	Location     LatLng       `json:"location"`

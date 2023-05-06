@@ -11,7 +11,7 @@ import (
 )
 
 // this map is a mock database of buildings
-var BUILDINGS = map[string]Building{
+var BUILDINGS = map[string]EnhancedBuilding{
 	"mcewen": {
 		Name: "McEwen Dining Hall",
 		Floors: []Floor{
