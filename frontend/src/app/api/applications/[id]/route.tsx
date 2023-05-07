@@ -4,6 +4,7 @@ import applications from '../data.json';
 import { config } from '@/config/Constants';
 const CURRENT_URL = config.url.API_URL;
 
+// --------- MOCK
 // export async function GET(
 // 	request: Request,
 // 	{
@@ -36,8 +37,8 @@ const CURRENT_URL = config.url.API_URL;
 // 	return NextResponse.json(applications);
 // }
 
-// Possible GET code for our backend
-// -----
+// -------------
+
 export async function GET(
 	request: Request,
 	{
@@ -58,8 +59,6 @@ export async function GET(
 	return NextResponse.json(application);
 }
 
-// PUT
-// -------
 export async function PUT(
 	request: Request,
 	{

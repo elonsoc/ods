@@ -4,6 +4,7 @@ import applications from './data.json';
 import { config } from '@/config/Constants';
 const CURRENT_URL = config.url.API_URL;
 
+// ---------MOCK
 // export async function POST(request: Request): Promise<NextResponse> {
 // 	const body: UserAppInformation = await request.json();
 // 	applications.push({
@@ -24,8 +25,8 @@ const CURRENT_URL = config.url.API_URL;
 // 	return NextResponse.json(applications);
 // }
 
-// Possible GET code for our backend
 // ----
+
 export async function GET(request: Request): Promise<NextResponse> {
 	const res = await fetch(`${CURRENT_URL}/applications`, {
 		headers: {
@@ -37,10 +38,8 @@ export async function GET(request: Request): Promise<NextResponse> {
 	return NextResponse.json(applications);
 }
 
-// POST
-// ----
 export async function POST(request: Request): Promise<NextResponse> {
-	const endpoint = '${CURRENT_URL}/applications';
+	const endpoint = `${CURRENT_URL}/applications`;
 
 	const options = {
 		method: 'POST',

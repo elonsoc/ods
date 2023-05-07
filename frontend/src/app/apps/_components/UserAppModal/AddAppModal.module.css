@@ -113,3 +113,31 @@
     letter-spacing: .10ch;
     cursor: pointer;
 }
+
+@media (max-width: 600px) {
+    .fullScreenContainer {
+        position: fixed;
+        display: grid;
+        place-content: center;
+        width: 100vw;
+        height: 100vh;
+        background: var(--modal-background);
+        top: 0;
+        left: 0;
+        bottom: 0;
+    }
+
+    .modalWindow {
+        position: absolute;
+        background: var(--primary-background);
+        border: none;
+        border-radius: none;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
