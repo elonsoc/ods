@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from '@/styles/pages/application.module.css';
-import Link from 'next/link';
 import { UserAppInformation } from '@/app/api/applications/application.d';
 import { config } from '@/config/Constants';
 import ApplicationInformation from './_components/ApplicationInformation/ApplicationInformation';
 import SkeletonLoader from './_components/SkeletonLoader/SkeletonLoader';
+import BackLink from './_components/BackLink/BackLink';
 const URL = config.url.API_URL;
 
 interface ApplicationProps {
@@ -78,22 +78,6 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 				handleAppSubmit={handleAppSubmit}
 			/>
 		</div>
-	);
-};
-
-export const BackLink = () => {
-	return (
-		<Link href='/apps' className={styles.backLink}>
-			<svg
-				className={styles.leftArrow}
-				xmlns='http://www.w3.org/2000/svg'
-				viewBox='0 0 24 24'
-			>
-				<title>Back</title>
-				<path d='M10.05 16.94V12.94H18.97L19 10.93H10.05V6.94L5.05 11.94Z' />
-			</svg>
-			Back to Apps
-		</Link>
 	);
 };
 

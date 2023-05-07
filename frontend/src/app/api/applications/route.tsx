@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { UserAppInformation } from './application.d';
-// import applications from './data.json';
+import applications from './data.json';
 import { config } from '@/config/Constants';
 const CURRENT_URL = config.url.API_URL;
 

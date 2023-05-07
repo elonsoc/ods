@@ -2,7 +2,7 @@
 
 import styles from './ApplicationInformation.module.css';
 import { useState } from 'react';
-import { BackLink } from '../../page';
+import BackLink from '../BackLink/BackLink';
 import ApplicationSettingsForm from '../ApplicationSettingsForm/ApplicationSettingsForm';
 
 const ApplicationInformation = ({ application, handleAppSubmit }: any) => {

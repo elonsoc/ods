@@ -1,5 +1,4 @@
 import styles from './SkeletonLoader.module.css';
-import Link from 'next/link';
 
 export default function SkeletonLoader() {
 	return (
