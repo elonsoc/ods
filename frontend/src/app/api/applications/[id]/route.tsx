@@ -48,15 +48,19 @@ export async function GET(
 	}
 ): Promise<NextResponse> {
 	const id = params.id;
-	const res = await fetch(`${CURRENT_URL}/applications/${id}`, {
-		headers: {
-			'Content-Type': 'application/json',
-			credentials: 'include',
-		},
-	});
-	const application = await res.json();
-
-	return NextResponse.json(application);
+	let applicationJSON;
+	try {
+		const res = await fetch(`${CURRENT_URL}/applications/${id}`, {
+			headers: {
+				'Content-Type': 'application/json',
+				credentials: 'include',
+			},
+		});
+		applicationJSON = await res.json();
+	} catch (error) {
+		console.log('There was an error', error);
+	}
+	return NextResponse.json(applicationJSON || []);
 }
 
 export async function PUT(
