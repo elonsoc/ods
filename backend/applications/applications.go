@@ -36,6 +36,7 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	r := chi.NewRouter()
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
+	// r.Put("/{applicationID}", a.applicationByIdHandler)
 
 	a.Router = r
 	a.Svcs.Log.Info("Applications router initialized", nil)
@@ -113,6 +114,11 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	// Encode the apps array into JSON and send it back to the client
 	json.NewEncoder(w).Encode(apps)
 }
+
+// func (ar *ApplicationsRouter) applicationByIdHandler(w http.ResponseWriter, r *http.Request) {
+// 	applicationId := chi.URLParam(r, "applicationID")
+
+// }
 
 // This function creates a new API key. It is a struct method because it needs to access the database
 // and logger. The function will keep generating a new key until it finds one that is unique.

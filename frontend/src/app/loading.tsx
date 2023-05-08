@@ -1,7 +1,7 @@
 'use client';
 
-import styles from '@/styles/loading.module.css';
+import Loader from '@/ui/Loader/Loader';
 
 export default function Loading() {
-	return <h1 className={styles.loading}>Loading...</h1>;
+	return <Loader />;
 }

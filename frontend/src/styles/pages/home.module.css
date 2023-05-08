@@ -1,0 +1,176 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 0 8%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.heroContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5rem 0;
+    padding-top: 10rem;
+}
+
+.subheading {
+    font-size: 1rem;
+    letter-spacing: .15ch;
+    text-transform: uppercase;
+    color: var(--subheading-text-color);
+}
+
+.elonSubheading {
+    text-align: center;
+}
+
+.introTitle {
+    font-size: 2.5rem;
+    font-weight: 500;
+    letter-spacing: .10ch;
+    text-align: center;
+    color: var(--heading-text-color);
+}
+
+.heroDescription {
+    color: var(--default-text-color);
+    text-align: center;
+    margin: 1rem auto;
+    font-weight: 300;
+    letter-spacing: .10ch;
+    max-width: 750px;
+    line-height: 2.25ch;
+}
+
+.button {
+    padding: .6rem 3rem;
+    margin: 0 auto;
+    background-color: var(--nav-background);
+    color: var(--nav-text-color);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    letter-spacing: .10ch;
+}
+
+.button:hover {
+    background: var(--primary-button-hover);
+}
+
+.learnMoreLink {
+    font-size: .90rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin: .5rem auto;
+    color: var(--default-text-color);
+    text-align: center;
+}
+
+.rightArrowSVG {
+    fill: var(--default-text-color);
+    height: 1.4rem;
+    width: 1.4rem;
+}
+
+.learnMoreLink:hover {
+    text-decoration: underline;
+}
+
+.validUserInput {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--default-text-color);
+    margin: 1rem auto;
+}
+
+.accessibleDataSection {
+    max-width: 1100px;
+    margin: 1rem auto;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.dataSectionInfo {
+    flex: 0 1 50%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding-right: 2rem;
+    color: var(--default-text-color);
+    font-weight: 300;
+    letter-spacing: .10ch;
+    line-height: 2.25ch;
+}
+
+.dataFormatSubheading {
+    font-size: .90rem;
+}
+
+.dataFormatHeading {
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.dataFormatButton {
+    margin: 1rem 0;
+    font-size: .90rem;
+    width: fit-content;
+    padding: .6rem 1rem;
+}
+
+.jsonContainer {
+    flex: 0 1 50%;
+    border: 1px solid var(--application-border);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background-color: var(--nav-background);
+}
+
+.jsonHeader {
+    color: var(--code-color);
+    font-size: .90rem;
+    padding-bottom: .5rem;
+    margin-bottom: .5rem;
+    border-bottom: 1px solid var(--subheading-text-color);
+}
+
+.jsonCode {
+    display: flex;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    color: var(--code-color);
+    font-size: .8rem;
+    font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+}
+
+@media (max-width: 600px) {
+    .elonSubheading {
+        font-size: .90rem;
+    }
+    .introTitle {
+        font-size: 2rem;
+    }
+    .heroDescription {
+        font-size: .90rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .accessibleDataSection {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .dataSectionInfo {
+        padding: 0;
+    }
+}

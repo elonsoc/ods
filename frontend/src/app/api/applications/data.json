@@ -1,0 +1,30 @@
+[
+	{
+		"id": 1,
+		"name": "Application Name",
+		"description": "Aggregates course information from various educational institutions or online course providers using APIs and displays it in a user-friendly format, allowing users to browse and compare different courses, and also enabling them to enroll in courses directly through the platform.",
+		"owners": "John Doe, Jane Doe",
+		"teamName": "Team name"
+	},
+	{
+		"id": 2,
+		"name": "CourseFinder",
+		"description": "A web application that utilizes APIs to provide comprehensive course information to users, including course descriptions, schedules, and pricing.",
+		"owners": "Mark Johnson",
+		"teamName": "CourseFinder Team"
+	},
+	{
+		"id": 3,
+		"name": "CourseHub",
+		"description": "A mobile app that aggregates course information from multiple sources, including online course providers and universities, allowing users to easily search and enroll in courses from their mobile devices.",
+		"owners": "Sarah Lee",
+		"teamName": "CourseHub Development Team"
+	},
+	{
+		"id": 4,
+		"name": "Learnly",
+		"description": "An e-learning platform that utilizes APIs to provide users with a personalized learning experience, offering curated course recommendations and progress tracking features.",
+		"owners": "Adam Smith, Mary Johnson",
+		"teamName": "Learnly Development Team"
+	}
+]

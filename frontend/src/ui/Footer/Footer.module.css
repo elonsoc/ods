@@ -3,4 +3,5 @@
     font-size: .85rem;
     text-align: center;
     padding: .75rem;
+    color: var(--default-text-color);
 }

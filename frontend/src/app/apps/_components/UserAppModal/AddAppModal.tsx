@@ -1,63 +1,108 @@
 import styles from './AddAppModal.module.css';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
+import { UserAppInformation } from '@/app/api/applications/application.d';
 
 interface ModalProps {
-	onAdd: (name: string, description: string, owners: string) => void;
+	onAdd: (state: UserAppInformation) => void;
 	onClose: (isClosed: boolean) => void;
 }
 
 const AddAppModal = ({ onAdd, onClose }: ModalProps) => {
-	const [state, setState] = useState({ name: '', description: '', owners: '' });
+	const [state, setState] = useState({
+		name: '',
+		description: '',
+		owners: '',
+		teamName: ``,
+	});
 
-	const handleInputChange = (event: any) => {
-		const { name, value } = event.target;
+	const handleInputChange = (event: FormEvent<HTMLInputElement>): void => {
+		const { name, value } = event.currentTarget;
 		setState((prevInfo) => ({
 			...prevInfo,
 			[name]: value,
 		}));
 	};
 
+	const handleSubmit = async (
+		event: FormEvent<HTMLFormElement>
+	): Promise<void> => {
+		event.preventDefault();
+		onAdd(state);
+	};
+
 	return (
 		<div className={styles.fullScreenContainer}>
 			<div className={styles.modalWindow}>
-				<form>
+				<header className={styles.formHeader}>
+					<h1 className={styles.modalTitle}>Application Registration</h1>
+					<p className={styles.requirementText}>
+						Required input fields are marked with{' '}
+						<span className={styles.requiredRed}>*</span>
+					</p>
+				</header>
+				<form onSubmit={(e) => handleSubmit(e)} method='POST'>
 					<div className={styles.inputWrapper}>
-						<label htmlFor='name'>Name</label>
+						<label htmlFor='name'>
+							Name <span className={styles.requiredRed}>*</span>
+						</label>
 						<input
 							type='text'
 							id='name'
 							name='name'
 							value={state.name}
 							onChange={handleInputChange}
+							required={true}
 						></input>
 					</div>
 					<div className={styles.inputWrapper}>
-						<label htmlFor='description'>Description</label>
+						<label htmlFor='description'>
+							Description <span className={styles.requiredRed}>*</span>
+						</label>
 						<input
 							type='text'
 							id='description'
 							name='description'
 							value={state.description}
 							onChange={handleInputChange}
+							required={true}
 						></input>
 					</div>
 					<div className={styles.inputWrapper}>
-						<label htmlFor='owners'>Owners</label>
+						<label htmlFor='owners'>
+							Owners <span className={styles.requiredRed}>*</span>
+						</label>
 						<input
 							type='text'
 							id='owners'
 							name='owners'
 							value={state.owners}
 							onChange={handleInputChange}
+							required={true}
 						></input>
 					</div>
-					<button
-						className={styles.addButton}
-						type='submit'
-						onClick={() => onAdd(state.name, state.description, state.owners)}
-					>
-						Add
-					</button>
+					<div className={styles.inputWrapper}>
+						<label htmlFor='teamName'>Team Name</label>
+						<input
+							type='text'
+							id='teamName'
+							name='teamName'
+							placeholder={`e.g. User's Team`}
+							value={state.teamName}
+							onChange={handleInputChange}
+						></input>
+					</div>
+					<div className={styles.submissionButtons}>
+						<button
+							className={styles.closeTextButton}
+							type='button'
+							onClick={() => onClose(false)}
+						>
+							Close
+						</button>
+						<button className={styles.addButton} type='submit'>
+							Add
+						</button>
+					</div>
 				</form>
 				<button
 					className={styles.closeButton}

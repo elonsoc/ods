@@ -1,0 +1,35 @@
+.applicationContainer {
+    color: var(--default-text-color);
+    max-width: 58rem;
+    padding: 0 8%;
+    margin: 0 auto;
+    height: 100%;
+}
+
+.backLinkWrapper {
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--separator-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: .3rem 0;
+}
+
+.leftArrow {
+    fill: var(--subheading-text-color);
+    width: 30px;
+    height: fit-content;
+}
+
+.backLink:hover{
+    text-decoration: underline;
+}
+
+

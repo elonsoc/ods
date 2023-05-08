@@ -1,21 +1,33 @@
 import styles from './UserApp.module.css';
 
-interface UserAppInformation {
-	title: string;
+export interface AppInfo {
+	id: string;
+	name: string;
 	description: string;
 	owners: string;
+	teamName: string;
+}
+
+export interface UserAppInformation {
+	name: string;
+	description: string;
+	owners: string;
+	teamName: string;
 }
 
 interface UserAppInfoProp {
-	info: UserAppInformation;
+	info: AppInfo;
 }
 
-const UserApp = ({ info: { title, description, owners } }: UserAppInfoProp) => {
+const UserApp = ({
+	info: { name, description, owners, teamName },
+}: UserAppInfoProp) => {
 	return (
 		<div className={styles.appContainer}>
-			<h3>{title}</h3>
-			<p>{description}</p>
-			<p>{owners}</p>
+			<p className={styles.teamName}>{teamName}</p>
+			<h3>{name}</h3>
+			<p className={styles.description}>{description}</p>
+			<p className={styles.ownerList}>{owners}</p>
 		</div>
 	);
 };
