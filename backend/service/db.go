@@ -34,12 +34,7 @@ func initDb(databaseURL string, log LoggerIFace) *Db {
 }
 
 func prepareStatements(connection *pgx.Conn, ctx context.Context) (err error) {
-	_, err = connection.Prepare(ctx, "insert_into_keys", "INSERT INTO keys (app_ID, api_key, is_valid) VALUES ($1, $2, $3)")
-	if err != nil {
-		return err
-	}
-
-	_, err = connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name) VALUES ($1, $2, $3, $4, $5)")
+	_, err = connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name, api_key, is_valid) VALUES ($1, $2, $3, $4, $5, $6, $7)")
 	if err != nil {
 		return err
 	}
@@ -53,27 +48,9 @@ func (s *Db) GetConn() *pgx.Conn {
 // NewApp stores the information about a new application in the database.
 func (db *Db) NewApp(name string, ID string, desc string, owners string, tname string, key string, valid bool) error {
 	ctx := context.Background()
-	// Initiating a transaction
-	tx, err := db.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
 
-	// Storing info in the keys table
-	_, err = tx.Exec(ctx, "insert_into_keys", ID, key, valid)
-	if err != nil {
-		return err
-	}
-
-	// Storing info in the applications table
-	_, err = tx.Exec(ctx, "insert_into_applications", ID, name, desc, owners, tname)
-	if err != nil {
-		return err
-	}
-
-	// Commit the transaction
-	err = tx.Commit(ctx)
+	// Storing all new app info into the applications table.
+	db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, tname, key, valid)
 	if err != nil {
 		return err
 	}
