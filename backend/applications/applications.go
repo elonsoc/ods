@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 
@@ -31,7 +32,7 @@ type ApplicationsRouter struct {
 
 // NewApplicationsRouter is a function that returns a new applications router
 func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
-	a.Svcs.Log.Info("Initializing applications router", nil)
+	//a.Svcs.Log.Info("Initializing applications router", nil)
 
 	r := chi.NewRouter()
 	r.Post("/", a.newApp)
@@ -39,13 +40,13 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	// r.Put("/{applicationID}", a.applicationByIdHandler)
 
 	a.Router = r
-	a.Svcs.Log.Info("Applications router initialized", nil)
+	//a.Svcs.Log.Info("Applications router initialized", nil)
 	return a
 }
 
 // The Application type defines the structure of an application.
 type Application struct {
-	AppName     string `json:"appName" db:"app_name"`
+	AppName     string `json:"name" db:"app_name"`
 	AppID       string `json:"appID" db:"app_ID"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
@@ -55,18 +56,27 @@ type Application struct {
 }
 
 // This function handles the registration form. It is called when the user submits a registration form.
-// It will parse the form, generate a project ID and API key, and store the information in the database.
+// It will parse the form, generate an app ID and API key, and store the information in the database.
 // It will then return the pertinent information to the user.
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
-	var err error
+	// Reading the body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
 	// Create a new Application struct
 	app := Application{}
-	// parse the request body into the application variable
-	app.AppName = r.FormValue("title")
-	app.Description = r.FormValue("description")
-	app.Owners = r.FormValue("owners")
-	app.TeamName = r.FormValue("teamName")
+
+	// Parse the request body into the application variable
+	err = json.Unmarshal(body, &app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
 	app.IsValid = true
+
 	// Generate a new AppID and API key
 	app.AppID, err = ar.appIDGenerate()
 	if err != nil {
@@ -85,6 +95,8 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
+
+	// potentially return app ID
 }
 
 // todo(@SheedGuy)

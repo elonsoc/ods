@@ -51,9 +51,6 @@ func (db *Db) NewApp(name string, ID string, desc string, owners string, tname s
 
 	// Storing all new app info into the applications table.
 	db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, tname, key, valid)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
