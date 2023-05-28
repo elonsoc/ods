@@ -151,7 +151,7 @@ func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.R
 }
 
 func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.Request) {
-	applicationId := chi.URLParam(r, "buildingID")
+	applicationId := chi.URLParam(r, "id")
 	err := ar.Svcs.Db.DeleteApplication(applicationId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
