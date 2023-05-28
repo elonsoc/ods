@@ -1,0 +1,11 @@
+.breadcrumbsWrapper {
+    margin: 1rem 0 2rem 0;
+    color: var(--subheading-text-color);
+    font-size: .9rem;
+}
+
+.breadcrumbsList {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}

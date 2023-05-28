@@ -9,6 +9,7 @@
   --nav-border-color: #3C4257;
   --heading-text-color: #0A0A0A;
   --default-text-color: #171717;
+  --default-text-hover: #202020;
   --subheading-text-color: #A3A3A3;
   --border-dark: #171717;
   --primary-background: #FAFAFA;
@@ -35,6 +36,7 @@
     --nav-text-color: #FAFAFA;
     --heading-text-color: #FAFAFA;
     --default-text-color: #C2C2C2;
+    --default-text-hover: #e5e5e5;
     --subheading-text-color: #A3A3A3;
     --primary-background: #111111;
     --border-gray: #3C4257;

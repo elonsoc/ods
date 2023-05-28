@@ -3,3 +3,8 @@
     grid-template-columns: minmax(200px, 300px) 1fr;
     height: 100%;
 }
+
+.docsMain {
+    padding: 1rem; 
+    color: var(--default-text-color);
+}
