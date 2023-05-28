@@ -6,12 +6,17 @@ import (
 	pgx "github.com/jackc/pgx/v5"
 )
 
+var conn *pgx.Conn
+
 // DbIFace is an interface for the database
 type DbIFace interface {
 	GetConn() *pgx.Conn
 	NewApp(string, string, string, string, string, string, bool) error
 	UserApps() (pgx.Rows, error)
 	CheckDuplicate(string, string) (bool, error)
+	GetApplication(string) (ApplicationExtended, error)
+	UpdateApplication(string, ApplicationSimple) error
+	DeleteApplication(string) error
 }
 
 // Db is a struct that contains a pointer to the database connection
@@ -19,18 +24,37 @@ type Db struct {
 	db *pgx.Conn
 }
 
+type ApplicationSimple struct {
+	Id          string `json:"appID" db:"app_ID"`
+	Name        string `json:"appName" db:"app_name"`
+	Description string `json:"description" db:"description"`
+	Owners      string `json:"owners" db:"owners"`
+	Team        string `json:"teamName" db:"team_name"`
+}
+
+type ApplicationExtended struct {
+	Id          string `json:"appID" db:"app_ID"`
+	Name        string `json:"appName" db:"app_name"`
+	Description string `json:"description" db:"description"`
+	Owners      string `json:"owners" db:"owners"`
+	Team        string `json:"teamName" db:"team_name"`
+	Api_key     string `json:"apiKey" db:"api_key"`
+	Is_valid    bool   `json:"isValid" db:"is_valid"`
+}
+
 func initDb(databaseURL string, log LoggerIFace) *Db {
 	ctx := context.Background()
-	connection, err := pgx.Connect(ctx, databaseURL)
+	var err error
+	conn, err = pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = prepareStatements(connection, ctx)
+	err = prepareStatements(conn, ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return &Db{db: connection}
+	return &Db{db: conn}
 }
 
 func prepareStatements(connection *pgx.Conn, ctx context.Context) (err error) {
@@ -51,9 +75,9 @@ func (db *Db) NewApp(name string, ID string, desc string, owners string, tname s
 
 	// Storing all new app info into the applications table.
 	db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, tname, key, valid)
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -68,6 +92,42 @@ func (db *Db) UserApps() (pgx.Rows, error) {
 		return nil, err
 	}
 	return rows, nil
+}
+
+func (db *Db) GetApplication(applicationId string) (ApplicationExtended, error) {
+	row, _ := conn.Query(context.Background(), "SELECT * FROM applications WHERE app_ID=$1", applicationId)
+
+	var app ApplicationExtended
+
+	for row.Next() {
+		err := row.Scan(&app.Id,
+			&app.Name,
+			&app.Description,
+			&app.Owners,
+			&app.Team,
+			&app.Api_key,
+			&app.Is_valid)
+		if err != nil {
+			return app, err
+		}
+	}
+
+	return app, nil
+}
+
+func (db *Db) UpdateApplication(applicationId string, applicationInfo ApplicationSimple) error {
+	_, err := conn.Exec(context.Background(), "UPDATE applications SET app_name=$1, description=$2, owners=$3, team_name=$4 WHERE app_ID=$5",
+		applicationInfo.Name,
+		applicationInfo.Description,
+		applicationInfo.Owners,
+		applicationInfo.Team,
+		applicationId)
+	return err
+}
+
+func (db *Db) DeleteApplication(applicationId string) error {
+	_, err := conn.Exec(context.Background(), "DELETE FROM applications WHERE app_ID=$1", applicationId)
+	return err
 }
 
 // Checks for duplicated app IDs or api keys

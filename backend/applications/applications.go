@@ -36,7 +36,11 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	r := chi.NewRouter()
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
-	// r.Put("/{applicationID}", a.applicationByIdHandler)
+	r.Route("/{id}", func(r chi.Router) {
+		r.Get("/", a.GetApplication)
+		r.Put("/", a.UpdateApplication)
+		r.Delete("/", a.DeleteApplication)
+	})
 
 	a.Router = r
 	a.Svcs.Log.Info("Applications router initialized", nil)
@@ -113,6 +117,47 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 
 	// Encode the apps array into JSON and send it back to the client
 	json.NewEncoder(w).Encode(apps)
+}
+
+func (ar *ApplicationsRouter) GetApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+
+	app, err := ar.Svcs.Db.GetApplication(applicationId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(app)
+}
+
+func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+
+	app := service.ApplicationSimple{}
+	app.Name = r.FormValue("title")
+	app.Description = r.FormValue("description")
+	app.Owners = r.FormValue("owners")
+	app.Team = r.FormValue("teamName")
+
+	err := ar.Svcs.Db.UpdateApplication(applicationId, app)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "buildingID")
+	err := ar.Svcs.Db.DeleteApplication(applicationId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 // func (ar *ApplicationsRouter) applicationByIdHandler(w http.ResponseWriter, r *http.Request) {
