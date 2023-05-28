@@ -53,7 +53,7 @@ const Breadcrumbs = () => {
 			<ol className={styles.breadcrumbsList}>
 				{breadcrumbs.map((breadcrumb: PathInferface, i: any) => {
 					return (
-						<li key={breadcrumb.href}>
+						<li className={styles.crumb} key={breadcrumb.href}>
 							<Link href={breadcrumb.href}>
 								{convertBreadcrumb(breadcrumb.breadcrumb)}
 							</Link>

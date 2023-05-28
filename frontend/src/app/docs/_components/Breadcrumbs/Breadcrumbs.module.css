@@ -9,3 +9,34 @@
     display: flex;
     gap: 1rem;
 }
+
+.crumb {
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+}
+
+.crumb:hover {
+    color: var(--default-text-hover);
+
+}
+
+.crumb:not(:first-child) {
+    margin-left: 1.5rem;
+    position: relative;
+}
+
+.crumb:not(:first-child)::before {
+    position: absolute;
+    margin: auto;
+    content: "";
+    display: inline-flex;
+    border-top: 2px solid var(--subheading-text-color);
+    border-right: 2px solid var(--subheading-text-color);
+    rotate: 45deg;
+    width: .5rem;
+    height: .5rem;
+    left: -1.5rem;
+    bottom: 0;
+    top: 0;
+}
