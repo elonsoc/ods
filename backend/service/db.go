@@ -9,7 +9,7 @@ import (
 // DbIFace is an interface for the database
 type DbIFace interface {
 	GetConn() *pgx.Conn
-	NewApp(string, string, string, string, string, string, bool) error
+	NewApp(string, string, string, string, string, bool) error
 	UserApps() (pgx.Rows, error)
 	CheckDuplicate(string, string) (bool, error)
 }
@@ -34,7 +34,7 @@ func initDb(databaseURL string, log LoggerIFace) *Db {
 }
 
 func prepareStatements(connection *pgx.Conn, ctx context.Context) (err error) {
-	_, err = connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (app_ID, app_name, description, owners, team_name, api_key, is_valid) VALUES ($1, $2, $3, $4, $5, $6, $7)")
+	_, err = connection.Prepare(ctx, "insert_into_applications", "INSERT INTO applications (name, description, owners, api_key, is_valid) VALUES ($1, $2, $3, $4, $5)")
 	if err != nil {
 		return err
 	}
@@ -46,11 +46,11 @@ func (s *Db) GetConn() *pgx.Conn {
 }
 
 // NewApp stores the information about a new application in the database.
-func (db *Db) NewApp(name string, ID string, desc string, owners string, tname string, key string, valid bool) error {
+func (db *Db) NewApp(name string, ID string, desc string, owners string, key string, valid bool) error {
 	ctx := context.Background()
 
 	// Storing all new app info into the applications table.
-	db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, tname, key, valid)
+	_, err := db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, key, valid)
 	if err != nil {
 		return err
 	}

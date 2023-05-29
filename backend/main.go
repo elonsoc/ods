@@ -117,7 +117,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string) chi.Router {
+func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certPath, keyPath string) chi.Router {
 	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
@@ -127,7 +127,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL string
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := service.NewService(loggingURL, databaseURL, statsdURL)
+	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath)
 	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
@@ -261,6 +261,8 @@ func main() {
 	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
 	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
 	statsdURL := flag.String("statsd_url", os.Getenv("STATSD_URL"), "statsd url")
+	samlCertPath := flag.String("saml_cert_path", os.Getenv("SAML_CERT_PATH"), "location of service cert")
+	samlKeyPath := flag.String("saml_key_path", os.Getenv("SAML_KEY_PATH"), "location of service key")
 
 	// this could use some improvement in nameing and probably would require
 	// Hashicorp Vault or someting of the sort
@@ -282,9 +284,15 @@ func main() {
 	if *statsdURL == "" {
 		log.Fatal("statsd url not set")
 	}
+	if *samlCertPath == "" {
+		log.Fatal("service cert location not set")
+	}
+	if *samlKeyPath == "" {
+		log.Fatal("service key location not set")
+	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
-		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL))
+		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *samlCertPath, *samlKeyPath))
 	if err != nil {
 		fmt.Println(err)
 	}

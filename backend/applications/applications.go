@@ -45,11 +45,10 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 // The Application type defines the structure of an application.
 type Application struct {
-	AppName     string `json:"appName" db:"app_name"`
-	AppID       string `json:"appID" db:"app_ID"`
+	AppName     string `json:"appName" db:"name"`
+	AppID       string `json:"appID" db:"id"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
-	TeamName    string `json:"teamName" db:"team_name"`
 	ApiKey      string `json:"apiKey" db:"api_key"`
 	IsValid     bool   `json:"isValid" db:"is_valid"`
 }
@@ -65,7 +64,6 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	app.AppName = r.FormValue("title")
 	app.Description = r.FormValue("description")
 	app.Owners = r.FormValue("owners")
-	app.TeamName = r.FormValue("teamName")
 	app.IsValid = true
 	// Generate a new AppID and API key
 	app.AppID, err = ar.appIDGenerate()
@@ -80,7 +78,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the application in the database
-	err = ar.Svcs.Db.NewApp(app.AppName, app.AppID, app.Description, app.Owners, app.TeamName, app.ApiKey, app.IsValid)
+	err = ar.Svcs.Db.NewApp(app.AppName, app.AppID, app.Description, app.Owners, app.ApiKey, app.IsValid)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
@@ -103,7 +101,7 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	apps := []Application{}
 	for rows.Next() {
 		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
+		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners)
 		if err != nil {
 			ar.Svcs.Log.Error(err.Error(), nil)
 			return
