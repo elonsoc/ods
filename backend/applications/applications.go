@@ -49,8 +49,8 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 // The Application type defines the structure of an application.
 type Application struct {
-	AppName     string `json:"appName" db:"app_name"`
-	AppID       string `json:"appID" db:"app_ID"`
+	AppName     string `json:"name" db:"app_name"`
+	AppID       string `json:"id" db:"id"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
 	TeamName    string `json:"teamName" db:"team_name"`
@@ -65,6 +65,18 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// Create a new Application struct
 	app := Application{}
+
+	err = json.NewDecoder(r.Body).Decode(&app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
+	ar.Svcs.Log.Info("New application name: "+app.AppName, nil)
+	ar.Svcs.Log.Info("New application desc: "+app.Description, nil)
+	ar.Svcs.Log.Info("New application owners: "+app.Owners, nil)
+	ar.Svcs.Log.Info("New application teamname: "+app.TeamName, nil)
+
 	// parse the request body into the application variable
 	app.AppName = r.FormValue("title")
 	app.Description = r.FormValue("description")
@@ -227,7 +239,7 @@ func (ar *ApplicationsRouter) appIDGenerate() (string, error) {
 		appID = "ods_app_" + base62
 
 		// query the database to see if the key is unique
-		isUnique, err = ar.Svcs.Db.CheckDuplicate("app_ID", appID)
+		isUnique, err = ar.Svcs.Db.CheckDuplicate("id", appID)
 		if err != nil {
 			ar.Svcs.Log.Error(err.Error(), nil)
 			return "", err

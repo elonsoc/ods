@@ -12,10 +12,12 @@ WORKDIR /app
 RUN yarn global add pnpm@8.1.1
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm fetch --prod
+# RUN pnpm fetch --prod
+RUN pnpm fetch --dev
 
 ADD . ./
-RUN pnpm install -r --offline --prod
+# RUN pnpm install -r --offline --prod
+RUN pnpm install -r --offline --dev
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -31,7 +33,8 @@ RUN yarn build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+# ENV NODE_ENV production
+ENV NODE_ENV development
 # Uncomment the following line in case you want to disable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED 1
 

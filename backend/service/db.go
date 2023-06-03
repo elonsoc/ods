@@ -25,16 +25,16 @@ type Db struct {
 }
 
 type ApplicationSimple struct {
-	Id          string `json:"appID" db:"app_ID"`
-	Name        string `json:"appName" db:"app_name"`
+	Id          string `json:"id" db:"id"`
+	Name        string `json:"name" db:"app_name"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
 	Team        string `json:"teamName" db:"team_name"`
 }
 
 type ApplicationExtended struct {
-	Id          string `json:"appID" db:"app_ID"`
-	Name        string `json:"appName" db:"app_name"`
+	Id          string `json:"id" db:"id"`
+	Name        string `json:"name" db:"app_name"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
 	Team        string `json:"teamName" db:"team_name"`
@@ -95,7 +95,7 @@ func (db *Db) UserApps() (pgx.Rows, error) {
 }
 
 func (db *Db) GetApplication(applicationId string) (ApplicationExtended, error) {
-	row, _ := conn.Query(context.Background(), "SELECT * FROM applications WHERE app_ID=$1", applicationId)
+	row, _ := conn.Query(context.Background(), "SELECT * FROM applications WHERE id=$1", applicationId)
 
 	var app ApplicationExtended
 
@@ -116,7 +116,7 @@ func (db *Db) GetApplication(applicationId string) (ApplicationExtended, error) 
 }
 
 func (db *Db) UpdateApplication(applicationId string, applicationInfo ApplicationSimple) error {
-	_, err := conn.Exec(context.Background(), "UPDATE applications SET app_name=$1, description=$2, owners=$3, team_name=$4 WHERE app_ID=$5",
+	_, err := conn.Exec(context.Background(), "UPDATE applications SET app_name=$1, description=$2, owners=$3, team_name=$4 WHERE id=$5",
 		applicationInfo.Name,
 		applicationInfo.Description,
 		applicationInfo.Owners,
@@ -126,7 +126,7 @@ func (db *Db) UpdateApplication(applicationId string, applicationInfo Applicatio
 }
 
 func (db *Db) DeleteApplication(applicationId string) error {
-	_, err := conn.Exec(context.Background(), "DELETE FROM applications WHERE app_ID=$1", applicationId)
+	_, err := conn.Exec(context.Background(), "DELETE FROM applications WHERE id=$1", applicationId)
 	return err
 }
 
@@ -139,8 +139,8 @@ func (db *Db) CheckDuplicate(column string, newGen string) (bool, error) {
 
 	// This switch statement is used to determine which column to check for duplicates
 	switch column {
-	case "app_ID":
-		query = "SELECT * FROM applications WHERE app_ID = $1"
+	case "id":
+		query = "SELECT * FROM applications WHERE id = $1"
 	case "api_key":
 		query = "SELECT * FROM applications WHERE api_key = $1"
 	}

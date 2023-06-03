@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { UserAppInformation } from '../application.d';
 import applications from '../data.json';
 import { config } from '@/config/Constants';
-const CURRENT_URL = config.url.API_URL;
+const CURRENT_URL = config.url.BACKEND_API_URL;
 
 // --------- MOCK
 // export async function GET(
