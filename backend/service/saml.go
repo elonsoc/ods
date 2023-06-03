@@ -19,8 +19,8 @@ type SamlIFace interface {
 	GetSamlMiddleware() *samlsp.Middleware
 }
 
-func initializeSaml(log LoggerIFace) SamlIFace {
-	keyPair, err := tls.LoadX509KeyPair("myservice.cert", "myservice.key")
+func initializeSaml(log LoggerIFace, certPath, keyPath string) SamlIFace {
+	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error
 	}
