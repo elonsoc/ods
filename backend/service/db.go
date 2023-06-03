@@ -70,7 +70,7 @@ func (s *Db) GetConn() *pgx.Conn {
 }
 
 // NewApp stores the information about a new application in the database.
-func (db *Db) NewApp(name string, ID string, desc string, owners string, tname string, key string, valid bool) error {
+func (db *Db) NewApp(name string, ID string, desc string, owners string, key string, valid bool) error {
 	ctx := context.Background()
 
 	// Storing all new app info into the applications table.

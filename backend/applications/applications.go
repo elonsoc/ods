@@ -49,10 +49,11 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 // The Application type defines the structure of an application.
 type Application struct {
-	AppName     string `json:"appName" db:"name"`
-	AppID       string `json:"appID" db:"id"`
+	AppName     string `json:"appName" db:"app_name"`
+	AppID       string `json:"appID" db:"app_ID"`
 	Description string `json:"description" db:"description"`
 	Owners      string `json:"owners" db:"owners"`
+	TeamName    string `json:"teamName" db:"team_name"`
 	ApiKey      string `json:"apiKey" db:"api_key"`
 	IsValid     bool   `json:"isValid" db:"is_valid"`
 }
@@ -68,6 +69,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	app.AppName = r.FormValue("title")
 	app.Description = r.FormValue("description")
 	app.Owners = r.FormValue("owners")
+	app.TeamName = r.FormValue("teamName")
 	app.IsValid = true
 	// Generate a new AppID and API key
 	app.AppID, err = ar.appIDGenerate()
@@ -105,7 +107,7 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	apps := []Application{}
 	for rows.Next() {
 		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners)
+		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
 		if err != nil {
 			ar.Svcs.Log.Error(err.Error(), nil)
 			return
@@ -161,7 +163,11 @@ func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.R
 // func (ar *ApplicationsRouter) applicationByIdHandler(w http.ResponseWriter, r *http.Request) {
 // 	applicationId := chi.URLParam(r, "applicationID")
 
-// }
+//
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
 
 // This function creates a new API key. It is a struct method because it needs to access the database
 // and logger. The function will keep generating a new key until it finds one that is unique.
