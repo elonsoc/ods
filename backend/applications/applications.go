@@ -50,10 +50,15 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 
 	r.Use(cors.Handler)
 
+	r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
 	r.Route("/{id}", func(r chi.Router) {
-		// r.Use(cors.Handler)
+		r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 		r.Get("/", a.GetApplication)
 		r.Put("/", a.UpdateApplication)
 		r.Delete("/", a.DeleteApplication)

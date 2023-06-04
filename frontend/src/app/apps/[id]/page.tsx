@@ -10,7 +10,7 @@ import { config } from '@/config/Constants';
 import ApplicationInformation from './_components/ApplicationInformation/ApplicationInformation';
 import SkeletonLoader from './_components/SkeletonLoader/SkeletonLoader';
 import BackLink from './_components/BackLink/BackLink';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 const URL = config.url.API_URL;
 const BACKEND_URL = config.url.BACKEND_API_URL;
 
@@ -21,6 +21,7 @@ interface ApplicationProps {
 }
 
 const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
+	const router = useRouter();
 	const [application, setApplication] = useState<ApplicationExtended>({
 		id: '',
 		name: '',
@@ -62,7 +63,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 				'Content-Type': 'application/json',
 			},
 		});
-		redirect('/apps');
+		router.replace(`/apps`);
 	}
 
 	useEffect(() => {
