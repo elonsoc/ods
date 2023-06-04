@@ -9,6 +9,7 @@ import (
 
 	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 /*
@@ -34,9 +35,25 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	a.Svcs.Log.Info("Initializing applications router", nil)
 
 	r := chi.NewRouter()
+
+	// CORS is used to allow cross-origin requests
+	cors := cors.New(cors.Options{
+		AllowedOrigins:     []string{"*"},
+		AllowOriginFunc:    func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:     []string{"Link"},
+		AllowCredentials:   true,
+		OptionsPassthrough: true,
+		MaxAge:             3599, // Maximum value not ignored by any of major browsers
+	})
+
+	r.Use(cors.Handler)
+
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
 	r.Route("/{id}", func(r chi.Router) {
+		// r.Use(cors.Handler)
 		r.Get("/", a.GetApplication)
 		r.Put("/", a.UpdateApplication)
 		r.Delete("/", a.DeleteApplication)
@@ -72,35 +89,19 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ar.Svcs.Log.Info("New application name: "+app.AppName, nil)
-	ar.Svcs.Log.Info("New application desc: "+app.Description, nil)
-	ar.Svcs.Log.Info("New application owners: "+app.Owners, nil)
-	ar.Svcs.Log.Info("New application teamname: "+app.TeamName, nil)
-
-	// parse the request body into the application variable
-	app.AppName = r.FormValue("title")
-	app.Description = r.FormValue("description")
-	app.Owners = r.FormValue("owners")
-	app.TeamName = r.FormValue("teamName")
 	app.IsValid = true
-	// Generate a new AppID and API key
-	app.AppID, err = ar.appIDGenerate()
-	if err != nil {
-		ar.Svcs.Log.Error(err.Error(), nil)
-		return
-	}
-	app.ApiKey, err = ar.apiKeyGenerate()
-	if err != nil {
-		ar.Svcs.Log.Error(err.Error(), nil)
-		return
-	}
+
+	app.ApiKey = "testStaticApiKey"
 
 	// Store the application in the database
-	err = ar.Svcs.Db.NewApp(app.AppName, app.AppID, app.Description, app.Owners, app.ApiKey, app.IsValid)
+	err = ar.Svcs.Db.NewApp(app.AppName, app.Description, app.Owners, app.ApiKey, app.IsValid)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
+
+	// Send http status code 200
+	w.WriteHeader(http.StatusOK)
 }
 
 // todo(@SheedGuy)
@@ -119,7 +120,7 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	apps := []Application{}
 	for rows.Next() {
 		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners, &app.TeamName)
+		err = rows.Scan(&app.AppID, &app.AppName, &app.Description, &app.Owners, &app.ApiKey, &app.IsValid)
 		if err != nil {
 			ar.Svcs.Log.Error(err.Error(), nil)
 			return
@@ -147,14 +148,17 @@ func (ar *ApplicationsRouter) GetApplication(w http.ResponseWriter, r *http.Requ
 
 func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.Request) {
 	applicationId := chi.URLParam(r, "id")
+	var err error
 
 	app := service.ApplicationSimple{}
-	app.Name = r.FormValue("title")
-	app.Description = r.FormValue("description")
-	app.Owners = r.FormValue("owners")
-	app.Team = r.FormValue("teamName")
+	app.Id = applicationId
+	err = json.NewDecoder(r.Body).Decode(&app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
 
-	err := ar.Svcs.Db.UpdateApplication(applicationId, app)
+	err = ar.Svcs.Db.UpdateApplication(applicationId, app)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

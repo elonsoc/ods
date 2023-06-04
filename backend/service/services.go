@@ -37,12 +37,12 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath string) *S
 	log := initLogging(loggingURL)
 	db := initDb(databaseURL, log)
 	stat := initStatsD(statsdURL, log)
-	saml := initializeSaml(log, certPath, keyPath)
+	// saml := initializeSaml(log, certPath, keyPath)
 
 	return &Services{
 		Log:  log,
 		Db:   db,
 		Stat: stat,
-		Saml: saml,
+		// Saml: saml,
 	}
 }

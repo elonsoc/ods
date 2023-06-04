@@ -27,27 +27,32 @@ const CURRENT_URL = config.url.BACKEND_API_URL;
 
 // ----
 
-export async function GET(request: Request): Promise<NextResponse> {
+export async function GET(request: Request): Promise<Response> {
 	let applicationJSON;
+	console.log(`Fetching to url ${CURRENT_URL}/applications`);
 	try {
-		const res = await fetch(`${CURRENT_URL}/applications`, {
-			headers: {
-				'Content-Type': 'application/json',
-				credentials: 'include',
-			},
-		});
+		const res = await fetch(`${CURRENT_URL}/applications`);
 		applicationJSON = await res.json();
 	} catch (error) {
 		console.log('There was an error', error);
 	}
-	return NextResponse.json(applicationJSON || []);
+	console.log('applicationJSON', applicationJSON);
+	return new Response(applicationJSON, {
+		status: 200,
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		},
+	});
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(request: Request): Promise<Response> {
 	const endpoint = `${CURRENT_URL}/applications`;
 
 	const options = {
 		method: 'POST',
+		duplex: 'half',
 		headers: {
 			'Content-Type': 'application/json',
 			credentials: 'include',
@@ -57,5 +62,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
 	const res = await fetch(endpoint, options);
 	const data = await res.json();
-	return NextResponse.json(data);
+	return new Response(data, {
+		status: 200,
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		},
+	});
 }

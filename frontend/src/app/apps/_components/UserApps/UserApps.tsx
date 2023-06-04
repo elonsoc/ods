@@ -1,12 +1,13 @@
 'use client';
 
+import { ApplicationSimple } from '@/app/api/applications/application.d';
 import UserApp, { AppInfo } from '../UserApp/UserApp';
 import Link from 'next/link';
 
-const UserApps = ({ applications }: any) => {
+const UserApps = ({ applications }: { applications: ApplicationSimple[] }) => {
 	return (
 		<>
-			{applications.map((app: AppInfo) => (
+			{applications.map((app: ApplicationSimple) => (
 				<Link href={`apps/${app.id}`} key={app.id}>
 					<UserApp info={app} />
 				</Link>

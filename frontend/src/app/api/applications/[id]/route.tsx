@@ -46,7 +46,7 @@ export async function GET(
 	}: {
 		params: { id: string };
 	}
-): Promise<NextResponse> {
+): Promise<Response> {
 	const id = params.id;
 	let applicationJSON;
 	try {
@@ -60,7 +60,14 @@ export async function GET(
 	} catch (error) {
 		console.log('There was an error', error);
 	}
-	return NextResponse.json(applicationJSON || []);
+	return new Response(applicationJSON, {
+		status: 200,
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		},
+	});
 }
 
 export async function PUT(
@@ -70,7 +77,7 @@ export async function PUT(
 	}: {
 		params: { id: string };
 	}
-): Promise<NextResponse> {
+): Promise<Response> {
 	const body: UserAppInformation = await request.json();
 	const id = params.id;
 	const res = await fetch(`${CURRENT_URL}/applications/${id}`, {
@@ -82,5 +89,12 @@ export async function PUT(
 	});
 	const applications = await res.json();
 
-	return NextResponse.json(applications);
+	return new Response(applications, {
+		status: 200,
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		},
+	});
 }

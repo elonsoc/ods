@@ -11,7 +11,7 @@ var conn *pgx.Conn
 // DbIFace is an interface for the database
 type DbIFace interface {
 	GetConn() *pgx.Conn
-	NewApp(string, string, string, string, string, bool) error
+	NewApp(string, string, string, string, bool) error
 	UserApps() (pgx.Rows, error)
 	CheckDuplicate(string, string) (bool, error)
 	GetApplication(string) (ApplicationExtended, error)
@@ -70,16 +70,14 @@ func (s *Db) GetConn() *pgx.Conn {
 }
 
 // NewApp stores the information about a new application in the database.
-func (db *Db) NewApp(name string, ID string, desc string, owners string, key string, valid bool) error {
+func (db *Db) NewApp(name string, desc string, owners string, key string, valid bool) error {
 	ctx := context.Background()
 
 	// Storing all new app info into the applications table.
-	_, err := db.db.Exec(ctx, "insert_into_applications", ID, name, desc, owners, key, valid)
-	if err != nil {
-		return err
-	}
+	// _, err := db.db.Exec(ctx, "insert_into_applications", name, desc, owners, key, valid)
 
-	return nil
+	_, err := conn.Exec(ctx, "INSERT INTO applications (name, description, owners, api_key, is_valid) VALUES ($1, $2, $3, $4, $5)", name, desc, owners, key, valid)
+	return err
 }
 
 // UserApps returns a list of all the applications that exist right now.
@@ -104,7 +102,7 @@ func (db *Db) GetApplication(applicationId string) (ApplicationExtended, error) 
 			&app.Name,
 			&app.Description,
 			&app.Owners,
-			&app.Team,
+			// &app.Team,
 			&app.Api_key,
 			&app.Is_valid)
 		if err != nil {
@@ -116,11 +114,10 @@ func (db *Db) GetApplication(applicationId string) (ApplicationExtended, error) 
 }
 
 func (db *Db) UpdateApplication(applicationId string, applicationInfo ApplicationSimple) error {
-	_, err := conn.Exec(context.Background(), "UPDATE applications SET app_name=$1, description=$2, owners=$3, team_name=$4 WHERE id=$5",
+	_, err := conn.Exec(context.Background(), "UPDATE applications SET name=$1, description=$2, owners=$3 WHERE id=$4",
 		applicationInfo.Name,
 		applicationInfo.Description,
 		applicationInfo.Owners,
-		applicationInfo.Team,
 		applicationId)
 	return err
 }

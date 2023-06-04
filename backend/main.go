@@ -128,7 +128,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
 	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath)
-	samlMiddleware := svc.Saml.GetSamlMiddleware()
+	// samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
 	r := chi.NewRouter()
@@ -152,12 +152,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// older clients who may rely on older versions of the API.
 
 	// this saml subpath handles the necessary get and post operations to support SAML authentication
-	r.Mount("/saml", r.Group(func(r chi.Router) {
-		r.Use(middleware.NoCache)
+	// r.Mount("/saml", r.Group(func(r chi.Router) {
+	// 	r.Use(middleware.NoCache)
 
-		r.Get("/metadata", samlMiddleware.ServeMetadata)
-		r.Post("/acs", samlMiddleware.ServeACS)
-	}))
+	// 	r.Get("/metadata", samlMiddleware.ServeMetadata)
+	// 	r.Post("/acs", samlMiddleware.ServeACS)
+	// }))
 
 	// this group is for the API that will be used by applications to access the data
 	r.Group(func(r chi.Router) {
@@ -238,10 +238,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		})
 	}))
 
+	r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
+
 	r.Group(func(r chi.Router) {
 		r.Use(CheckIdentity())
 
-		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
+		// r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))

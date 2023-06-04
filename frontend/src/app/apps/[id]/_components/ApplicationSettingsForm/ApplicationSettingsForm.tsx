@@ -1,15 +1,21 @@
 import { FormEvent, useState } from 'react';
 import styles from './ApplicationSettingsForm.module.css';
+import { redirect } from 'next/navigation';
+import { UserAppInformation } from '@/app/api/applications/application.d';
 
-function handleSubmit(event: any) {
-	event.preventDefault();
+interface ApplicationSettingsFormProps {
+	application: any;
+	setSettingsActive: any;
+	handleAppSubmit: (application: UserAppInformation) => void;
+	handleAppDelete: (id: string) => void;
 }
 
 const ApplicationSettingsForm = ({
 	application,
 	setSettingsActive,
 	handleAppSubmit,
-}: any) => {
+	handleAppDelete,
+}: ApplicationSettingsFormProps) => {
 	const { name, description, owners, teamName } = application;
 	const [state, setState] = useState({
 		name: name,
@@ -26,6 +32,11 @@ const ApplicationSettingsForm = ({
 			...prevInfo,
 			[name]: value,
 		}));
+	};
+
+	const handleDeleteApplication = (event: any) => {
+		event.preventDefault();
+		handleAppDelete(application.id);
 	};
 
 	const handleFormSubmit = (event: any) => {
@@ -105,6 +116,7 @@ const ApplicationSettingsForm = ({
 					<p>Delete this application</p>
 					<button
 						className={`${styles.button} ${styles.deleteApplicationButton}`}
+						onClick={handleDeleteApplication}
 						type='button'
 					>
 						Delete Application
