@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	samlsp "github.com/crewjam/saml/samlsp"
+	samlsp "github.com/elonsoc/saml/samlsp"
 	mock "github.com/stretchr/testify/mock"
 )
 

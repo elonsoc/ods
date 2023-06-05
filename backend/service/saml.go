@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/crewjam/saml/samlsp"
+	"github.com/elonsoc/saml"
+	"github.com/elonsoc/saml/samlsp"
 )
 
 type Saml struct {
@@ -39,18 +40,6 @@ func initializeSaml(log LoggerIFace, idpURL, certPath, keyPath string) SamlIFace
 		panic(err) // TODO handle error
 	}
 
-	// idpMetadata.Organization = &saml.Organization{
-	// 	OrganizationNames: []saml.LocalizedName{
-	// 		{Value: "Elon Society of Computing CS Project Team", Lang: "en"},
-	// 	},
-	// 	OrganizationURLs: []saml.LocalizedURI{
-	// 		{Value: "https://ods.elon.edu", Lang: "en"},
-	// 	},
-	// 	OrganizationDisplayNames: []saml.LocalizedName{
-	// 		{Value: "ESC CSPT", Lang: "en"},
-	// 	},
-	// }
-
 	rootURL, err := url.Parse("https://ods.elon.edu")
 	if err != nil {
 		panic(err) // TODO handle error
@@ -62,6 +51,23 @@ func initializeSaml(log LoggerIFace, idpURL, certPath, keyPath string) SamlIFace
 		Key:         keyPair.PrivateKey.(*rsa.PrivateKey),
 		Certificate: keyPair.Leaf,
 		IDPMetadata: idpMetadata,
+		Organization: &saml.Organization{
+			OrganizationNames: []saml.LocalizedName{
+				{Value: "Elon Society of Computing CS Project Team", Lang: "en"},
+			},
+			OrganizationURLs: []saml.LocalizedURI{
+				{Value: "https://ods.elon.edu", Lang: "en"},
+			},
+			OrganizationDisplayNames: []saml.LocalizedName{
+				{Value: "ESC CSPT", Lang: "en"},
+			},
+		},
+		ContactPerson: &saml.ContactPerson{
+			ContactType:    "technical",
+			Company:        "Elon University",
+			GivenName:      "Elon Society of Computing CS Project Team",
+			EmailAddresses: []string{"hello@elonsoc.org"},
+		},
 	})
 
 	return &Saml{

@@ -14,10 +14,10 @@ import (
 	"github.com/sirupsen/logrus"
 	statsd "github.com/smira/go-statsd"
 
-	"github.com/crewjam/saml/samlsp"
 	"github.com/elonsoc/ods/backend/applications"
 	locations "github.com/elonsoc/ods/backend/locations"
 	"github.com/elonsoc/ods/backend/service"
+	"github.com/elonsoc/saml/samlsp"
 )
 
 // IdentityKeys are different from API keys in that they are used to validate the identity of the user
