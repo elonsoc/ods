@@ -14,23 +14,25 @@ type DbIFace struct {
 	mock.Mock
 }
 
-// CheckDuplicate provides a mock function with given fields: _a0, _a1
-func (_m *DbIFace) CheckDuplicate(_a0 string, _a1 string) (bool, error) {
-	ret := _m.Called(_a0, _a1)
+// GetApplications provides a mock function with given fields:
+func (_m *DbIFace) GetApplications() (pgx.Rows, error) {
+	ret := _m.Called()
 
-	var r0 bool
+	var r0 pgx.Rows
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func() (pgx.Rows, error)); ok {
+		return rf()
 	}
-	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func() pgx.Rows); ok {
+		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(bool)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(pgx.Rows)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -92,53 +94,23 @@ func (_m *DbIFace) GetConn() *pgx.Conn {
 	return r0
 }
 
-// NewApp provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
-func (_m *DbIFace) NewApp(_a0 string, _a1 string, _a2 string, _a3 string, _a4 bool) error {
-	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string, string, bool) error); ok {
-		r0 = rf(_a0, _a1, _a2, _a3, _a4)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// UpdateApplication provides a mock function with given fields: _a0, _a1
-func (_m *DbIFace) UpdateApplication(_a0 string, _a1 service.ApplicationSimple) error {
+// NewApp provides a mock function with given fields: _a0, _a1
+func (_m *DbIFace) NewApp(_a0 string, _a1 string) (string, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, service.ApplicationSimple) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
-}
-
-// UserApps provides a mock function with given fields:
-func (_m *DbIFace) UserApps() (pgx.Rows, error) {
-	ret := _m.Called()
-
-	var r0 pgx.Rows
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (pgx.Rows, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() pgx.Rows); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(pgx.Rows)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

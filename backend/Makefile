@@ -15,6 +15,9 @@ run:
 	PROMETHEUS_URL=http://localhost:9090 \
 	REDIS_URL=redis://localhost:6379 \
 	STATSD_URL=localhost:9125 \
+	SAML_CERT_PATH=../infra/saml/cert.pem \
+	SAML_KEY_PATH=../infra/saml/key.pem \
+	IDP_URL="https://idp.elon.edu/idp/shibboleth" \
 	go run ./...
 
 .PHONY: test
