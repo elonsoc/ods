@@ -19,7 +19,7 @@ type SamlIFace interface {
 	GetSamlMiddleware() *samlsp.Middleware
 }
 
-func initializeSaml(log LoggerIFace, certPath, keyPath string) SamlIFace {
+func initializeSaml(log LoggerIFace, idpURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error
@@ -29,10 +29,7 @@ func initializeSaml(log LoggerIFace, certPath, keyPath string) SamlIFace {
 		panic(err) // TODO handle error
 	}
 
-	// the idpMetadataURL can be hardcoded since we are only supporting Elon's IdP instance
-	// this url is for testing purposes only—we will be using Elon's metadata in prod.
-	// todo(@jumar): replace this with Elon's Metadata URL
-	idpMetadataURL, err := url.Parse("https://samltest.id/saml/idp")
+	idpMetadataURL, err := url.Parse(idpURL)
 	if err != nil {
 		panic(err) // TODO handle error
 	}
@@ -42,13 +39,26 @@ func initializeSaml(log LoggerIFace, certPath, keyPath string) SamlIFace {
 		panic(err) // TODO handle error
 	}
 
-	rootURL, err := url.Parse("http://localhost:3000")
+	// idpMetadata.Organization = &saml.Organization{
+	// 	OrganizationNames: []saml.LocalizedName{
+	// 		{Value: "Elon Society of Computing CS Project Team", Lang: "en"},
+	// 	},
+	// 	OrganizationURLs: []saml.LocalizedURI{
+	// 		{Value: "https://ods.elon.edu", Lang: "en"},
+	// 	},
+	// 	OrganizationDisplayNames: []saml.LocalizedName{
+	// 		{Value: "ESC CSPT", Lang: "en"},
+	// 	},
+	// }
+
+	rootURL, err := url.Parse("https://ods.elon.edu")
 	if err != nil {
 		panic(err) // TODO handle error
 	}
 
 	samlSP, _ := samlsp.New(samlsp.Options{
 		URL:         *rootURL,
+		EntityID:    rootURL.String(),
 		Key:         keyPair.PrivateKey.(*rsa.PrivateKey),
 		Certificate: keyPair.Leaf,
 		IDPMetadata: idpMetadata,
