@@ -1,11 +1,8 @@
 package applications
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
@@ -48,7 +45,7 @@ type Application struct {
 	AppName     string `json:"appName" db:"name"`
 	AppID       string `json:"appID" db:"id"`
 	Description string `json:"description" db:"description"`
-	Owners      string `json:"owners" db:"owners"`
+	Owners      string `json:"owners"`
 	ApiKey      string `json:"apiKey" db:"api_key"`
 	IsValid     bool   `json:"isValid" db:"is_valid"`
 }
@@ -63,26 +60,17 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	// parse the request body into the application variable
 	app.AppName = r.FormValue("title")
 	app.Description = r.FormValue("description")
-	app.Owners = r.FormValue("owners")
 	app.IsValid = true
-	// Generate a new AppID and API key
-	app.AppID, err = ar.appIDGenerate()
+
+	// Store the application in the database
+	appId, err := ar.Svcs.Db.NewApp(app.AppName, app.Description)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
-		return
-	}
-	app.ApiKey, err = ar.apiKeyGenerate()
-	if err != nil {
-		ar.Svcs.Log.Error(err.Error(), nil)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Store the application in the database
-	err = ar.Svcs.Db.NewApp(app.AppName, app.AppID, app.Description, app.Owners, app.ApiKey, app.IsValid)
-	if err != nil {
-		ar.Svcs.Log.Error(err.Error(), nil)
-		return
-	}
+	w.Write([]byte(appId))
 }
 
 // todo(@SheedGuy)
@@ -91,7 +79,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 // list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	// Query db for all apps
-	rows, err := ar.Svcs.Db.UserApps()
+	rows, err := ar.Svcs.Db.GetApplications()
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
@@ -101,7 +89,7 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	apps := []Application{}
 	for rows.Next() {
 		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description, &app.Owners)
+		err = rows.Scan(&app.AppName, &app.AppID, &app.Description)
 		if err != nil {
 			ar.Svcs.Log.Error(err.Error(), nil)
 			return
@@ -112,95 +100,3 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	// Encode the apps array into JSON and send it back to the client
 	json.NewEncoder(w).Encode(apps)
 }
-
-// func (ar *ApplicationsRouter) applicationByIdHandler(w http.ResponseWriter, r *http.Request) {
-// 	applicationId := chi.URLParam(r, "applicationID")
-
-// }
-
-// This function creates a new API key. It is a struct method because it needs to access the database
-// and logger. The function will keep generating a new key until it finds one that is unique.
-func (ar *ApplicationsRouter) apiKeyGenerate() (string, error) {
-	// Keep generating a new key until a unique one is found
-	isUnique := false
-	key := ""
-
-	for !isUnique {
-		// generate 32 random bytes using crypto/rand
-		bytes := make([]byte, 32)
-		_, err := rand.Read(bytes)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return "", err
-		}
-
-		// convert bytes to a base62 string
-		base64 := base64.StdEncoding.EncodeToString(bytes)
-		base63 := strings.Replace(base64, "+", "0", -1)
-		base62 := strings.Replace(base63, "/", "1", -1)
-
-		key = "ods_key_" + base62
-
-		// query the database to see if the key is unique
-		isUnique, err = ar.Svcs.Db.CheckDuplicate("api_key", key)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return "", err
-		}
-	}
-	// Return the API key string
-	return key, nil
-}
-
-// This function creates a new Application ID. It is a struct method because it needs to access the database
-// and logger. The function will keep generating a new ID until it finds one that is unique.
-func (ar *ApplicationsRouter) appIDGenerate() (string, error) {
-	// Keep generating a new ID until a unique one is found
-	var isUnique bool
-	var appID string
-
-	for !isUnique {
-		// generate 32 random bytes using crypto/rand
-		bytes := make([]byte, 32)
-		_, err := rand.Read(bytes)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return "", err
-		}
-
-		// convert bytes to a base62 string
-		base64 := base64.StdEncoding.EncodeToString(bytes)
-		base63 := strings.Replace(base64, "+", "0", -1)
-		base62 := strings.Replace(base63, "/", "1", -1)
-
-		appID = "ods_app_" + base62
-
-		// query the database to see if the key is unique
-		isUnique, err = ar.Svcs.Db.CheckDuplicate("app_ID", appID)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return "", err
-		}
-	}
-	// Return the API key string
-	return appID, nil
-}
-
-/*
-All the code below has not been implemented yet or extensively worked on.
-
-func apiKeyRefresh(appID string) {
-	// generate a new key with apiKeyGenerate()
-	sqlQuery := "UPDATE Keys SET \"Api Key\" = $1 WHERE \"Project ID\" = $2"
-	// store new key in database
-	res, err := db.Exec(sqlQuery, apiKeyGenerate(), appID)
-	if err != nil {
-		// log error
-	}
-}
-
-func apiKeyRevoke() {
-	// update "isValid" in the database to false
-}
-
-*/
