@@ -43,6 +43,6 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL st
 		Log:  log,
 		Db:   db,
 		Stat: stat,
-		// Saml: saml,
+		Saml: saml,
 	}
 }

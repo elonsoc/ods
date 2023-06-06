@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/elonsoc/ods/backend/applications/types"
 	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -66,23 +68,13 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	return a
 }
 
-// The Application type defines the structure of an application.
-type Application struct {
-	AppName     string `json:"name" db:"app_name"`
-	AppID       string `json:"id" db:"id"`
-	Description string `json:"description" db:"description"`
-	Owners      string `json:"owners"`
-	ApiKey      string `json:"apiKey" db:"api_key"`
-	IsValid     bool   `json:"isValid" db:"is_valid"`
-}
-
 // This function handles the registration form. It is called when the user submits a registration form.
 // It will parse the form, generate a project ID and API key, and store the information in the database.
 // It will then return the pertinent information to the user.
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// Create a new Application struct
-	app := Application{}
+	app := types.BaseApplication{}
 
 	err = json.NewDecoder(r.Body).Decode(&app)
 	if err != nil {
@@ -90,12 +82,8 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.IsValid = true
-
-	app.ApiKey = "testStaticApiKey"
-
 	// Store the application in the database
-	appId, err := ar.Svcs.Db.NewApp(app.AppName, app.Description)
+	appId, err := ar.Svcs.Db.NewApp(app.Name, app.Description)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -111,24 +99,57 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 // list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	// Query db for all apps
-	rows, err := ar.Svcs.Db.GetApplications()
+	apps, err := ar.Svcs.Db.GetApplications()
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
 
-	// Scan the rows into an array of Applications
-	apps := []Application{}
-	for rows.Next() {
-		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return
-		}
-		apps = append(apps, app)
+	json.NewEncoder(w).Encode(apps)
+}
+
+func (ar *ApplicationsRouter) GetApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+
+	app, err := ar.Svcs.Db.GetApplication(applicationId)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), logrus.Fields{"applicationId": applicationId})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	// Encode the apps array into JSON and send it back to the client
-	json.NewEncoder(w).Encode(apps)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(app)
+}
+
+func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+	var err error
+
+	app := types.Application{}
+	app.Id = applicationId
+	err = json.NewDecoder(r.Body).Decode(&app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
+	err = ar.Svcs.Db.UpdateApplication(applicationId, app)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+	err := ar.Svcs.Db.DeleteApplication(applicationId)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), logrus.Fields{"applicationId": applicationId})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

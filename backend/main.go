@@ -241,7 +241,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
 	r.Group(func(r chi.Router) {
-		r.Use(svc.Saml.GetSamlMiddleware().RequireAccount)
+		r.Use(samlMiddleware.RequireAccount)
 
 		// r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
