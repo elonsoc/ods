@@ -18,7 +18,7 @@ run:
 	SAML_CERT_PATH=../infra/saml/cert.pem \
 	SAML_KEY_PATH=../infra/saml/key.pem \
 	IDP_URL="https://samltest.id/saml/providers" \
-	SP_URL="http://localhost:3000"
+	SP_URL="http://localhost:3000" \
 	go run ./...
 
 .PHONY: test
