@@ -21,7 +21,7 @@ export default function App() {
   const [hasApplications, setHasApplications] = useState(false);
 
   async function fetchApplications() {
-    const res = await fetch(`${BACKEND_URL}/applications`, {
+    const res = await fetch(`/api/applications`, {
       cache: "no-cache",
     });
     const applications = await res.json();
@@ -35,7 +35,7 @@ export default function App() {
   }, []);
 
   async function handleAppSubmit(appInfo: UserAppInformation) {
-    const result = await fetch(`${BACKEND_URL}/applications`, {
+    const result = await fetch(`/api/applications`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -45,6 +45,8 @@ const ApplicationInformation = ({
 						<h2 className={styles.teamNameHeading}>{teamName}</h2>
 						<h1 className={styles.applicationNameHeading}>{name}</h1>
 						<p className={styles.applicationDescription}>{description}</p>
+						<p className={styles.applicationDescription}>API Key: {application.apiKey}</p>
+						<p className={styles.applicationDescription}>AppID: {application.id}</p>
 						<p className={styles.owners}>{owners}</p>
 						<p></p>
 					</div>

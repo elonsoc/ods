@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { UserAppInformation } from './application.d';
 import applications from './data.json';
 import { config } from '@/config/Constants';
-const CURRENT_URL = config.url.BACKEND_API_URL;
+const BACKEND_URL = config.url.BACKEND_API_URL;
 
 // ---------MOCK
 // export async function POST(request: Request): Promise<NextResponse> {
@@ -27,28 +27,21 @@ const CURRENT_URL = config.url.BACKEND_API_URL;
 
 // ----
 
-export async function GET(request: Request): Promise<Response> {
+export async function GET(request: Request): Promise<NextResponse> {
 	let applicationJSON;
-	console.log(`Fetching to url ${CURRENT_URL}/applications`);
+	console.log(`Fetching to url ${BACKEND_URL}/applications`);
 	try {
-		const res = await fetch(`${CURRENT_URL}/applications`);
+		const res = await fetch(`${BACKEND_URL}/applications`);
 		applicationJSON = await res.json();
 	} catch (error) {
-		console.log('There was an error', error);
+		console.log('oops, an error:', error)
+		return new NextResponse()
 	}
 	console.log('applicationJSON', applicationJSON);
-	return new Response(applicationJSON, {
-		status: 200,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-		},
-	});
+	return NextResponse.json(applicationJSON)
 }
 
-export async function POST(request: Request): Promise<Response> {
-	const endpoint = `${CURRENT_URL}/applications`;
+export async function POST(request: Request): Promise<NextResponse> {
 
 	const options = {
 		method: 'POST',
@@ -60,14 +53,8 @@ export async function POST(request: Request): Promise<Response> {
 		body: request.body, // parsed automatically to an object as of Next.js v12
 	};
 
-	const res = await fetch(endpoint, options);
+	const res = await fetch(`${BACKEND_URL}/applications`, options);
 	const data = await res.json();
-	return new Response(data, {
-		status: 200,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-		},
-	});
+	console.log(data)
+	return NextResponse.json(data)
 }

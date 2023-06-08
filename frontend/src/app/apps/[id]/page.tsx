@@ -34,7 +34,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 	const [loading, setLoading] = useState(true);
 
 	async function fetchApplication(id: String): Promise<UserAppInformation> {
-		const res = await fetch(`${BACKEND_URL}/applications/${id}`, {
+		const res = await fetch(`/api/applications/${id}`, {
 			cache: 'no-cache',
 		});
 		const application = await res.json();
@@ -45,7 +45,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 
 	async function handleAppSubmit(appInfo: UserAppInformation) {
 		setLoading(true);
-		const result = await fetch(`${BACKEND_URL}/applications/${id}`, {
+		const result = await fetch(`/api/applications/${id}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 
 	async function handleAppDelete(id: string) {
 		setLoading(true);
-		const result = await fetch(`${BACKEND_URL}/applications/${id}`, {
+		const result = await fetch(`/applications/${id}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

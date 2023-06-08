@@ -22,6 +22,16 @@ type Db struct {
 	db *pgxpool.Pool
 }
 
+const (
+	insertIntoApplications     = "INSERT INTO applications (name, description, is_valid) VALUES ($1, $2, true) RETURNING id"
+	selectAllApplications      = "SELECT api_key, description, id, is_valid, name FROM applications"
+	selectApplication          = "SELECT api_key, description, id, is_valid, name FROM applications WHERE id=$1"
+	getOwners                  = "SELECT email FROM users WHERE id IN (SELECT user_id FROM app_owner WHERE app_id=$1)"
+	updateApplication          = "UPDATE applications SET name=$1, description=$2 WHERE id=$3"
+	firstLegDeleteApplication  = "DELETE FROM app_owner WHERE app_id=$1"
+	secondLegDeleteApplication = "DELETE FROM applications WHERE id=$1"
+)
+
 func initDb(databaseURL string, log LoggerIFace) *Db {
 	ctx := context.Background()
 
@@ -30,62 +40,7 @@ func initDb(databaseURL string, log LoggerIFace) *Db {
 		log.Fatal(err)
 	}
 
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = prepareStatements(conn.Conn(), ctx)
-	conn.Release()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return &Db{db: pool}
-}
-
-func prepareStatements(connection *pgx.Conn, ctx context.Context) (err error) {
-	_, err = connection.Prepare(ctx, "insert_into_applications",
-		"INSERT INTO applications (name, description, is_valid) VALUES ($1, $2, true) RETURNING id")
-	if err != nil {
-		return err
-	}
-	_, err = connection.Prepare(ctx, "select_all_applications",
-		"SELECT api_key, description, id, is_valid, name FROM applications")
-	if err != nil {
-		return err
-	}
-
-	_, err = connection.Prepare(ctx, "select_application",
-		"SELECT api_key, description, id, is_valid, name FROM applications WHERE id=$1")
-	if err != nil {
-		return err
-	}
-
-	_, err = connection.Prepare(ctx, "get_owners",
-		"SELECT email FROM users WHERE id IN (SELECT user_id FROM app_owner WHERE app_id=$1)")
-	if err != nil {
-		return err
-	}
-	_, err = connection.Prepare(ctx, "update_application",
-		"UPDATE applications SET name=$1, description=$2 WHERE id=$3")
-	if err != nil {
-		return err
-	}
-
-	_, err = connection.Prepare(ctx, "first_leg_delete_application",
-		"DELETE FROM app_owner WHERE app_id=$1")
-	if err != nil {
-		return err
-	}
-
-	_, err = connection.Prepare(ctx, "second_leg_delete_application",
-		"DELETE FROM applications WHERE id=$1")
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // NewApp stores the information about a new application in the database.
@@ -95,7 +50,7 @@ func (db *Db) NewApp(name string, desc string) (string, error) {
 
 	var id string
 
-	err := db.db.QueryRow(ctx, "insert_into_applications", name, desc).Scan(&id)
+	err := db.db.QueryRow(ctx, insertIntoApplications, name, desc).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -108,7 +63,7 @@ func (db *Db) NewApp(name string, desc string) (string, error) {
 // a list of all the applications that the user owns.
 func (db *Db) GetApplications() ([]types.Application, error) {
 	ctx := context.Background()
-	rows, err := db.db.Query(ctx, "select_all_applications")
+	rows, err := db.db.Query(ctx, selectAllApplications)
 	if err != nil {
 		return nil, err
 	}
@@ -127,13 +82,13 @@ func (db *Db) GetApplications() ([]types.Application, error) {
 
 func (db *Db) GetApplication(applicationId string) (types.Application, error) {
 	var app types.Application
-	err := db.db.QueryRow(context.Background(), "select_application", applicationId).Scan(
+	err := db.db.QueryRow(context.Background(), selectApplication, applicationId).Scan(
 		&app.ApiKey, &app.Description, &app.Id, &app.IsValid, &app.Name)
 	if err != nil {
 		return app, err
 	}
 
-	rows, err := db.db.Query(context.Background(), "get_owners", applicationId)
+	rows, err := db.db.Query(context.Background(), getOwners, applicationId)
 	if err != nil {
 		return app, err
 	}
@@ -151,7 +106,7 @@ func (db *Db) GetApplication(applicationId string) (types.Application, error) {
 }
 
 func (db *Db) UpdateApplication(applicationId string, applicationInfo types.Application) error {
-	_, err := db.db.Exec(context.Background(), "update_application",
+	_, err := db.db.Exec(context.Background(), updateApplication,
 		applicationInfo.Name,
 		applicationInfo.Description,
 		applicationId)
@@ -167,11 +122,11 @@ func (db *Db) DeleteApplication(applicationId string) error {
 
 	defer tx.Rollback(txContext)
 
-	_, err = tx.Exec(txContext, "first_leg_delete_application", applicationId)
+	_, err = tx.Exec(txContext, firstLegDeleteApplication, applicationId)
 	if err != nil {
 		return err
 	}
-	tx.Exec(txContext, "second_leg_delete_application", applicationId)
+	tx.Exec(txContext, secondLegDeleteApplication, applicationId)
 	if err != nil {
 		return err
 	}
