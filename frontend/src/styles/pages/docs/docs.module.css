@@ -3,3 +3,30 @@
     grid-template-columns: minmax(200px, 300px) 1fr;
     height: 100%;
 }
+
+.docsMain {
+    padding: 1rem; 
+    color: var(--default-text-color);
+}
+
+.docsPageMainContent {
+    max-width: 75ch;
+}
+
+.docsPageMainContent h1 {
+    padding-bottom: 1rem;
+    font-weight: 300;
+}
+
+.docsPageMainContent p {
+    font-weight: 300;
+    letter-spacing: .10ch;
+    line-height: 2.25ch;
+    margin: 1rem 0;
+}
+
+@media (max-width: 650px) {
+    .docsContainer {
+        grid-template-columns: 1fr;
+    }
+}

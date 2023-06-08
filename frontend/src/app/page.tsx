@@ -21,7 +21,7 @@ export default function Home() {
 				<Link href={validUser ? '/apps' : '/denied'} className={styles.button}>
 					Get Started
 				</Link>
-				<Link href='/' className={styles.learnMoreLink}>
+				<Link href='/docs' className={styles.learnMoreLink}>
 					Learn More{' '}
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
