@@ -94,7 +94,8 @@ services: # this is where services are defined. A service is a docker container,
         - PORT=3000
         - SAML_CERT_PATH=/certs/cert.pem
         - SAML_KEY_PATH=/certs/key.pem
-        - IDP_URL=https://idp.elon.edu/idp/shibboleth
+        - IDP_URL=https://samltest.id/saml/providers #for prod: https://idp.elon.edu/idp/shibboleth
+        - SP_URL=http://localhost:3000
     volumes:
       - ./saml:/certs
       - ./saml/myservice.cert:/certs/cert.pem
@@ -107,9 +108,6 @@ services: # this is where services are defined. A service is a docker container,
   frontend:
     ports:
       - 3001:3001
-    environment:
-        - NODE_ENV=development
-        - PORT=3001
     build:
       context: ../frontend/
-      dockerfile: ../frontend/Dockerfile
+      dockerfile: ../frontend/Dockerfile.dev
