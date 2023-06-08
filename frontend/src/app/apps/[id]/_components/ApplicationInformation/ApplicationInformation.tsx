@@ -4,8 +4,22 @@ import styles from './ApplicationInformation.module.css';
 import { useState } from 'react';
 import BackLink from '../BackLink/BackLink';
 import ApplicationSettingsForm from '../ApplicationSettingsForm/ApplicationSettingsForm';
+import {
+	ApplicationExtended,
+	UserAppInformation,
+} from '@/app/api/applications/application.d';
 
-const ApplicationInformation = ({ application, handleAppSubmit }: any) => {
+interface AppInfoProps {
+	application: ApplicationExtended;
+	handleAppSubmit: (application: UserAppInformation) => void;
+	handleAppDelete: (id: string) => void;
+}
+
+const ApplicationInformation = ({
+	application,
+	handleAppSubmit,
+	handleAppDelete,
+}: AppInfoProps) => {
 	const [settingsActive, setSettingsActive] = useState(false);
 	const { name, description, owners, teamName } = application;
 
@@ -31,7 +45,10 @@ const ApplicationInformation = ({ application, handleAppSubmit }: any) => {
 						<h2 className={styles.teamNameHeading}>{teamName}</h2>
 						<h1 className={styles.applicationNameHeading}>{name}</h1>
 						<p className={styles.applicationDescription}>{description}</p>
+						<p className={styles.applicationDescription}>API Key: {application.apiKey}</p>
+						<p className={styles.applicationDescription}>AppID: {application.id}</p>
 						<p className={styles.owners}>{owners}</p>
+						<p></p>
 					</div>
 				</div>
 			) : (
@@ -43,6 +60,7 @@ const ApplicationInformation = ({ application, handleAppSubmit }: any) => {
 						application={application}
 						setSettingsActive={setSettingsActive}
 						handleAppSubmit={handleAppSubmit}
+						handleAppDelete={handleAppDelete}
 					/>
 				</div>
 			)}

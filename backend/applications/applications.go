@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/elonsoc/ods/backend/applications/types"
 	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -31,23 +34,38 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	a.Svcs.Log.Info("Initializing applications router", nil)
 
 	r := chi.NewRouter()
+
+	// CORS is used to allow cross-origin requests
+	cors := cors.New(cors.Options{
+		AllowedOrigins:     []string{"*"},
+		AllowOriginFunc:    func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:     []string{"Link"},
+		AllowCredentials:   true,
+		OptionsPassthrough: true,
+		MaxAge:             3599, // Maximum value not ignored by any of major browsers
+	})
+
+	r.Use(cors.Handler)
+
+	r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	r.Post("/", a.newApp)
 	r.Get("/", a.myApps)
-	// r.Put("/{applicationID}", a.applicationByIdHandler)
+	r.Route("/{id}", func(r chi.Router) {
+		r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
+		r.Get("/", a.GetApplication)
+		r.Put("/", a.UpdateApplication)
+		r.Delete("/", a.DeleteApplication)
+	})
 
 	a.Router = r
 	a.Svcs.Log.Info("Applications router initialized", nil)
 	return a
-}
-
-// The Application type defines the structure of an application.
-type Application struct {
-	AppName     string `json:"appName" db:"name"`
-	AppID       string `json:"appID" db:"id"`
-	Description string `json:"description" db:"description"`
-	Owners      string `json:"owners"`
-	ApiKey      string `json:"apiKey" db:"api_key"`
-	IsValid     bool   `json:"isValid" db:"is_valid"`
 }
 
 // This function handles the registration form. It is called when the user submits a registration form.
@@ -56,14 +74,16 @@ type Application struct {
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// Create a new Application struct
-	app := Application{}
-	// parse the request body into the application variable
-	app.AppName = r.FormValue("title")
-	app.Description = r.FormValue("description")
-	app.IsValid = true
+	app := types.BaseApplication{}
+
+	err = json.NewDecoder(r.Body).Decode(&app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
 
 	// Store the application in the database
-	appId, err := ar.Svcs.Db.NewApp(app.AppName, app.Description)
+	appId, err := ar.Svcs.Db.NewApp(app.Name, app.Description)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -79,24 +99,57 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 // list of all the applications that the user owns.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 	// Query db for all apps
-	rows, err := ar.Svcs.Db.GetApplications()
+	apps, err := ar.Svcs.Db.GetApplications()
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
 
-	// Scan the rows into an array of Applications
-	apps := []Application{}
-	for rows.Next() {
-		app := Application{}
-		err = rows.Scan(&app.AppName, &app.AppID, &app.Description)
-		if err != nil {
-			ar.Svcs.Log.Error(err.Error(), nil)
-			return
-		}
-		apps = append(apps, app)
+	json.NewEncoder(w).Encode(apps)
+}
+
+func (ar *ApplicationsRouter) GetApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+
+	app, err := ar.Svcs.Db.GetApplication(applicationId)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), logrus.Fields{"applicationId": applicationId})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	// Encode the apps array into JSON and send it back to the client
-	json.NewEncoder(w).Encode(apps)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(app)
+}
+
+func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+	var err error
+
+	app := types.Application{}
+	app.Id = applicationId
+	err = json.NewDecoder(r.Body).Decode(&app)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
+	err = ar.Svcs.Db.UpdateApplication(applicationId, app)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.Request) {
+	applicationId := chi.URLParam(r, "id")
+	err := ar.Svcs.Db.DeleteApplication(applicationId)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), logrus.Fields{"applicationId": applicationId})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

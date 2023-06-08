@@ -1,6 +1,9 @@
 import styles from './AddAppModal.module.css';
 import { FormEvent, useState } from 'react';
-import { UserAppInformation } from '@/app/api/applications/application.d';
+import {
+	ApplicationSimple,
+	UserAppInformation,
+} from '@/app/api/applications/application.d';
 
 interface ModalProps {
 	onAdd: (state: UserAppInformation) => void;

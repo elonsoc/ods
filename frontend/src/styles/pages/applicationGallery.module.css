@@ -11,6 +11,12 @@
     width: 100%;
 }
 
+.appContainer > a {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
 .noAppContainer {
     display: flex;
     flex-direction: column;

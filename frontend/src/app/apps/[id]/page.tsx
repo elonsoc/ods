@@ -2,12 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from '@/styles/pages/application.module.css';
-import { UserAppInformation } from '@/app/api/applications/application.d';
+import {
+	ApplicationExtended,
+	UserAppInformation,
+} from '@/app/api/applications/application.d';
 import { config } from '@/config/Constants';
 import ApplicationInformation from './_components/ApplicationInformation/ApplicationInformation';
 import SkeletonLoader from './_components/SkeletonLoader/SkeletonLoader';
 import BackLink from './_components/BackLink/BackLink';
+import { redirect, useRouter } from 'next/navigation';
 const URL = config.url.API_URL;
+const BACKEND_URL = config.url.BACKEND_API_URL;
 
 interface ApplicationProps {
 	params: {
@@ -16,19 +21,23 @@ interface ApplicationProps {
 }
 
 const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
-	const [application, setApplication] = useState<UserAppInformation>({
+	const router = useRouter();
+	const [application, setApplication] = useState<ApplicationExtended>({
+		id: '',
 		name: '',
 		description: '',
 		owners: '',
 		teamName: '',
+		apiKey: '',
+		isValid: false,
 	});
 	const [loading, setLoading] = useState(true);
 
 	async function fetchApplication(id: String): Promise<UserAppInformation> {
-		const res = await fetch(`${URL}/api/applications/${id}`, {
+		const res = await fetch(`/api/applications/${id}`, {
 			cache: 'no-cache',
 		});
-		const [application] = await res.json();
+		const application = await res.json();
 		setApplication(application);
 		setLoading(false);
 		return application;
@@ -36,7 +45,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 
 	async function handleAppSubmit(appInfo: UserAppInformation) {
 		setLoading(true);
-		const result = await fetch(`${URL}/api/applications/${id}`, {
+		const result = await fetch(`/api/applications/${id}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -44,6 +53,17 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 			body: JSON.stringify(appInfo),
 		});
 		fetchApplication(id);
+	}
+
+	async function handleAppDelete(id: string) {
+		setLoading(true);
+		const result = await fetch(`/applications/${id}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+		router.replace(`/apps`);
 	}
 
 	useEffect(() => {
@@ -76,6 +96,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 			<ApplicationInformation
 				application={application}
 				handleAppSubmit={handleAppSubmit}
+				handleAppDelete={handleAppDelete}
 			/>
 		</div>
 	);

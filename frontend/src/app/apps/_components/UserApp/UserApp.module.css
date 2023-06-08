@@ -1,12 +1,12 @@
 /* Make each individual app responsive */
 .appContainer {
     height: 100%;
+    width: 100%;
     max-width: 350px;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: .5rem;
     padding: 1rem;
-    background: var(--figma-gray);
     background: var(--primary-background);
     border: 1px solid var(--application-border);
     color: var(--default-text-color);
