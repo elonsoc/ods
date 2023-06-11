@@ -28,6 +28,10 @@
   --secondary-icon-color: rgb(175, 175, 175);
   --secondary-button-hover: rgb(71, 71, 71);
   --separator-color: rgb(40, 40, 40);
+  --codeblock-color: rgb(78, 78, 78);
+  --code-background: rgb(204, 204, 204);
+  --breadcrumbs-color: rgb(66, 66, 66);
+  --copybutton-svg: rgb(194, 194, 194);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,7 +40,7 @@
     --nav-text-color: #FAFAFA;
     --heading-text-color: #FAFAFA;
     --default-text-color: #C2C2C2;
-    --default-text-hover: #e5e5e5;
+    --default-text-hover: #f9f9f9;
     --subheading-text-color: #A3A3A3;
     --primary-background: #111111;
     --border-gray: #3C4257;
@@ -54,6 +58,10 @@
     --secondary-icon-color: rgb(140, 140, 140);
     --secondary-button-hover: rgb(71, 71, 71);
     --separator-color: rgb(40, 40, 40);
+    --codeblock-color: rgb(187, 187, 187);
+    --code-background: rgb(47, 47, 47);
+    --breadcrumbs-color: rgb(138, 138, 138);
+    --copybutton-svg: rgb(194, 194, 194);
   }
 }
 
@@ -62,6 +70,10 @@
   padding: 0;
   margin: 0;
   font-family: inherit;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -82,4 +94,14 @@ h1, h2, h3, h4 {
 
 p {
   color: var(--default-text-color);
+}
+
+.code {
+  font-size: .95rem;
+  display: inline-block;
+  font-family: var(--font-mono);
+  color: var(--codeblock-color);
+  background: var(--code-background);
+  padding: .25rem .75rem;
+  border-radius: 5px;
 }

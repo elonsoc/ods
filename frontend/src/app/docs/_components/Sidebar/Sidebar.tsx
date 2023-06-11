@@ -12,9 +12,8 @@ const Sidebar = () => {
 			<ul className={styles.sidebarLinks}>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong>Getting Started</strong>
+						<strong className={styles.sublistHeader}>Getting Started</strong>
 					</p>
-
 					<ul className={styles.sublist}>
 						<NavLink
 							title={'Overview'}
@@ -32,9 +31,8 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong>Usage Guides</strong>
+						<strong className={styles.sublistHeader}>Usage Guides</strong>
 					</p>
-
 					<ul className={styles.sublist}>
 						<NavLink
 							title={'Authentication'}
@@ -52,9 +50,8 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong>Reference</strong>
+						<strong className={styles.sublistHeader}>Reference</strong>
 					</p>
-
 					<ul className={styles.sublist}>
 						<NavLink
 							title={'Data Formats'}
@@ -64,9 +61,8 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong>Resources</strong>
+						<strong className={styles.sublistHeader}>Resources</strong>
 					</p>
-
 					<ul className={styles.sublist}>
 						<NavLink title={'FAQ'} link={'/faq'} />
 						<NavLink title={'Contact Us'} link={'/contact_us'} />

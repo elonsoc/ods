@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 import Sidebar from './_components/Sidebar/Sidebar';
 import styles from '@/styles/pages/docs/docs.module.css';
-import Breadcrumbs from './_components/Breadcrumbs/Breadcrumbs';
 
 export const metadata: Metadata = {
 	title: 'Docs',
+	description: 'Documentation for the Open Data Service API',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

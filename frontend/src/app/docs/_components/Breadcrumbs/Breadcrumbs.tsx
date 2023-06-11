@@ -26,6 +26,7 @@ const Breadcrumbs = () => {
 	const [breadcrumbs, setBreadcrumbs] = useState<PathInferface[]>([
 		{ breadcrumb: '', href: '' },
 	]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		if (router) {
@@ -41,11 +42,26 @@ const Breadcrumbs = () => {
 			});
 
 			setBreadcrumbs(pathArray);
+			setLoading(false);
 		}
 	}, [router]);
 
+	if (loading) {
+		return (
+			<nav aria-label='breadcrumbs' className={styles.breadcrumbsWrapper}>
+				<ol className={styles.breadcrumbsList}>
+					<li className={`${styles.crumb} ${styles.loadingCrumb}`}>Loading</li>
+					<li className={`${styles.crumb} ${styles.loadingCrumb}`}>
+						Loading Links...
+					</li>
+					<li className={`${styles.crumb} ${styles.loadingCrumb}`}>Loading</li>
+				</ol>
+			</nav>
+		);
+	}
+
 	if (!breadcrumbs || breadcrumbs.length <= 1) {
-		return null;
+		return <></>;
 	}
 
 	return (

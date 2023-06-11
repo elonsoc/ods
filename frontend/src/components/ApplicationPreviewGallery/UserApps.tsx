@@ -1,7 +1,7 @@
 'use client';
 
 import { ApplicationSimple } from '@/app/api/applications/application.d';
-import UserApp, { AppInfo } from '../UserApp/UserApp';
+import UserApp from '../ApplicationPreview/UserApp';
 import Link from 'next/link';
 
 const UserApps = ({ applications }: { applications: ApplicationSimple[] }) => {

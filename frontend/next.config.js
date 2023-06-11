@@ -7,9 +7,10 @@ const nextConfig = {
 	async redirects() {
 		return [
 			{
-				source: '/docs/getting-started',
-				destination: '/docs/getting-started/overview',
+				source: '/saml/acs',
+				destination: 'http://api.ods.elon.edu/saml/acs',
 				permanent: true,
+				basePath: false,
 			},
 		];
 	},

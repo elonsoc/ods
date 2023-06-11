@@ -1,6 +1,5 @@
 import { FormEvent, useState } from 'react';
 import styles from './ApplicationSettingsForm.module.css';
-import { redirect } from 'next/navigation';
 import { UserAppInformation } from '@/app/api/applications/application.d';
 
 interface ApplicationSettingsFormProps {

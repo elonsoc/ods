@@ -83,7 +83,7 @@ export default function Home() {
   course_id: 1234,
   name: Computer Science II,
   description: This course continues the study of object-oriented programming with an emphasis on graphical user interfaces, event handling...,
-  instructor: Ryan Mattfeld,
+  instructor: Dr. Professor,
   schedule: [
 	{
 	  day: Monday,
