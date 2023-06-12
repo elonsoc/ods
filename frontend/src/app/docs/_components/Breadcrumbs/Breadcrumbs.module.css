@@ -1,5 +1,5 @@
 .breadcrumbsWrapper {
-    margin: 1rem 0 2rem 0;
+    margin: 1rem 0;
     color: var(--breadcrumbs-color);
     font-size: .9rem;
     grid-area: breadcrumbs;

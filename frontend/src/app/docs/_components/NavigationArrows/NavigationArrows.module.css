@@ -1,0 +1,30 @@
+.arrowLink {
+    font-size: .95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: .5rem 0;
+    color: var(--default-text-color);
+    text-align: center;
+}
+
+.left {
+    margin-right: auto;
+    justify-content: flex-start !important;
+}
+
+.right {
+    margin-left: auto;
+    justify-content: flex-end !important;
+}
+
+.arrowLink svg {
+    fill: var(--default-text-color);
+    height: 1.4rem;
+    width: 1.4rem;
+}
+
+.arrowLink:hover {
+    text-decoration: underline;
+}

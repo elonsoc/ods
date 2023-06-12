@@ -51,7 +51,6 @@ const useIntersectionObserver = (
 
 		const observer = new IntersectionObserver(callback, {
 			root: document.querySelector('iframe'),
-			rootMargin: '500px',
 		});
 
 		const headingElements = Array.from(document.querySelectorAll('h2, h3'));
@@ -62,20 +61,48 @@ const useIntersectionObserver = (
 	}, [setActiveId]);
 };
 
+const SkeletonLoader = () => {
+	return (
+		<aside className={styles.tocContainer}>
+			<p>
+				<strong>On This Page</strong>
+			</p>
+			<nav className={styles.toc} aria-label='Table of Contents'>
+				<ul>
+					<li className={styles.loadingItem}>Loading...</li>
+					<li className={styles.loadingItem}>Loading...</li>
+					<li className={styles.loadingItem}>Loading...</li>
+					<li className={styles.loadingItem}>Loading...</li>
+					<li className={styles.loadingItem}>Loading...</li>
+				</ul>
+			</nav>
+		</aside>
+	);
+};
+
 /**
  * Renders the table of contents.
  */
 const TableOfContents = () => {
 	const [activeId, setActiveId] = useState<string>();
 	const [headings, setHeadings] = useState<HTMLElement[]>([]);
+	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		const headingElements: HTMLElement[] = Array.from(
 			document.querySelectorAll('h2')
 		);
-		console.log(headingElements);
 		setHeadings(headingElements);
+		setLoading(false);
 	}, []);
 	useIntersectionObserver(setActiveId);
+
+	if (loading) {
+		return <SkeletonLoader />;
+	}
+
+	if (!headings.length) {
+		return <></>;
+	}
 
 	return (
 		<aside className={styles.tocContainer}>

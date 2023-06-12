@@ -3,13 +3,17 @@ import Breadcrumbs from '../../_components/Breadcrumbs/Breadcrumbs';
 import styles from '@/styles/pages/docs/docs.module.css';
 import TableOfContents from '../../_components/TableOfContents/TableOfContents';
 import CodeCopyable from '@/components/CodeCopyable/CodeCopyable';
+import {
+	NavigationArrowLeft,
+	NavigationArrowRight,
+} from '../../_components/NavigationArrows/NavigationArrows';
 
 export default function GSOverviewPage() {
 	return (
 		<>
 			<Breadcrumbs />
 			<div className={styles.docsPageMainContent}>
-				<h1>Getting Started</h1>
+				<h1>Overview</h1>
 				<p>
 					This guide will walk you through the process of getting started with
 					our API, from logging in to retrieving your API key and making API
@@ -105,6 +109,16 @@ export default function GSOverviewPage() {
 					code='curl -X GET "http://api.ods.elon.edu/v1/buildings/" -H
 							"Authorization: Bearer [YOUR_API_KEY]"'
 				/>
+				<nav className={styles.arrowWrapper}>
+					<NavigationArrowLeft
+						link='/docs/getting-started'
+						name='Getting Started'
+					/>
+					<NavigationArrowRight
+						link='/docs/getting-started/registering-an-app'
+						name='Registering an App'
+					/>
+				</nav>
 			</div>
 			<TableOfContents />
 		</>

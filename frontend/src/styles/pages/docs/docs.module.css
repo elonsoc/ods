@@ -1,6 +1,5 @@
 .docsContainer {
     display: grid;
-    /* grid-template-columns: minmax(200px, 300px) clamp(45ch, 1fr, 75ch) 1fr; */
     grid-template-columns: minmax(200px, 300px) 1fr;
     height: 100%;
 }
@@ -8,15 +7,17 @@
 .docsMain {
     display: grid;
     grid-template-areas: "breadcrumbs breadcrumbs"
-                        "mainContent toc";
+                         "mainContent toc";
+    grid-template-columns: 1fr minmax(1fr, 25ch);
+    gap: 1rem;
+    align-content: start;
     position: relative;
     padding: 1rem; 
     color: var(--default-text-color);
+    border-left: 1px solid var(--separator-color);
 }
 
 .docsPageMainContent {
-    /* display: grid;
-    grid-template-columns: 1fr 25ch; */
     grid-area: mainContent;
 }
 
@@ -47,6 +48,19 @@
     line-height: 2.25ch;
 }
 
+.arrowWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: .5rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--separator-color);
+}
+
+.inlineLink {
+    text-decoration: underline;
+}
+
 @media (max-width: 1000px) {
     .docsContainer {
         grid-template-columns: .4fr 1fr;
@@ -62,7 +76,9 @@
 }
 
 @media (max-width: 1200px) {
-    .docsPageMainContent {
+    .docsMain {
+        grid-template-areas: "breadcrumbs"
+                             "mainContent";
         grid-template-columns: 1fr;
     }
 }
