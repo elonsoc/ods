@@ -13,7 +13,9 @@ const UsageGuides = () => {
 		<>
 			<Breadcrumbs />
 			<div className={styles.docsPageMainContent}>
-				<h1>Usage Guides</h1>
+				<header>
+					<h1>Usage Guides</h1>
+				</header>
 				<p>
 					The "Usage Guides" section provides detailed information and best
 					practices for utilizing the Open Data Service API effectively. Whether
