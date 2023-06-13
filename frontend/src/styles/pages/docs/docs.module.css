@@ -61,6 +61,10 @@
     text-decoration: underline;
 }
 
+.inlineLink:hover {
+    color: var(--default-text-hover);
+}
+
 @media (max-width: 1000px) {
     .docsContainer {
         grid-template-columns: .4fr 1fr;

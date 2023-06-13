@@ -9,9 +9,11 @@ import React, {
 } from 'react';
 
 import styles from './TableOfContents.module.css';
+import { usePathname } from 'next/navigation';
 
 const useIntersectionObserver = (
-	setActiveId: Dispatch<SetStateAction<string | undefined>>
+	setActiveId: Dispatch<SetStateAction<string | undefined>>,
+	pathname: string
 ) => {
 	const headingElementsRef = useRef<{
 		[key: string]: IntersectionObserverEntry;
@@ -35,11 +37,8 @@ const useIntersectionObserver = (
 			const getIndexFromId = (id: any) =>
 				headingElements.findIndex((heading) => heading.id === id);
 
-			// If there is only one visible heading, this is our "active" heading
 			if (visibleHeadings.length === 1) {
 				setActiveId(visibleHeadings[0].target.id);
-				// If there is more than one visible heading,
-				// choose the one that is closest to the top of the page
 			} else if (visibleHeadings.length > 1) {
 				const sortedVisibleHeadings = visibleHeadings.sort(
 					(a, b) => getIndexFromId(a.target.id) - getIndexFromId(b.target.id)
@@ -53,12 +52,12 @@ const useIntersectionObserver = (
 			root: document.querySelector('iframe'),
 		});
 
-		const headingElements = Array.from(document.querySelectorAll('h2, h3'));
+		const headingElements = Array.from(document.querySelectorAll('h2'));
 
 		headingElements.forEach((element) => observer.observe(element));
 
 		return () => observer.disconnect();
-	}, [setActiveId]);
+	}, [setActiveId, pathname]);
 };
 
 const SkeletonLoader = () => {
@@ -80,10 +79,8 @@ const SkeletonLoader = () => {
 	);
 };
 
-/**
- * Renders the table of contents.
- */
 const TableOfContents = () => {
+	const pathName = usePathname();
 	const [activeId, setActiveId] = useState<string>();
 	const [headings, setHeadings] = useState<HTMLElement[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -93,8 +90,9 @@ const TableOfContents = () => {
 		);
 		setHeadings(headingElements);
 		setLoading(false);
-	}, []);
-	useIntersectionObserver(setActiveId);
+	}, [pathName]);
+
+	useIntersectionObserver(setActiveId, pathName);
 
 	if (loading) {
 		return <SkeletonLoader />;

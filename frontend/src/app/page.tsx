@@ -67,7 +67,7 @@ export default function Home() {
 						get started with our API and start accessing the data you need.
 					</p>
 					<Link
-						href='/'
+						href='docs/reference/data-formats'
 						className={`${styles.button} ${styles.dataFormatButton}`}
 					>
 						Data Formats

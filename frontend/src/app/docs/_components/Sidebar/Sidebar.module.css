@@ -50,9 +50,13 @@
     font-weight: 400;
 }
 
-.docLink:hover {
+.docLink:hover, .active {
     border-left: 1px solid var(--default-text-hover);
     color: var(--default-text-hover);
+}
+
+.active {
+    border-left: 2px solid var(--default-text-hover);
 }
 
 @media (max-width: 700px) {

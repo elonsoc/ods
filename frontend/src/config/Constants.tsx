@@ -1,7 +1,7 @@
 interface Config {
 	url: {
-		API_URL: String;
-		BACKEND_API_URL: String | undefined;
+		API_URL: string;
+		BACKEND_API_URL: string | undefined;
 	};
 }
 const prod: Config = {
@@ -16,7 +16,5 @@ const dev: Config = {
 		BACKEND_API_URL: process.env.DEV_BACKEND_API_URL,
 	},
 };
-
-console.log(process.env);
 
 export const config = process.env.NODE_ENV == `development` ? dev : prod;

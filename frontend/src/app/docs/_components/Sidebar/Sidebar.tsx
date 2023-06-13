@@ -1,7 +1,12 @@
-import { Url } from 'next/dist/shared/lib/router/router';
+'use client';
+
 import Link from 'next/link';
 import React from 'react';
 import styles from './Sidebar.module.css';
+import { usePathname } from 'next/navigation';
+import { config } from '@/config/Constants';
+
+const URL = config.url.API_URL;
 
 const Sidebar = () => {
 	return (
@@ -12,7 +17,9 @@ const Sidebar = () => {
 			<ul className={styles.sidebarLinks}>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong className={styles.sublistHeader}>Getting Started</strong>
+						<strong className={styles.sublistHeader}>
+							<Link href='docs/getting-started'>Getting Started</Link>
+						</strong>
 					</p>
 					<ul className={styles.sublist}>
 						<NavLink
@@ -31,7 +38,9 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong className={styles.sublistHeader}>Usage Guides</strong>
+						<strong className={styles.sublistHeader}>
+							<Link href='docs/usage-guides'>Usage Guides</Link>
+						</strong>
 					</p>
 					<ul className={styles.sublist}>
 						<NavLink
@@ -50,7 +59,9 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong className={styles.sublistHeader}>Reference</strong>
+						<strong className={styles.sublistHeader}>
+							<Link href='docs/reference'>Reference</Link>
+						</strong>
 					</p>
 					<ul className={styles.sublist}>
 						<NavLink
@@ -61,7 +72,9 @@ const Sidebar = () => {
 				</li>
 				<li className={styles.sectionHeader}>
 					<p>
-						<strong className={styles.sublistHeader}>Resources</strong>
+						<strong className={styles.sublistHeader}>
+							<Link href='docs/resources'>Resources</Link>
+						</strong>
 					</p>
 					<ul className={styles.sublist}>
 						<NavLink title={'FAQ'} link={'/faq'} />
@@ -75,13 +88,17 @@ const Sidebar = () => {
 };
 
 interface NavLinkProps {
-	title: String;
-	link: Url;
+	title: string;
+	link: string;
 }
 
 const NavLink = ({ title, link }: NavLinkProps) => {
+	const pathName = usePathname();
+	const path = pathName.replace(URL, '');
 	return (
-		<li className={styles.docLink}>
+		<li
+			className={`${styles.docLink} ${path == '/' + link ? styles.active : ''}`}
+		>
 			<Link href={link}>{title}</Link>
 		</li>
 	);
