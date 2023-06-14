@@ -8,7 +8,6 @@
     display: grid;
     grid-template-areas: "breadcrumbs breadcrumbs"
                          "mainContent toc";
-    grid-template-columns: 1fr minmax(1fr, 25ch);
     gap: 1rem;
     align-content: start;
     position: relative;
@@ -19,9 +18,9 @@
 
 .docsPageMainContent {
     grid-area: mainContent;
-    /* display: flex;
+    display: flex;
     flex-direction: column;
-    gap: 1.5rem; */
+    gap: 2.25rem;
 }
 
 .docsPageMainHeader {
@@ -29,12 +28,10 @@
 }
 
 .docsPageMainHeader h1, .docsPageMainContent h1 {
-    padding-bottom: 1rem;
     font-weight: 300;
 }
 
 .docsPageMainContent h2 {
-    padding-top: 1.5rem;
     font-weight: 200;
 }
 
@@ -43,6 +40,10 @@
     letter-spacing: .10ch;
     line-height: 2.25ch;
     margin: 1rem 0;
+}
+
+.introductionSection p {
+    margin: 0;
 }
 
 .docsPageMainContent ul, .docsPageMainContent ol {
@@ -60,7 +61,6 @@
     justify-content: space-between;
     align-items: center;
     padding-top: .5rem;
-    margin-top: 2rem;
     border-top: 1px solid var(--separator-color);
 }
 
