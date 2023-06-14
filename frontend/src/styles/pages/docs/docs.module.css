@@ -84,6 +84,10 @@
         grid-template-columns: 1fr;
         padding: 0 1%;
     }
+
+    .docsMain {
+        border-left: none;
+    }
 }
 
 @media (max-width: 1200px) {

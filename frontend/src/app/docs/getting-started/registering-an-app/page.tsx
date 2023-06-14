@@ -37,27 +37,31 @@ const GSRegisteringAnApp = () => {
 				<ol>
 					<li>Log in to your ODS account.</li>
 					<li>Go to the "Apps" section of the top navigation bar.</li>
-					<li>Locate the "Create an Application" button</li>
-					<ul>
-						<li>
-							If you do not current have any applications, click the "Register
-							an Application" button on the center of your screen.
-						</li>
-						<li>
-							If you do have applications, click the "Add App" button on the top
-							right of your screen.
-						</li>
-					</ul>
+					<li>
+						Locate the "Create an Application" button
+						<ul>
+							<li>
+								If you do not current have any applications, click the "Register
+								an Application" button on the center of your screen.
+							</li>
+							<li>
+								If you do have applications, click the "Add App" button on the
+								top right of your screen.
+							</li>
+						</ul>
+					</li>
 					<li>
 						After the button is clicked, an "Add Application" modal will be
 						displayed.
 					</li>
-					<li>Enter the appropriate required fields for your application: </li>
-					<ul>
-						<li>Name</li>
-						<li>Description</li>
-						<li>Owners</li>
-					</ul>
+					<li>
+						Enter the appropriate required fields for your application:
+						<ul>
+							<li>Name</li>
+							<li>Description</li>
+							<li>Owners</li>
+						</ul>
+					</li>
 					<li>Submit the form to create your application.</li>
 				</ol>
 			</section>

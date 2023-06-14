@@ -8,9 +8,19 @@ import { config } from '@/config/Constants';
 
 const URL = config.url.API_URL;
 
-const Sidebar = () => {
+const Sidebar = ({
+	mobileSidebarActive,
+	toggleSidebar,
+}: {
+	mobileSidebarActive: boolean;
+	toggleSidebar: () => void;
+}) => {
 	return (
-		<aside>
+		<aside
+			className={`${styles.sidebar} ${
+				mobileSidebarActive ? styles.sidebarActive : ''
+			}`}
+		>
 			<nav className={styles.sidebarContainer} aria-label='Related Topics'>
 				<header>
 					<p className={styles.sidebarHeader}>
@@ -18,6 +28,16 @@ const Sidebar = () => {
 							<Link href='docs'>Docs</Link>
 						</strong>
 					</p>
+					<button
+						className={styles.closeButton}
+						type='button'
+						onClick={toggleSidebar}
+					>
+						<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+							<title>close</title>
+							<path d='M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z' />
+						</svg>
+					</button>
 				</header>
 				<ul className={styles.sidebarLinks}>
 					<li className={styles.sectionHeader}>
@@ -52,10 +72,10 @@ const Sidebar = () => {
 								title={'Authentication'}
 								link={'docs/usage-guides/authentication'}
 							/>
-							<NavLink
+							{/* <NavLink
 								title={'Rate Limits'}
 								link={'docs/usage-guides/rate-limits'}
-							/>
+							/> */}
 							<NavLink
 								title={'Error Handling'}
 								link={'docs/usage-guides/error-handling'}
@@ -69,9 +89,15 @@ const Sidebar = () => {
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
-							<NavLink
+							<NavLinkDropdown
 								title={'Data Formats'}
 								link={'docs/reference/data-formats'}
+								sublinks={[
+									{
+										title: 'Buildings v1',
+										link: 'docs/reference/data-formats/buildings_v1',
+									},
+								]}
 							/>
 						</ul>
 					</li>
@@ -121,21 +147,39 @@ const NavLinkDropdown = ({ title, link, sublinks }: NavLinkDropdownProps) => {
 	const pathName = usePathname();
 	const path = pathName.replace(URL, '');
 	return (
-		<li
-			className={`${styles.docLink} ${path == '/' + link ? styles.active : ''}`}
-		>
-			<Link href={link}>{title}</Link>
-			<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-				<title>Dropdown</title>
-				<path d='M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z' />
-			</svg>
-			<ul>
-				{sublinks.map((sublink) => (
-					<li>
-						<Link href={sublink.title}>{sublink.title}</Link>
-					</li>
-				))}
-			</ul>
+		<li>
+			<span
+				className={`${styles.dropdownLinkWrapper} ${
+					path == '/' + link ? styles.active : ''
+				}`}
+			>
+				<Link href={link}>{title}</Link>
+				<button
+					className={`${styles.dropdownButton} ${
+						dropdownActive ? styles.activeDropdown : ''
+					}`}
+					type='button'
+					onClick={() => setDropdownActive(!dropdownActive)}
+				>
+					<svg
+						className={styles.dropdownSVG}
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 24 24'
+					>
+						<title>Dropdown</title>
+						<path d='M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z' />
+					</svg>
+				</button>
+			</span>
+			{dropdownActive && (
+				<ul className={styles.sublistLinks}>
+					{sublinks.map((sublink, index) => (
+						<li key={index}>
+							<Link href={sublink.link}>{sublink.title}</Link>
+						</li>
+					))}
+				</ul>
+			)}
 		</li>
 	);
 };

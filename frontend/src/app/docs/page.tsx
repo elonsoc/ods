@@ -1,16 +1,20 @@
+import { Metadata } from 'next';
 import React from 'react';
-import Breadcrumbs from './_components/Breadcrumbs/Breadcrumbs';
 import styles from '@/styles/pages/docs/docs.module.css';
-import TableOfContents from './_components/TableOfContents/TableOfContents';
 import { NavigationArrowRight } from './_components/NavigationArrows/NavigationArrows';
+
+export const metadata: Metadata = {
+	title: 'Docs',
+	description: 'Documentation for the Open Data Service API',
+};
 
 export default function DocsPage() {
 	return (
-		<>
-			<Breadcrumbs />
-
-			<div className={styles.docsPageMainContent}>
+		<article className={styles.docsPageMainContent}>
+			<header className={styles.docsPageMainHeader}>
 				<h1>Introduction</h1>
+			</header>
+			<section className={styles.introductionSection}>
 				<p>
 					Welcome to the Open Data Service API documentation! This comprehensive
 					guide provides detailed information on how to integrate and utilize
@@ -19,6 +23,8 @@ export default function DocsPage() {
 					harness the power of our API to retrieve information about buildings,
 					courses, and more.
 				</p>
+			</section>
+			<section aria-labelledby='Documentation_Structure'>
 				<h2 id='Documentation_Structure'>Documentation Structure</h2>
 				<p>The documentation is organized into the following sections:</p>
 				<ul>
@@ -78,6 +84,8 @@ export default function DocsPage() {
 						</ul>
 					</li>
 				</ul>
+			</section>
+			<section aria-labelledby='Getting_Started'>
 				<h2 id='Getting_Started'>Getting Started</h2>
 				<p>
 					If you're new to the ODS API, we recommend starting with the "Getting
@@ -85,14 +93,13 @@ export default function DocsPage() {
 					and provide you with the essential knowledge to begin integrating the
 					API into your applications.
 				</p>
-				<nav className={styles.arrowWrapper}>
-					<NavigationArrowRight
-						link='/docs/getting-started'
-						name='Getting Started'
-					/>
-				</nav>
-			</div>
-			<TableOfContents />
-		</>
+			</section>
+			<nav className={styles.arrowWrapper}>
+				<NavigationArrowRight
+					link='/docs/getting-started'
+					name='Getting Started'
+				/>
+			</nav>
+		</article>
 	);
 }

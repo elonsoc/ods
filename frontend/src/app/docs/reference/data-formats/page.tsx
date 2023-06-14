@@ -4,12 +4,9 @@ import styles from '@/styles/pages/docs/docs.module.css';
 
 const RDataFormats = () => {
 	return (
-		<>
-			<Breadcrumbs />
-			<div className={styles.docsPageMainContent}>
-				<h1>Data Formats</h1>
-			</div>
-		</>
+		<div className={styles.docsPageMainContent}>
+			<h1>Data Formats</h1>
+		</div>
 	);
 };
 
