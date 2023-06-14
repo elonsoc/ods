@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Sidebar.module.css';
 import { usePathname } from 'next/navigation';
 import { config } from '@/config/Constants';
@@ -106,6 +106,36 @@ const NavLink = ({ title, link }: NavLinkProps) => {
 			className={`${styles.docLink} ${path == '/' + link ? styles.active : ''}`}
 		>
 			<Link href={link}>{title}</Link>
+		</li>
+	);
+};
+
+interface NavLinkDropdownProps {
+	title: string;
+	link: string;
+	sublinks: NavLinkProps[];
+}
+
+const NavLinkDropdown = ({ title, link, sublinks }: NavLinkDropdownProps) => {
+	const [dropdownActive, setDropdownActive] = useState(false);
+	const pathName = usePathname();
+	const path = pathName.replace(URL, '');
+	return (
+		<li
+			className={`${styles.docLink} ${path == '/' + link ? styles.active : ''}`}
+		>
+			<Link href={link}>{title}</Link>
+			<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+				<title>Dropdown</title>
+				<path d='M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z' />
+			</svg>
+			<ul>
+				{sublinks.map((sublink) => (
+					<li>
+						<Link href={sublink.title}>{sublink.title}</Link>
+					</li>
+				))}
+			</ul>
 		</li>
 	);
 };

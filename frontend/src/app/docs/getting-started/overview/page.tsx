@@ -14,7 +14,7 @@ export default function GSOverviewPage() {
 			<header className={styles.docsPageMainHeader}>
 				<h1>Overview</h1>
 			</header>
-			<section>
+			<section className={styles.introductionSection}>
 				<p>
 					This guide will walk you through the process of getting started with
 					our API, from logging in to retrieving your API key and making API
@@ -36,7 +36,7 @@ export default function GSOverviewPage() {
 			<section aria-labelledby='Logging_In'>
 				<h2 id='Logging_In'>Logging In</h2>
 				<p>
-					To access the Elon ODS API, you need to log in to your account. Follow
+					To access the ODS API, you need to log in to your account. Follow
 					these steps:
 				</p>
 				<ol>
