@@ -69,10 +69,10 @@ export default function Home() {
 						get started with our API and start accessing the data you need.
 					</p>
 					<Link
-						href='docs/reference/data-formats'
+						href='docs/reference/data-format'
 						className={`${styles.button} ${styles.dataFormatButton}`}
 					>
-						Data Formats
+						Data Format
 					</Link>
 				</div>
 				<CodeBlockContainer text={HOME_PAGE_COURSE_SAMPLE} codeType='JSON' />

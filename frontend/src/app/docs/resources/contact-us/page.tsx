@@ -71,7 +71,7 @@ const ContactUs = () => {
 			<nav className={styles.arrowWrapper}>
 				<NavigationArrowLeft link='/docs/resources/faq' name='FAQ' />
 				<NavigationArrowRight
-					link='/docs/reference/terms-of-use'
+					link='/docs/resources/terms-of-use'
 					name='Terms of Use'
 				/>
 			</nav>
