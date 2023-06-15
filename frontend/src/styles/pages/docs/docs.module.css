@@ -72,6 +72,75 @@
     color: var(--default-text-hover);
 }
 
+
+/* FORM STYLINGS */
+.formHeader {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--separator-color);
+    color: var(--heading-text-color);
+}
+
+.modalTitle {
+    font-weight: 300;
+    padding: .5rem 0;
+}
+
+.requirementText {
+    color: var(--subheading-text-color);
+    font-size: .75rem;
+}
+
+.requiredRed {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: .85rem;
+    color: rgb(177, 26, 26) !important;
+}
+
+.docsPageMainContent form {
+    display: grid;
+    gap: 1rem;
+    color: var(--default-text-color);
+    padding: 1rem 0;
+}
+
+.inputWrapper {
+    display: grid;
+}
+
+.inputWrapper input[type="text"], .inputWrapper textarea {
+    padding: .65rem .5rem;
+    background: var(--input-background-color);
+    border: none;
+    border-radius: 5px;
+    margin: .2rem 0;
+    color: var(--input-text-color);
+}
+
+.inputWrapper textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.inputWrapper label {
+    font-size: .70rem;
+    text-transform: uppercase;
+    letter-spacing: .15ch;
+    font-weight: 600;
+}
+
+.submitContactFormButton {
+    font-size: 1rem;
+    padding: .6rem 1rem;
+    background-color: var(--primary-background);
+    color: var(--heading-text-color);
+    border: 1px solid var(--application-border);
+    border-radius: var(--border-radius);
+    letter-spacing: .10ch;
+    cursor: pointer;
+    width: fit-content;
+    margin: 0 auto;
+}
+
 @media (max-width: 1000px) {
     .docsContainer {
         grid-template-columns: .4fr 1fr;

@@ -89,13 +89,17 @@ const Sidebar = ({
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
+							<NavLink
+								title={'Data Format'}
+								link={'docs/reference/data-format'}
+							/>
 							<NavLinkDropdown
-								title={'Data Formats'}
-								link={'docs/reference/data-formats'}
+								title={'Endpoints'}
+								link={'docs/reference/endpoints'}
 								sublinks={[
 									{
 										title: 'Buildings v1',
-										link: 'docs/reference/data-formats/buildings_v1',
+										link: 'docs/reference/endpoints/buildings_v1',
 									},
 								]}
 							/>
@@ -108,9 +112,15 @@ const Sidebar = ({
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
-							<NavLink title={'FAQ'} link={'/faq'} />
-							<NavLink title={'Contact Us'} link={'/contact_us'} />
-							<NavLink title={'Terms of Use'} link={'/terms_of_use'} />
+							<NavLink title={'FAQ'} link={'docs/resources/faq'} />
+							<NavLink
+								title={'Contact Us'}
+								link={'docs/resources/contact-us'}
+							/>
+							<NavLink
+								title={'Terms of Use'}
+								link={'docs/resources/terms-of-use'}
+							/>
 						</ul>
 					</li>
 				</ul>
@@ -174,7 +184,10 @@ const NavLinkDropdown = ({ title, link, sublinks }: NavLinkDropdownProps) => {
 			{dropdownActive && (
 				<ul className={styles.sublistLinks}>
 					{sublinks.map((sublink, index) => (
-						<li key={index}>
+						<li
+							key={index}
+							className={path == '/' + sublink.link ? styles.activeSub : ''}
+						>
 							<Link href={sublink.link}>{sublink.title}</Link>
 						</li>
 					))}

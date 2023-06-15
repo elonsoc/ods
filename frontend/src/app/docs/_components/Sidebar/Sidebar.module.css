@@ -111,6 +111,11 @@
     border-left: 2px solid var(--default-text-hover) !important;
 }
 
+.activeSub {
+    color: var(--default-text-hover) !important;
+    opacity: 1 !important;
+}
+
 .closeButton {
     display: none;
 }

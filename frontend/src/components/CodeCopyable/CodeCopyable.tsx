@@ -35,9 +35,5 @@ const CodeCopyable = ({ code }: { code: string }) => {
 export default CodeCopyable;
 
 const CopySuccessAlert = () => {
-	return (
-		<div className={style.successAlert}>
-			<p>Copied!</p>
-		</div>
-	);
+	return <span className={style.successAlert}>Copied!</span>;
 };

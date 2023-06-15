@@ -20,7 +20,7 @@ interface UserAppInfoProp {
 }
 
 const UserApp = ({
-	info: { name, description, owners, teamName },
+	info: { name, description, owners, teamName = 'Application' },
 }: UserAppInfoProp) => {
 	return (
 		<div className={styles.appContainer}>

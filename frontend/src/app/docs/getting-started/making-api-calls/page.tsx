@@ -6,6 +6,9 @@ import {
 	NavigationArrowLeft,
 	NavigationArrowRight,
 } from '../../_components/NavigationArrows/NavigationArrows';
+import CodeCopyable from '@/components/CodeCopyable/CodeCopyable';
+import CodeBlockContainer from '@/components/CodeBlockContainer/CodeBlockContainer';
+import { QUERY_PARAMETER_SECTION } from '@/components/CodeBlockContainer/code';
 
 const GSMakingAPICalls = () => {
 	return (
@@ -44,6 +47,72 @@ const GSMakingAPICalls = () => {
 					required parameters.
 				</p>
 			</section>
+			<section aria-labelledby='Query_String_Structure'>
+				<h2 id='Query_String_Structure'>Query String Structure</h2>
+				<p>
+					The query string is a part of the URL that follows the "?" character
+					and contains key-value pairs separated by "&" symbols. It allows you
+					to pass parameters to the API and customize the behavior of your
+					request. Here's an example of a query string in the context of the ODS
+					API:
+				</p>
+				<CodeCopyable
+					code={`http://api.ods.elon.edu/v1/buildings?location=Main%20Campus&capacity=100
+`}
+				/>
+				<p>
+					In the above example, the query string includes two parameters:
+					location and capacity. The values for these parameters are
+					URL-encoded. In this case, the location parameter is set to "Main
+					Campus" and the capacity parameter is set to "100". The URL-encoded
+					format replaces spaces with "%20".
+				</p>
+			</section>
+			<section aria-labelledby='Including_Query_Parameters'>
+				<h2 id='Including_Query_Parameters'>Including Query Parameters</h2>
+				<p>
+					When making GET requests to the ODS API, you can include query
+					parameters to filter or refine the data you receive. These parameters
+					are appended to the base URL as key-value pairs in the query string.
+					Here's an example of a GET request to retrieve buildings with specific
+					parameters:
+				</p>
+				<CodeCopyable
+					code={`GET /v1/buildings?location=Main%20Campus&capacity=100
+`}
+				/>
+				<p>
+					In this example, the request is made to the /v1/buildings endpoint,
+					and the query parameters location and capacity are included to narrow
+					down the results. The API will respond with a list of buildings that
+					match the specified criteria.
+				</p>
+			</section>
+			<section aria-labelledby='Encoding_Query_Parameters'>
+				<h2 id='Encoding_Query_Parameters'>Encoding Query Parameters</h2>
+				<p>
+					When including query parameters in your API calls, it's important to
+					properly encode the parameter values to ensure correct interpretation
+					by the server. Encoding is necessary to handle special characters,
+					spaces, and other reserved characters that may cause issues in the
+					URL. Most programming languages provide built-in functions or
+					libraries to handle URL encoding.
+				</p>
+				<p>
+					For example, in JavaScript, you can use the{' '}
+					<code className='code'>encodeURIComponent()</code> function to encode
+					query parameter values:
+				</p>
+				<CodeBlockContainer
+					text={QUERY_PARAMETER_SECTION}
+					codeType='JavaScript'
+				/>
+				<p>
+					By properly encoding the query parameter values, you can ensure that
+					your API requests are correctly interpreted by the server, especially
+					when dealing with special characters or spaces.
+				</p>
+			</section>
 			<section aria-labelledby='Authentication'>
 				<h2 id='Authentication'>Authentication</h2>
 				<p>
@@ -67,7 +136,7 @@ const GSMakingAPICalls = () => {
 					provide a seamless user experience.
 				</p>
 			</section>
-			<section aria-labelledby='Rate_Limits'>
+			{/* <section aria-labelledby='Rate_Limits'>
 				<h2 id='Rate_Limits'>Rate Limits</h2>
 				<p>
 					The ODS API imposes rate limits to ensure fair usage and maintain the
@@ -78,7 +147,7 @@ const GSMakingAPICalls = () => {
 					Ensure that you adhere to these limits to avoid any disruptions in
 					accessing the API.
 				</p>
-			</section>
+			</section> */}
 			<section aria-labelledby='Conclusion'>
 				<h2 id='Conclusion'>Conclusion</h2>
 				<p>

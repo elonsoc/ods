@@ -1,5 +1,7 @@
 'use client';
 
+import CodeBlockContainer from '@/components/CodeBlockContainer/CodeBlockContainer';
+import { HOME_PAGE_COURSE_SAMPLE } from '@/components/CodeBlockContainer/code';
 import styles from '@/styles/pages/home.module.css';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -73,40 +75,7 @@ export default function Home() {
 						Data Formats
 					</Link>
 				</div>
-				<div className={styles.jsonContainer}>
-					<p className={styles.jsonHeader}>
-						<strong>JSON</strong>
-					</p>
-					<pre className={styles.jsonCode}>
-						<code>
-							{`{
-  course_id: 1234,
-  name: Computer Science II,
-  description: This course continues the study of object-oriented programming with an emphasis on graphical user interfaces, event handling...,
-  instructor: Dr. Professor,
-  schedule: [
-	{
-	  day: Monday,
-	  start_time: 12:30 PM,
-	  end_time: 1:40 PM
-	},
-	{
-	  day: Wednesday,
-	  start_time: 12:30 PM,
-	  end_time: 1:40 PM
-	},
-  ],
-  rotation : {
-	  semesters: [Fall, Spring]
-	  periodical: yearly
-  },
-  location: Mooney Building, Room 202,
-  credits: 4,
-  prerequisites: [CSC 1300]
-}`}
-						</code>
-					</pre>
-				</div>
+				<CodeBlockContainer text={HOME_PAGE_COURSE_SAMPLE} codeType='JSON' />
 			</section>
 		</div>
 	);

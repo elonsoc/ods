@@ -83,9 +83,13 @@ const UGAuthentication = () => {
 			</section>
 			<nav className={styles.arrowWrapper}>
 				<NavigationArrowLeft link='/docs/usage-guides' name='Usage Guides' />
-				<NavigationArrowRight
+				{/* <NavigationArrowRight
 					link='/docs/usage-guides/rate-limits'
 					name='Rate Limits'
+				/> */}
+				<NavigationArrowRight
+					link='/docs/usage-guides/error-handling'
+					name='Error Handling'
 				/>
 			</nav>
 		</article>
