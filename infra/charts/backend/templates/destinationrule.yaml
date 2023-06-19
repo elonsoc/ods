@@ -1,13 +1,12 @@
----
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: frontend
+  name: backend
   namespace: production
 spec:
-  host: frontend
+  host: backend
   subsets:
     - name: v1
       labels:
-        app: frontend
+        app: backend
         version: v1

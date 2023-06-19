@@ -3,9 +3,15 @@ dependencies:
 - name: base
   repository: https://istio-release.storage.googleapis.com/charts
   version: 1.18.0
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.12.1
 - name: gateway
   repository: https://istio-release.storage.googleapis.com/charts
   version: 1.18.0
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.57.2
 - name: istiod
   repository: https://istio-release.storage.googleapis.com/charts
   version: 1.18.0
@@ -14,6 +20,12 @@ dependencies:
   version: 1.69.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 12.5.6
-digest: sha256:87e09995cde71541aff9c9d851c8a407d40c2ac9a1b25591fa191414708ac3c8
-generated: "2023-06-11T23:29:26.200494-04:00"
+  version: 12.5.7
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts/
+  version: 22.6.4
+- name: promtail
+  repository: https://grafana.github.io/helm-charts
+  version: 6.11.3
+digest: sha256:df1710fb9f43676d2fb2b607239a98c0317d4896d24c770686e17e9145eee77e
+generated: "2023-06-14T13:47:17.635049-04:00"

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-v1
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: v1
+        istio: monitor
+    spec:
+      containers:
+        - image: ghcr.io/elonsoc/ods-backend:main
+          imagePullPolicy: Always
+          name: backend
+          envFrom:
+            - configMapRef:
+                name: backend
+          volumeMounts:
+            - name: secrets
+              mountPath: /certs
+              readOnly: true
+          ports:
+            - name: http
+              containerPort: 3000
+      volumes:
+      - name: secrets
+        secret:
+          secretName: x509-keypair-sp
+          items:
+            - key: cert
+              path: saml_cert.cert
+            - key: key
+              path: saml_key.key
