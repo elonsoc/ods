@@ -1,17 +1,35 @@
-import { Metadata } from 'next';
+'use client';
+
 import Sidebar from './_components/Sidebar/Sidebar';
 import styles from '@/styles/pages/docs/docs.module.css';
 import Breadcrumbs from './_components/Breadcrumbs/Breadcrumbs';
-
-export const metadata: Metadata = {
-	title: 'Docs',
-};
+import TableOfContents from './_components/TableOfContents/TableOfContents';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+	const pathName = usePathname();
+	const [mobileSidebarActive, setMobileSidebarActive] = useState(false);
+
+	const toggleMobileSidebar = () => {
+		setMobileSidebarActive(!mobileSidebarActive);
+	};
+
+	useEffect(() => {
+		setMobileSidebarActive(false);
+	}, [pathName]);
+
 	return (
 		<div className={styles.docsContainer}>
-			<Sidebar />
-			<div className={styles.docsMain}>{children}</div>
+			<Sidebar
+				mobileSidebarActive={mobileSidebarActive}
+				toggleSidebar={toggleMobileSidebar}
+			/>
+			<div className={styles.docsMain}>
+				<Breadcrumbs toggleSidebar={toggleMobileSidebar} />
+				{children}
+				<TableOfContents />
+			</div>
 		</div>
 	);
 }

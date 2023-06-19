@@ -1,5 +1,5 @@
-import Navbar from '@/ui/Navbar/Navbar';
-import Footer from '@/ui/Footer/Footer';
+import Navbar from '@/components/ui/Navbar/Navbar';
+import Footer from '@/components/ui/Footer/Footer';
 import styles from '@/styles/pages/layout.module.css';
 import '../styles/global/globals.css';
 import { Metadata } from 'next';
