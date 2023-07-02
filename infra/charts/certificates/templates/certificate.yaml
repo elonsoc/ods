@@ -1,6 +1,8 @@
 # https://cert-manager.io/docs/usage/certificate/
 apiVersion: cert-manager.io/v1
 kind: Certificate
+metadata:
+  name: ods-elon-edu-tls
 
 spec:
   secretName: ods-elon-edu-tls
@@ -8,15 +10,15 @@ spec:
 
   duration: 2160h
   renewBefore: 360h
-  
+
   commonName: ods.elon.edu
 
   subjects:
     organizations:
       - Elon University
-    pronvinces: 
+    pronvinces:
       - North Carolina
-    countries: 
+    countries:
       - US
   privateKey:
     algorithm: ECDSA
@@ -33,4 +35,3 @@ spec:
   issuerRef:
     name:  incommon-production
     kind: ClusterIssuer
-

@@ -1,5 +1,5 @@
 # istio portion stolen from: https://jacob.millward.dev/posts/2022-02-27-installing-istio-with-helmfile/
-
+# helmfile docs: https://helmfile.readthedocs.io/en/latest/
 repositories:
   - name: istio
     url: https://istio-release.storage.googleapis.com/charts
@@ -51,6 +51,7 @@ releases:
     needs:
       - istio-system/istio-base
       - istio-system/istiod
+
   - name: certificates
     namespace: istio-system
     chart: ./charts/certificates
@@ -124,6 +125,9 @@ releases:
     chart: bitnami/postgresql
     needs:
       - production/production
+    set:
+      - name: global.postgresql.auth.postgresPassword
+        value: MUZSc0h1anJKYw== # helmfile doesn't make it easy but I suppose it's okay to hardcode :)
 
   - name: backend
     namespace: production
@@ -154,7 +158,8 @@ releases:
         args:
           - -c
           - "kubectl label --dry-run=client -o yaml  namespace monitoring istio-injection=enabled | kubectl apply -f -"
-
+    needs:
+      - istio-system/istio-base
 
   - name: promtail
     namespace: monitoring
@@ -166,9 +171,19 @@ releases:
   #   namespace: monitoring
   #   disableValidationOnInstall: true
   #   chart: grafana/loki
+  #   values:
+  #     - "./charts/values/loki.yaml"
 
   - name: prometheus
     namespace: monitoring
     chart: prometheus/prometheus
     needs:
       - monitoring/grafana
+
+  - name: statsd
+    namespace: monitoring
+    chart: prometheus/prometheus-statsd-exporter
+    needs:
+      - monitoring/prometheus
+    values:
+      - "./charts/values/statsd.yaml"
