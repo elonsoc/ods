@@ -15,7 +15,7 @@ spec:
         key: secret
         keyAlgorithm: HS256
     privateKeySecretRef:
-      name: incommon-production #this is to be added as a secret.
+      name: incommon-production # this is to be added as a secret.
     solvers:
       - http01:
           ingress: # support for istio gateway
