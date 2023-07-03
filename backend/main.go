@@ -116,7 +116,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certPath, keyPath, idpURL, spURL string) chi.Router {
+func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL string) chi.Router {
 	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
@@ -126,7 +126,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL)
+	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
 	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
@@ -269,6 +269,7 @@ func main() {
 	samlKeyPath := flag.String("saml_key_path", os.Getenv("SAML_KEY_PATH"), "location of service key")
 	idpURL := flag.String("idp_url", os.Getenv("IDP_URL"), "url of identity provider")
 	spURL := flag.String("sp_url", os.Getenv("SP_URL"), "url of the hosted service provider")
+	webURL := flag.String("web_url", os.Getenv("WEB_URL"), "url of the hosted web service")
 
 	// this could use some improvement in nameing and probably would require
 	// Hashicorp Vault or someting of the sort
@@ -303,8 +304,12 @@ func main() {
 		log.Fatal("sp url not set")
 	}
 
+	if *webURL == "" {
+		webURL = spURL
+	}
+
 	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
-		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *samlCertPath, *samlKeyPath, *idpURL, *spURL))
+		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *samlCertPath, *samlKeyPath, *idpURL, *spURL, *webURL))
 	if err != nil {
 		fmt.Println(err)
 	}

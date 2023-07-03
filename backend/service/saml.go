@@ -20,7 +20,7 @@ type SamlIFace interface {
 	GetSamlMiddleware() *samlsp.Middleware
 }
 
-func initializeSaml(log LoggerIFace, idpURL, spURL, certPath, keyPath string) SamlIFace {
+func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error
@@ -45,7 +45,7 @@ func initializeSaml(log LoggerIFace, idpURL, spURL, certPath, keyPath string) Sa
 		panic(err) // TODO handle error
 	}
 
-	samlSP, _ := samlsp.New(samlsp.Options{
+	options := samlsp.Options{
 		URL:         *rootURL,
 		EntityID:    rootURL.String(),
 		Key:         keyPair.PrivateKey.(*rsa.PrivateKey),
@@ -68,7 +68,19 @@ func initializeSaml(log LoggerIFace, idpURL, spURL, certPath, keyPath string) Sa
 			GivenName:      "Elon Society of Computing CS Project Team",
 			EmailAddresses: []string{"hello@elonsoc.org"},
 		},
-	})
+		DefaultRedirectURI: "ods.elon.edu",
+	}
+
+	samlSP, _ := samlsp.New(options)
+
+	samlSP.Session = samlsp.CookieSessionProvider{
+		Name:     "esc-saml-cookie",
+		Domain:   webURL,
+		HTTPOnly: true,
+		Secure:   options.URL.Scheme == "https",
+		SameSite: options.CookieSameSite,
+		Codec:    samlsp.DefaultSessionCodec(options),
+	}
 
 	return &Saml{
 		saml: samlSP,

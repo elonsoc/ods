@@ -11,20 +11,11 @@ spec:
   gateways:
     - istio-system/gateway
   http:
-    - match:
-        - uri:
-            prefix: /
-      route:
-        - destination:
-            host: frontend
-            subset: v1
-    - match:
-      - uri:
-          prefix: saml
-      route:
-        - destination:
-            host: backend
-            subset: v1
+    - route:
+      - destination:
+          host: frontend
+          subset: v1
+
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -38,13 +29,10 @@ spec:
   gateways:
     - istio-system/gateway
   http:
-    - match:
-        - uri:
-            prefix: /
-      route:
-        - destination:
-            host: backend
-            subset: v1
+    - route:
+      - destination:
+          host: backend
+          subset: v1
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
