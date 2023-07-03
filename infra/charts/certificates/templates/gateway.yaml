@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: gateway
+spec:
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - ods.elon.edu
+        - api.ods.elon.edu
+        - stats.ods.elon.edu
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - ods.elon.edu
+        - api.ods.elon.edu
+        - stats.ods.elon.edu
+      tls:
+        mode: SIMPLE
+        credentialName: ods-elon-edu-tls

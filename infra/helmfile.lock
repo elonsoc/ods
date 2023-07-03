@@ -1,0 +1,37 @@
+version: v0.155.0
+dependencies:
+- name: base
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.18.0
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.12.2
+- name: gateway
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.18.0
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.57.4
+- name: istiod
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.18.0
+- name: kiali-operator
+  repository: https://kiali.org/helm-charts
+  version: 1.70.0
+- name: loki
+  repository: https://grafana.github.io/helm-charts
+  version: 5.8.8
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.6.0
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts/
+  version: 22.6.7
+- name: prometheus-statsd-exporter
+  repository: https://prometheus-community.github.io/helm-charts/
+  version: 0.8.0
+- name: promtail
+  repository: https://grafana.github.io/helm-charts
+  version: 6.11.5
+digest: sha256:0353e6656d4b33d1b43a418f0fae9951cae3ba83c04dcf2fba694502eaa9e359
+generated: "2023-07-01T13:10:30.952202-04:00"

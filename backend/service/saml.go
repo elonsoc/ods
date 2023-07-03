@@ -20,7 +20,7 @@ type SamlIFace interface {
 	GetSamlMiddleware() *samlsp.Middleware
 }
 
-func initializeSaml(log LoggerIFace, idpURL, certPath, keyPath string) SamlIFace {
+func initializeSaml(log LoggerIFace, idpURL, spURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error
@@ -40,7 +40,7 @@ func initializeSaml(log LoggerIFace, idpURL, certPath, keyPath string) SamlIFace
 		panic(err) // TODO handle error
 	}
 
-	rootURL, err := url.Parse("https://ods.elon.edu")
+	rootURL, err := url.Parse(spURL)
 	if err != nil {
 		panic(err) // TODO handle error
 	}

@@ -81,8 +81,6 @@ paths:
           description: Unauthorizd - Invalid API key
         "404":
           description: Invalid
-        "401":
-          description: Unauthorized
 
 components:
   schemas:

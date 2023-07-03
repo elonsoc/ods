@@ -1,0 +1,17 @@
+# This is hardrolled to make things easier—we expect to be able to be a bit more dynamic soon!
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend
+  namespace: production
+data:
+  PORT: "3000"
+  LOGGING_URL: "http://loki.monitoring:3100/loki/api/v1/push"
+  PROMETHEUS_URL: "http://prometheus.monitoring:9090"
+  STATSD_URL: "http://statsd.monitoring:9125"
+  REDIS_URL: "redis://redis:6379"
+  SAML_CERT_PATH: "/certs/saml_cert.cert"
+  SAML_KEY_PATH: "/certs/saml_key.key"
+  IDP_URL: "https://idp.elon.edu/idp/shibboleth"
+  SP_URL: "https://ods.elon.edu"
+  DATABASE_URL: "postgres://postgres:MUZSc0h1anJKYw==@postgres:5432/postgres"

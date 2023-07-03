@@ -14,7 +14,6 @@ mappings:
   # - match: "backend.request"
   #   name: "backend_request"
   #   labels:
-      
   # - match: "backend.*.*.*.*"
   #   name: "backend_locations_${5}_total"
   #   labels:
@@ -29,4 +28,4 @@ mappings:
     match_type: regex
     name: "$0"
     labels:
-      statsd_metric_name: "$0"   
+      statsd_metric_name: "$0"

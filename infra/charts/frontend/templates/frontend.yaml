@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-v1
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: v1
+        istio: monitor
+    spec:
+      containers:
+        - image: ghcr.io/elonsoc/ods-frontend:main
+          imagePullPolicy: Always
+          name: frontend
+          ports:
+            - name: http
+              containerPort: 3000

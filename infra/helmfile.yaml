@@ -1,0 +1,189 @@
+# istio portion stolen from: https://jacob.millward.dev/posts/2022-02-27-installing-istio-with-helmfile/
+# helmfile docs: https://helmfile.readthedocs.io/en/latest/
+repositories:
+  - name: istio
+    url: https://istio-release.storage.googleapis.com/charts
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: kiali
+    url: https://kiali.org/helm-charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: prometheus
+    url: https://prometheus-community.github.io/helm-charts/
+  - name: jetstack
+    url: https://charts.jetstack.io
+
+# These defaults are just helpful, feel free to omit them
+helmDefaults:
+  atomic: true # Restores previous state in case of failed release
+  cleanupOnFail: true # Cleans up any new resources created during a failed release
+
+releases:
+  - name: istio-base
+    namespace: istio-system
+    version: 1.18.0
+    chart: istio/base
+    createNamespace: true
+    hooks: # This hook is only needed if you're going to use the new k8s gateway API. This ensures CRDs for the k8s gateway API are installed
+      - events: ["preapply"]
+        showlogs: true
+        command: "/bin/bash"
+        args:
+          [
+            "-c",
+            'kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || { kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v0.6.1" | kubectl apply -f -; }',
+          ]
+
+  - name: istiod
+    namespace: istio-system
+    version: 1.18.0
+    chart: istio/istiod
+    disableValidationOnInstall: true
+    needs:
+      - istio-system/istio-base
+
+  - name: gateway
+    namespace: istio-ingress
+    createNamespace: true
+    version: 1.18.0
+    chart: istio/gateway
+    needs:
+      - istio-system/istio-base
+      - istio-system/istiod
+
+  - name: certificates
+    namespace: istio-system
+    chart: ./charts/certificates
+    disableValidationOnInstall: true
+    needs:
+      - istio-ingress/gateway
+      - cert-manager/cert-manager
+
+  - name: production
+    namespace: production
+    disableValidationOnInstall: true
+    createNamespace: false
+    chart: ./charts/init
+    needs:
+      - istio-system/istio-base
+
+    hooks:
+      - events:
+          - presync
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - "kubectl create namespace production --dry-run=client -o yaml | kubectl apply -f -"
+      - events:
+          - presync
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - "kubectl label --dry-run=client -o yaml  namespace production monitoring=prometheus istio-injection=enabled | kubectl apply -f -"
+
+  - name: frontend
+    namespace: production
+    disableValidationOnInstall: true
+    createNamespace: false
+    chart: ./charts/frontend
+    needs:
+      - production/production
+      - istio-ingress/gateway
+
+  - name: kiali-server
+    namespace: kiali-operator
+    createNamespace: true
+    disableValidationOnInstall: true
+    set:
+      - name: cr.create
+        value: true
+      - name: cr.namespace
+        value: istio-system
+      - name: auth.strategy
+        value: token # https://kiali.io/docs/faq/authentication/
+    chart: kiali/kiali-operator
+    needs:
+      - istio-system/istio-base
+      - istio-system/istiod
+
+  - name: cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    chart: jetstack/cert-manager
+    disableValidationOnInstall: true
+    set:
+      - name: installCRDs
+        value: true
+      - name: cluster-resource-namespace
+        value: istio-system
+
+  - name: postgres
+    namespace: production
+    chart: bitnami/postgresql
+    needs:
+      - production/production
+    set:
+      - name: global.postgresql.auth.postgresPassword
+        value: MUZSc0h1anJKYw== # helmfile doesn't make it easy but I suppose it's okay to hardcode :)
+
+  - name: backend
+    namespace: production
+    chart: ./charts/backend
+    disableValidationOnInstall: true
+    needs:
+      - production/production
+      - production/postgres
+      - istio-ingress/gateway
+
+  - name: grafana
+    namespace: monitoring
+    disableValidationOnInstall: true
+    createNamespace: false
+    chart: grafana/grafana
+    hooks:
+      - events:
+          - presync
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - "kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -"
+      - events:
+          - presync
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - "kubectl label --dry-run=client -o yaml  namespace monitoring istio-injection=enabled | kubectl apply -f -"
+    needs:
+      - istio-system/istio-base
+
+  - name: promtail
+    namespace: monitoring
+    chart: grafana/promtail
+    needs:
+      - monitoring/grafana
+
+  # - name: loki
+  #   namespace: monitoring
+  #   disableValidationOnInstall: true
+  #   chart: grafana/loki
+  #   values:
+  #     - "./charts/values/loki.yaml"
+
+  - name: prometheus
+    namespace: monitoring
+    chart: prometheus/prometheus
+    needs:
+      - monitoring/grafana
+
+  - name: statsd
+    namespace: monitoring
+    chart: prometheus/prometheus-statsd-exporter
+    needs:
+      - monitoring/prometheus
+    values:
+      - "./charts/values/statsd.yaml"

@@ -28,4 +28,4 @@ scrape_configs:
       - targets: ["grafana:3000"]
   - job_name: "statsdexporter"
     static_configs:
-      - targets: ["statsdexporter:9102"]
+      - targets: ["statsd:9102"]
