@@ -96,10 +96,11 @@ services: # this is where services are defined. A service is a docker container,
         - SAML_KEY_PATH=/certs/key.pem
         - IDP_URL=https://samltest.id/saml/providers #for prod: https://idp.elon.edu/idp/shibboleth
         - SP_URL=http://localhost:3000
+        - WEB_URL=http://localhost:3001
     volumes:
       - ./saml:/certs
-      - ./saml/myservice.cert:/certs/cert.pem
-      - ./saml/myservice.key:/certs/key.pem
+      - ./saml/cert.pem:/certs/cert.pem
+      - ./saml/key.pem:/certs/key.pem
     build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
       context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
       dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
@@ -107,7 +108,7 @@ services: # this is where services are defined. A service is a docker container,
       # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
   frontend:
     ports:
-      - 3001:3001
+      - 3001:3000
     build:
       context: ../frontend/
       dockerfile: ../frontend/Dockerfile.dev
