@@ -3,6 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: ods-elon-edu-tls
+  namespace: istio-ingress
 
 spec:
   secretName: ods-elon-edu-tls

@@ -1,23 +1,27 @@
-# Inspired by the following InCommon listserv post: https://lists.incommon.org/sympa//arc/cert-users/2021-05/msg00012.html
-# cert-manager on ACME challenges, in general: https://cert-manager.io/docs/configuration/acme/
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: incommon-production
 spec:
-  acme:
-    email: gcolby@elon.edu
-    server: https://acme.sectigo.com/v2/InCommonRSAOV
-    externalAccountBinding:
-      keyID: <to be added>
-      keySecretRef:
-        name: incommon-eab # this is to be added as a secret.
-        key: secret
-        keyAlgorithm: HS256
-    privateKeySecretRef:
-      name: incommon-production # this is to be added as a secret.
-    solvers:
-      - http01:
-          ingress: # support for istio gateway
-            # https://istio.io/latest/docs/ops/integrations/certmanager/#istio-gateway
-            ingressClassName: gateway
+  ca:
+    secretName: ods-ssl-keypair
+
+  # DEPRECATED: Elon IT does not support ACME challenges.
+  # # Inspired by the following InCommon listserv post: https://lists.incommon.org/sympa//arc/cert-users/2021-05/msg00012.html
+  # # cert-manager on ACME challenges, in general: https://cert-manager.io/docs/configuration/acme/
+  # acme:
+  #   email: gcolby@elon.edu
+  #   server: https://acme.sectigo.com/v2/InCommonRSAOV
+  #   externalAccountBinding:
+  #     keyID: <to be added>
+  #     keySecretRef:
+  #       name: incommon-eab # this is to be added as a secret.
+  #       key: secret
+  #       keyAlgorithm: HS256
+  #   privateKeySecretRef:
+  #     name: incommon-production # this is to be added as a secret.
+  #   solvers:
+  #     - http01:
+  #         ingress: # support for istio gateway
+  #           # https://istio.io/latest/docs/ops/integrations/certmanager/#istio-gateway
+  #           ingressClassName: gateway

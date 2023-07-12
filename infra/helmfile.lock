@@ -20,15 +20,18 @@ dependencies:
   version: 1.70.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 12.6.0
+  version: 12.6.4
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts/
-  version: 22.7.0
+  version: 23.0.0
 - name: prometheus-statsd-exporter
   repository: https://prometheus-community.github.io/helm-charts/
   version: 0.8.0
 - name: promtail
   repository: https://grafana.github.io/helm-charts
   version: 6.11.5
-digest: sha256:9c36176e4723671b7686e741c02a4583a98bf736121c96a798417cc17f4c9aeb
-generated: "2023-07-03T17:39:10.909519-04:00"
+- name: vault
+  repository: https://helm.releases.hashicorp.com
+  version: 0.25.0
+digest: sha256:77b488551c161b0d15c840665ba908df9391801947dda4e105c1e49b5f3e7fa2
+generated: "2023-07-08T08:34:43.929668-07:00"
