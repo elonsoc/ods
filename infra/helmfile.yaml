@@ -13,6 +13,8 @@ repositories:
     url: https://prometheus-community.github.io/helm-charts/
   - name: jetstack
     url: https://charts.jetstack.io
+  - name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard/
 
 # These defaults are just helpful, feel free to omit them
 helmDefaults:
@@ -59,6 +61,15 @@ releases:
     needs:
       - istio-ingress/gateway
       - cert-manager/cert-manager
+
+  - name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    version: 3.0.0
+    createNamespace: true
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    needs:
+      - cert-manager/cert-manager
+
 
   - name: production
     namespace: production
@@ -128,6 +139,14 @@ releases:
     set:
       - name: global.postgresql.auth.postgresPassword
         value: MUZSc0h1anJKYw== # helmfile doesn't make it easy but I suppose it's okay to hardcode :)
+      - name: global.storageClass
+        value: local-path 
+      - name: primary.persistence.storageClass
+        value: local-path
+      - name: backup.cronjob.storage.storageClass
+        value: local-path
+      - name: readReplicas.persistence.storageClass
+        value: local-path
 
   - name: backend
     namespace: production
@@ -167,18 +186,23 @@ releases:
     needs:
       - monitoring/grafana
 
-  # - name: loki
-  #   namespace: monitoring
-  #   disableValidationOnInstall: true
-  #   chart: grafana/loki
-  #   values:
-  #     - "./charts/values/loki.yaml"
+  - name: loki
+    namespace: monitoring
+    disableValidationOnInstall: true
+    chart: grafana/loki
+    values:
+      - "./charts/values/loki.yaml"
 
   - name: prometheus
     namespace: monitoring
     chart: prometheus/prometheus
     needs:
       - monitoring/grafana
+    set:
+      - name: server.persistentVolume.storageClass
+        value: local-path 
+      - name: alertmanager.persistentVolume.storageClass
+        value: local-path
 
   - name: statsd
     namespace: monitoring

@@ -6,13 +6,13 @@ metadata:
   namespace: production
 data:
   PORT: "3000"
-  LOGGING_URL: "http://loki.monitoring:3100/loki/api/v1/push"
+  LOGGING_URL: "http://loki-gateway.monitoring:3100/loki/api/v1/push"
   PROMETHEUS_URL: "http://prometheus.monitoring:9090"
-  STATSD_URL: "http://statsd.monitoring"
+  STATSD_URL: "http://statsd-prometheus-statsd-exporter.monitoring"
   REDIS_URL: "redis://redis:6379"
   SAML_CERT_PATH: "/certs/saml_cert.cert"
   SAML_KEY_PATH: "/certs/saml_key.key"
-  IDP_URL: "https://samltest.id/saml/idp"
-  SP_URL: "http://api.ods.elon.edu"
-  WEB_URL: "http://ods.elon.edu"
+  IDP_URL: "https://idp.elon.edu/idp/shibboleth"
+  SP_URL: "https://api.ods.elon.edu"
+  WEB_URL: "https://ods.elon.edu"
   DATABASE_URL: "postgres://postgres:MUZSc0h1anJKYw==@postgres:5432/postgres"

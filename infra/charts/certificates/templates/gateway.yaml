@@ -12,6 +12,9 @@ spec:
         - ods.elon.edu
         - api.ods.elon.edu
         - stats.ods.elon.edu
+        - dashboard.ods.elon.edu
+      tls:
+        httpsRedirect: true
     - port:
         number: 443
         name: https
@@ -20,6 +23,7 @@ spec:
         - ods.elon.edu
         - api.ods.elon.edu
         - stats.ods.elon.edu
+        - dashboard.ods.elon.edu
       tls:
         mode: SIMPLE
         credentialName: ods-elon-edu-tls

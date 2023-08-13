@@ -60,7 +60,30 @@ metadata:
   namespace: monitoring
 spec:
   host: grafana
-  # subsets:
-  #   - name: v1
-  #     labels:
-  #       app: grafana
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: kubernetes-dashboard
+#   namespace: kubernetes-dashboard
+# spec:
+#   hosts:
+#     - dashboard.ods.elon.edu
+#     - kubernetes-dashboard
+#   gateways:
+#     - istio-system/gateway
+#   http:
+#     - match:
+#         - uri:
+#             prefix: /
+#       route:
+#         - destination:
+#             host: kubernetes-dashboard
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: DestinationRule
+# metadata:
+#   name: kubernetes-dashboard
+#   namespace: kubernetes-dashboard
+# spec:
+#   host: kubernetes-dashboard
