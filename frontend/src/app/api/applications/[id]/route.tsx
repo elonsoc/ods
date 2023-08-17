@@ -55,13 +55,14 @@ export async function GET(
 				'Content-Type': 'application/json',
 				credentials: 'include',
 			},
+			cache: 'no-cache',
 		});
 		applicationJSON = await res.json();
 	} catch (error) {
 		console.log('There was an error', error);
-		return NextResponse.json({'error': error})
+		return NextResponse.json({ error: error });
 	}
-	return NextResponse.json(applicationJSON)
+	return NextResponse.json(applicationJSON);
 }
 
 export async function PUT(
@@ -72,23 +73,17 @@ export async function PUT(
 		params: { id: string };
 	}
 ): Promise<Response> {
-	const body: UserAppInformation = await request.json();
 	const id = params.id;
-	const res = await fetch(`${BACKEND_URL}/applications/${id}`, {
+	const options: any = {
 		method: 'PUT',
+		duplex: 'half',
 		headers: {
 			'Content-Type': 'application/json',
 			credentials: 'include',
 		},
-	});
-	const applications = await res.json();
-
-	return new Response(applications, {
-		status: 200,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-		},
-	});
+		body: request.body,
+		cache: 'no-store',
+	};
+	const res = await fetch(`${BACKEND_URL}/applications/${id}`, options);
+	return new NextResponse();
 }

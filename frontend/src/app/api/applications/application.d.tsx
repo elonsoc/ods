@@ -22,3 +22,14 @@ export interface ApplicationExtended {
 	apiKey: string;
 	isValid: boolean;
 }
+
+export interface RequestOptions {
+	method: string;
+	duplex: string;
+	headers: {
+		'Content-Type': string;
+		credentials: string;
+	};
+	body: ReadableStream<Uint8Array> | null;
+	cache: string;
+}
