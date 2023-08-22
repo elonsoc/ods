@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/crewjam/saml/samlsp"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
@@ -16,25 +17,10 @@ import (
 	"github.com/elonsoc/ods/backend/applications"
 	locations "github.com/elonsoc/ods/backend/locations"
 	"github.com/elonsoc/ods/backend/service"
-	"github.com/elonsoc/saml/samlsp"
 )
 
-// IdentityKeys are different from API keys in that they are used to validate the identity of the user
-// and are used to determine what data the user can access.
-// this map is just a proof of concept, in the future we would swap this out and call our database.
-var IdentityKeys = map[string]string{
-	"elon_ods:12345": "elon",
-}
-
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey() func(next http.Handler) http.Handler {
-	// this mocks a database of API keys
-	APIKEYS := map[string]bool{
-		"elon_ods:12345": true,
-	}
-
-	// this middleware is a proof of concept, in the future we would swap this out
-	// for a call to our database to verify the API key
+func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			auth := r.Header.Get("Authorization")
@@ -45,12 +31,13 @@ func CheckAPIKey() func(next http.Handler) http.Handler {
 
 			// this is where the call we'd make to the database to verify the API key
 			// would happen. For now, we just check if the API key is in the map above.
-			if !APIKEYS[auth] {
+			if !db.IsValidApiKey(auth) {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
 			// if both are okay, then we're free to further this request.
+			stat.Increment("api_key_used", statsd.StringTag("api_key", auth))
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)
@@ -59,10 +46,10 @@ func CheckAPIKey() func(next http.Handler) http.Handler {
 
 // func(next http.Handler) http.Handler
 
-func CheckIdentity() func(next http.Handler) http.Handler {
+func CheckIdentity(tokenSvcr service.TokenIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			token_cookie, err := r.Cookie("identity")
+			token_cookie, err := r.Cookie("ods_login_cookie_nomnom")
 			if err != nil {
 				// may log this?
 				w.WriteHeader(http.StatusUnauthorized)
@@ -70,15 +57,16 @@ func CheckIdentity() func(next http.Handler) http.Handler {
 			}
 			auth := token_cookie.Value
 			if auth == "" {
-
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-			if IdentityKeys[auth] == "" {
 
+			res, err := tokenSvcr.ValidateToken(auth)
+			if !res || err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
+
 		}
 		return http.HandlerFunc(fn)
 	}
@@ -127,6 +115,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
 	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
+
 	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
 	// Create a new instance of the router
@@ -162,7 +151,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Group(func(r chi.Router) {
 		// This custom middleware checks the Authorization header for a valid API key
 		// and if it's not valid, it returns a 401 Unauthorized error
-		r.Use(CheckAPIKey())
+		r.Use(CheckAPIKey(svc.Db, svc.Stat))
 
 		// This get request is just a simple ping endpoint to test that the server is running
 		// and that the API key is valid.
@@ -173,83 +162,69 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: svc}).Router)
 	})
 
-	// // this group is for the API that will be used by the frontend to validate the user's identity
-	// r.Mount("/identity", r.Group(func(r chi.Router) {
-	// 	r.Use(middleware.NoCache)
-	// 	r.Use(middleware.AllowContentType("application/json"))
-	// 	// Here, we take the token that is passed in the request body and validate it
-	// 	// by making a call to the identity service.
-	// 	// If the token is valid, we commit this to memory and use it to verify
-	// 	// actions that the user takes on the website.
-	// 	// So, it works like this:
-	// 	// 1. User clicks "Log In" and is redirected to the identity service
-	// 	// 2. User logs in and is redirected back to the frontend with a token, we call this a dirty token
-	// 	// because it's not yet validated and has been touched by the user
-	// 	// 3. We make a call to the identity service to validate the token, and if it's valid,
-	// 	// we commit a new token pair to memory, one that is clean (only on the server) and one that is dirty (on the client)
-	// 	// the dirty token is a JWT that is used to verify the user's identity and is stored in a cookie.
-	// 	// the clean token, instead, is durable and is stored in on our side for a longer period of time.
-	// 	// This allows us to verify the user's identity without having to make a call to the identity service every time
-	// 	r.Post("/validate", func(w http.ResponseWriter, r *http.Request) {
-	// 		type request struct {
-	// 			Token string `json:"token"`
-	// 		}
-
-	// 		var req request
-	// 		err := json.NewDecoder(r.Body).Decode(&req)
-	// 		if err != nil {
-	// 			fmt.Println("Error decoding request body: ", err)
-	// 			w.WriteHeader(http.StatusBadRequest)
-	// 			return
-	// 		}
-
-	// 		if req.Token == "" {
-	// 			fmt.Println("Token is empty")
-	// 			w.WriteHeader(http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 		resp, err := http.Get("http://localhost:1338/validate?token=" + req.Token)
-	// 		type validationResponse struct {
-	// 			Token string `json:"token"`
-	// 		}
-	// 		if err != nil {
-	// 			w.WriteHeader(http.StatusServiceUnavailable)
-	// 			return
-	// 		}
-
-	// 		if resp.StatusCode != 200 {
-	// 			w.WriteHeader(http.StatusUnauthorized)
-	// 			return
-	// 		}
-
-	// 		// read the response body into validationresponse
-	// 		res := validationResponse{}
-	// 		err = json.NewDecoder(resp.Body).Decode(&res)
-	// 		if err != nil {
-	// 			fmt.Println("Error decoding response body: ", err)
-	// 			w.WriteHeader(http.StatusInternalServerError)
-	// 			return
-	// 		}
-	// 		// if the token is valid, we commit it to memory
-
-	// 		IdentityKeys[res.Token] = "elon_ods:12345"
-	// 		w.Write([]byte("elon_ods:12345"))
-	// 	})
-	// }))
-
 	r.Route("/saml", func(r chi.Router) {
 		r.Get("/metadata", samlMiddleware.ServeMetadata)
 		r.Post("/acs", samlMiddleware.ServeACS)
 	})
 
-	r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
+	r.Group(func(r chi.Router) {
+		// this set of groups require a JWT to be accessed
+		r.Use(CheckIdentity(svc.Token))
+		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
+
+	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, %s", samlsp.AttributeFromContext(r.Context(), "displayName"))
-			w.Write([]byte("you're a true affiliate."))
+			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
+			fmt.Println(elon_uid)
+			elon_uid = "abcdef"
+
+			if !svc.Db.IsUser(elon_uid) {
+				// givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
+				// surname := samlsp.AttributeFromContext(r.Context(), "surname")
+				// email := samlsp.AttributeFromContext(r.Context(), "email")
+				// affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
+				givenName := "Anthony"
+				surname := "Martin"
+				email := "amartin120@elon.edu"
+				affiliation := "student"
+				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
+				if err != nil {
+					svc.Log.Error(err.Error(), nil)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+			}
+
+			userInfo, err := svc.Db.GetUserInformation(elon_uid)
+			if err != nil {
+				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			// w.Write([]byte(fmt.Sprintf("Hello %s %s %s", userInfo.FirstName, userInfo.LastName, userInfo.Email)))
+
+			jwt, err := svc.Token.NewToken(userInfo.OdsId)
+			if err != nil {
+				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+
+			http.SetCookie(w, &http.Cookie{
+				Name:   "ods_login_cookie_nomnom",
+				Value:  jwt,
+				MaxAge: 60 * 60 * 2,
+				Domain: webURL,
+			})
+
+			w.Header().Add("Content-Type", "")
+
+			http.Redirect(w, r, webURL+"/apps", http.StatusFound)
+
 		})
 	})
 

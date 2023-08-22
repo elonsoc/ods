@@ -109,6 +109,9 @@ services: # this is where services are defined. A service is a docker container,
   frontend:
     ports:
       - 3001:3000
+    environment:
+      - BACKEND_API_URL=http://backend:3000
+      - NODE_ENV=development
     build:
       context: ../frontend/
       dockerfile: ../frontend/Dockerfile.dev

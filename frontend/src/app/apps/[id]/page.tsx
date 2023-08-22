@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import styles from '@/styles/pages/application.module.css';
+import React, { useEffect, useState } from "react";
+import styles from "@/styles/pages/application.module.css";
 import {
 	ApplicationExtended,
 	UserAppInformation,
-} from '@/app/api/applications/application.d';
-import ApplicationInformation from '@/components/ApplicationInformation/ApplicationInformation';
-import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
-import BackLink from '@/components/BackLink/BackLink';
-import { useRouter } from 'next/navigation';
+} from "@/app/api/applications/application.d";
+import ApplicationInformation from "@/components/ApplicationInformation/ApplicationInformation";
+import SkeletonLoader from "@/components/SkeletonLoader/SkeletonLoader";
+import BackLink from "@/components/BackLink/BackLink";
+import { useRouter } from "next/navigation";
 
 interface ApplicationProps {
 	params: {
@@ -20,19 +20,19 @@ interface ApplicationProps {
 const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 	const router = useRouter();
 	const [application, setApplication] = useState<ApplicationExtended>({
-		id: '',
-		name: '',
-		description: '',
-		owners: '',
-		teamName: '',
-		apiKey: '',
+		id: "",
+		name: "",
+		description: "",
+		owners: "",
+		teamName: "",
+		apiKey: "",
 		isValid: false,
 	});
 	const [loading, setLoading] = useState(true);
 
 	async function fetchApplication(id: String): Promise<UserAppInformation> {
 		const res = await fetch(`/api/applications/${id}`, {
-			cache: 'no-cache',
+			cache: "no-cache",
 		});
 		const application = await res.json();
 		setApplication(application);
@@ -43,21 +43,23 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 	async function handleAppSubmit(appInfo: UserAppInformation) {
 		setLoading(true);
 		const result = await fetch(`/api/applications/${id}`, {
-			method: 'PUT',
+			method: "PUT",
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
+				credentials: "include",
 			},
 			body: JSON.stringify(appInfo),
+			cache: "no-store",
 		});
 		fetchApplication(id);
 	}
 
 	async function handleAppDelete(id: string) {
 		setLoading(true);
-		const result = await fetch(`/applications/${id}`, {
-			method: 'DELETE',
+		const result = await fetch(`/api/applications/${id}`, {
+			method: "DELETE",
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
 		});
 		router.replace(`/apps`);

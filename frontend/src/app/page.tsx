@@ -5,6 +5,7 @@ import { HOME_PAGE_COURSE_SAMPLE } from '@/components/CodeBlockContainer/code';
 import styles from '@/styles/pages/home.module.css';
 import Link from 'next/link';
 import { useState } from 'react';
+import { config } from '@/config/Constants';
 
 export default function Home() {
 	const [validUser, setValidUser] = useState<boolean>(false);
@@ -20,8 +21,8 @@ export default function Home() {
 					through our API. Register your application for an API key and start
 					building innovative applications for the Elon community.
 				</p>
-				<Link href={validUser ? '/apps' : '/denied'} className={styles.button}>
-					Get Started
+				<Link href={'http://localhost:3000'} rel="noopener noreferrer" className={styles.button}>
+					Get Started 123
 				</Link>
 				<Link href='/docs' className={styles.learnMoreLink}>
 					Learn More{' '}

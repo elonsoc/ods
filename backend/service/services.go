@@ -16,10 +16,11 @@ package service
 // Service, here, describes the services that we will be using
 // in the backend of ods.
 type Services struct {
-	Log  LoggerIFace
-	Db   DbIFace
-	Stat StatIFace
-	Saml SamlIFace
+	Log   LoggerIFace
+	Db    DbIFace
+	Stat  StatIFace
+	Saml  SamlIFace
+	Token TokenIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -38,11 +39,13 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, s
 	db := initDb(databaseURL, log)
 	stat := initStatsD(statsdURL, log)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
+	token := NewTokenServicer()
 
 	return &Services{
-		Log:  log,
-		Db:   db,
-		Stat: stat,
-		Saml: saml,
+		Log:   log,
+		Db:    db,
+		Stat:  stat,
+		Saml:  saml,
+		Token: token,
 	}
 }

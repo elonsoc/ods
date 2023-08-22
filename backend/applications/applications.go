@@ -73,6 +73,21 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 // It will then return the pertinent information to the user.
 func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	var err error
+
+	token, err := r.Cookie("ods_login_cookie_nomnom")
+	if err != nil {
+		// how did you get here?
+		ar.Svcs.Log.Error(err.Error(), nil)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	uid, err := ar.Svcs.Token.GetUidFromToken(token.Value)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
 	// Create a new Application struct
 	app := types.BaseApplication{}
 
@@ -83,7 +98,7 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the application in the database
-	appId, err := ar.Svcs.Db.NewApp(app.Name, app.Description)
+	appId, err := ar.Svcs.Db.NewApp(app.Name, app.Description, uid)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -93,13 +108,24 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(appId))
 }
 
-// todo(@SheedGuy)
-// This function returns a list of all the applications that exist right now.
-// Once accessing the users email is figured out, this function will return a
-// list of all the applications that the user owns.
+// myApps get all of the apps for a particular user id.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
-	// Query db for all apps
-	apps, err := ar.Svcs.Db.GetApplications()
+
+	token, err := r.Cookie("ods_login_cookie_nomnom")
+	if err != nil {
+		// how did you get here?
+		ar.Svcs.Log.Error(err.Error(), nil)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	uid, err := ar.Svcs.Token.GetUidFromToken(token.Value)
+	if err != nil {
+		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
+	apps, err := ar.Svcs.Db.GetApplications(uid)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
