@@ -22,7 +22,7 @@ export default function Home() {
 					building innovative applications for the Elon community.
 				</p>
 				<Link href={'http://localhost:3000'} rel="noopener noreferrer" className={styles.button}>
-					Get Started 123
+					Log In with Elon
 				</Link>
 				<Link href='/docs' className={styles.learnMoreLink}>
 					Learn More{' '}
