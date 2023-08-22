@@ -46,11 +46,12 @@ func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath st
 	}
 
 	options := samlsp.Options{
-		URL:         *rootURL,
-		EntityID:    rootURL.String(),
-		Key:         keyPair.PrivateKey.(*rsa.PrivateKey),
-		Certificate: keyPair.Leaf,
-		IDPMetadata: idpMetadata,
+		URL:               *rootURL,
+		EntityID:          rootURL.String(),
+		Key:               keyPair.PrivateKey.(*rsa.PrivateKey),
+		Certificate:       keyPair.Leaf,
+		AllowIDPInitiated: false,
+		IDPMetadata:       idpMetadata,
 		Organization: &saml.Organization{
 			OrganizationNames: []saml.LocalizedName{
 				{Value: "Elon Society of Computing CS Project Team", Lang: "en"},
@@ -74,7 +75,7 @@ func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath st
 	samlSP, _ := samlsp.New(options)
 
 	samlSP.Session = samlsp.CookieSessionProvider{
-		Name:     "esc-saml-cookie",
+		Name:     "escSamlCookie",
 		Domain:   webURL,
 		HTTPOnly: true,
 		Secure:   options.URL.Scheme == "https",
