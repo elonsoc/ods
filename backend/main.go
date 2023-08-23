@@ -4,8 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/crewjam/saml/samlsp"
@@ -70,6 +73,27 @@ func CheckIdentity(tokenSvcr service.TokenIFace) func(next http.Handler) http.Ha
 		}
 		return http.HandlerFunc(fn)
 	}
+}
+
+// getDomainFromURI formats a domain string into a proper
+// domain name to be inlayed into a cookie.
+func getDomainFromURI(domain string) (string, error) {
+	if strings.ToLower(domain[:4]) == "http" {
+		u, err := url.Parse(domain)
+		if err != nil {
+			return "", err
+		}
+		return u.Hostname(), nil
+	}
+	// the provided domain is not a URL, so it should be a hostname
+	domain, _, err := net.SplitHostPort(domain)
+	if err != nil {
+		return "", err
+
+	}
+
+	return domain, nil
+
 }
 
 func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
@@ -208,11 +232,17 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 
+			cleanURL, err := getDomainFromURI(webURL)
+			if err != nil {
+				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 			http.SetCookie(w, &http.Cookie{
 				Name:   "ods_login_cookie_nomnom",
 				Value:  jwt,
 				MaxAge: 60 * 60 * 2,
-				Domain: webURL,
+				Domain: cleanURL,
 			})
 
 			w.Header().Add("Content-Type", "")
