@@ -209,6 +209,9 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				surname := samlsp.AttributeFromContext(r.Context(), "surname")
 				email := samlsp.AttributeFromContext(r.Context(), "email")
 				affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
+				sesh := samlsp.SessionFromContext(r.Context())
+				a := sesh.(samlsp.SessionWithAttributes)
+				svc.Log.Debug(fmt.Sprintf("%+v", a.GetAttributes()), nil)
 				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)
