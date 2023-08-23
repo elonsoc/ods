@@ -179,18 +179,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
-			fmt.Println(elon_uid)
-			elon_uid = "abcdef"
 
 			if !svc.Db.IsUser(elon_uid) {
-				// givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
-				// surname := samlsp.AttributeFromContext(r.Context(), "surname")
-				// email := samlsp.AttributeFromContext(r.Context(), "email")
-				// affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
-				givenName := "Anthony"
-				surname := "Martin"
-				email := "amartin120@elon.edu"
-				affiliation := "student"
+				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
+				surname := samlsp.AttributeFromContext(r.Context(), "surname")
+				email := samlsp.AttributeFromContext(r.Context(), "email")
+				affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
 				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)
