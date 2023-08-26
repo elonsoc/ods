@@ -203,6 +203,11 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
+			if elon_uid == "" {
+				svc.Log.Error("Elon employeeNumber not provided in context payload.", nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
 			if !svc.Db.IsUser(elon_uid) {
 				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
@@ -226,8 +231,6 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-
-			// w.Write([]byte(fmt.Sprintf("Hello %s %s %s", userInfo.FirstName, userInfo.LastName, userInfo.Email)))
 
 			jwt, err := svc.Token.NewToken(userInfo.OdsId)
 			if err != nil {

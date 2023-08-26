@@ -12,6 +12,11 @@ type LoggerIFace struct {
 	mock.Mock
 }
 
+// Debug provides a mock function with given fields: _a0, _a1
+func (_m *LoggerIFace) Debug(_a0 string, _a1 logrus.Fields) {
+	_m.Called(_a0, _a1)
+}
+
 // Error provides a mock function with given fields: _a0, _a1
 func (_m *LoggerIFace) Error(_a0 string, _a1 logrus.Fields) {
 	_m.Called(_a0, _a1)
