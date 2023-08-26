@@ -1,0 +1,43 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+
+metadata:
+  name: elon-idp-serviceentry
+  namespace: istio-gateway
+spec:
+  hosts:
+  - idp.elon.edu
+  exportTo:
+  - egress-gateway
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+  endpoints:
+  - address: idp.elon.edu
+    ports:
+      https: 443
+  location: MESH_EXTERNAL
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+
+metadata:
+  name: elon-mssql-serviceentry
+  namespace: istio-gateway
+spec:
+  hosts:
+  - dataproxy01.elon.edu
+  exportTo:
+  - egress-gateway
+  ports:
+  - number: 80
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+  endpoints:
+  - address: dataproxy01.elon.edu
+    ports:
+      https: 80
+  location: MESH_EXTERNAL

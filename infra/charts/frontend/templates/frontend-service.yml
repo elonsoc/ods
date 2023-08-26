@@ -7,6 +7,6 @@ metadata:
 spec:
   ports:
     - name: http
-      port: 3000
+      port: 8080
   selector:
     app: frontend

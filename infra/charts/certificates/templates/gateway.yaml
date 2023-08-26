@@ -27,3 +27,28 @@ spec:
       tls:
         mode: SIMPLE
         credentialName: ods-elon-edu-tls
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: egress-gateway
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - idp.elon.edu
+      tls:
+        mode: SIMPLE
+        credentialName: ods-elon-edu-tls
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - dataproxy01.elon.edu
+

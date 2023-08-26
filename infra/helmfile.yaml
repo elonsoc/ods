@@ -46,7 +46,7 @@ releases:
       - istio-system/istio-base
 
   - name: gateway
-    namespace: istio-ingress
+    namespace: istio-gateway
     createNamespace: true
     version: 1.18.0
     chart: istio/gateway
@@ -59,7 +59,7 @@ releases:
     chart: ./charts/certificates
     disableValidationOnInstall: true
     needs:
-      - istio-ingress/gateway
+      - istio-gateway/gateway
       - cert-manager/cert-manager
 
   - name: kubernetes-dashboard
@@ -102,7 +102,7 @@ releases:
     chart: ./charts/frontend
     needs:
       - production/production
-      - istio-ingress/gateway
+      - istio-gateway/gateway
 
   - name: kiali-server
     namespace: kiali-operator
@@ -155,7 +155,7 @@ releases:
     needs:
       - production/production
       - production/postgres
-      - istio-ingress/gateway
+      - istio-gateway/gateway
 
   - name: grafana
     namespace: monitoring
