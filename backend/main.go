@@ -202,7 +202,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
+			elon_uid := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.16.840.1.113730.3.1.3")
 			if elon_uid == "" {
 				svc.Log.Error("Elon employeeNumber not provided in context payload.", nil)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -210,10 +210,10 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			}
 
 			if !svc.Db.IsUser(elon_uid) {
-				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
-				surname := samlsp.AttributeFromContext(r.Context(), "surname")
-				email := samlsp.AttributeFromContext(r.Context(), "email")
-				affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
+				givenName := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.5.4.42")
+				surname := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.5.4.4")
+				email := samlsp.AttributeFromContext(r.Context(), "urn:oid:0.9.2342.19200300.100.1.3")
+				affiliation := samlsp.AttributeFromContext(r.Context(), "urn:oid:1.3.6.1.4.1.5923.1.1.1.5")
 				sesh := samlsp.SessionFromContext(r.Context())
 				a := sesh.(samlsp.SessionWithAttributes)
 				svc.Log.Debug(fmt.Sprintf("%+v", a.GetAttributes()), nil)
