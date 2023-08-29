@@ -6,17 +6,18 @@ const BACKEND_URL = config.url.BACKEND_API_URL;
 
 export async function GET(request: Request): Promise<NextResponse> {
 	let applicationJSON;
-	// console.log(`Fetching to url ${BACKEND_URL}/applications`);
 	try {
 		const res = await fetch(`${BACKEND_URL}/applications`, {
 			cache: 'no-store',
+			headers: {
+				credentials: 'include',
+			},
 		});
 		applicationJSON = await res.json();
 	} catch (error) {
-		console.log('oops, an error:', error);
+		console.error(error);
 		return new NextResponse();
 	}
-	// console.log("applicationJSON", applicationJSON);
 	return NextResponse.json(applicationJSON);
 }
 
