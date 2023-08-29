@@ -49,23 +49,26 @@ func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Hand
 
 // func(next http.Handler) http.Handler
 
-func CheckIdentity(tokenSvcr service.TokenIFace) func(next http.Handler) http.Handler {
+func CheckIdentity(tokenSvcr service.TokenIFace, log service.LoggerIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			token_cookie, err := r.Cookie("ods_login_cookie_nomnom")
 			if err != nil {
 				// may log this?
+				log.Info("login cookie not presented", nil)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			auth := token_cookie.Value
 			if auth == "" {
+				log.Info("value not available in login cookie", nil)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
 			res, err := tokenSvcr.ValidateToken(auth)
 			if !res || err != nil {
+				log.Info("login cookie invalid.", nil)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
@@ -193,7 +196,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 	r.Group(func(r chi.Router) {
 		// this set of groups require a JWT to be accessed
-		r.Use(CheckIdentity(svc.Token))
+		r.Use(CheckIdentity(svc.Token, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
 	})
