@@ -208,7 +208,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				svc.Log.Error(fmt.Sprintf("Somehow, the context does not contain a session.\n%v", session), nil)
 			}
 
-			elon_uid := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.16.840.1.113730.3.1.3")
+			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
 			if elon_uid == "" {
 				svc.Log.Error("Elon employeeNumber not provided in context payload.", nil)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -216,10 +216,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			}
 
 			if !svc.Db.IsUser(elon_uid) {
-				givenName := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.5.4.42")
-				surname := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.5.4.4")
-				email := samlsp.AttributeFromContext(r.Context(), "urn:oid:0.9.2342.19200300.100.1.3")
-				affiliation := samlsp.AttributeFromContext(r.Context(), "urn:oid:1.3.6.1.4.1.5923.1.1.1.5")
+				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
+				surname := samlsp.AttributeFromContext(r.Context(), "sn")
+				email := samlsp.AttributeFromContext(r.Context(), "mail")
+				affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
+
+				if givenName == "" || surname == "" || email == "" || affiliation == "" {
+					svc.Log.Error(fmt.Sprintf("Something's missing... gn: %s, sn: %s, mail: %s, affi: %s", givenName, surname, email, affiliation), nil)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)
