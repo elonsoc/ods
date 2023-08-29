@@ -61,7 +61,7 @@ func (t *Token) GetUidFromToken(jwt string) (string, error) {
 	}
 
 	var id string
-	err = token.Get("odsId", id)
+	err = token.Get("odsId", &id)
 	if err != nil {
 		return "", err
 	}
