@@ -4,13 +4,15 @@ import applications from './data.json';
 import { config } from '@/config/Constants';
 const BACKEND_URL = config.url.BACKEND_API_URL;
 
+import { cookies } from "next/headers";
+
 export async function GET(request: Request): Promise<NextResponse> {
 	let applicationJSON;
 	try {
 		const res = await fetch(`${BACKEND_URL}/applications`, {
 			cache: 'no-store',
 			headers: {
-				credentials: 'include',
+				Cookie: cookies().getAll().toString()
 			},
 		});
 		applicationJSON = await res.json();
