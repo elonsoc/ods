@@ -202,6 +202,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+
+			session := samlsp.SessionFromContext(r.Context())
+			if session == nil {
+				svc.Log.Error(fmt.Sprintf("Somehow, the context does not contain a session.\n%v", session), nil)
+			}
+
 			elon_uid := samlsp.AttributeFromContext(r.Context(), "urn:oid:2.16.840.1.113730.3.1.3")
 			if elon_uid == "" {
 				svc.Log.Error("Elon employeeNumber not provided in context payload.", nil)
