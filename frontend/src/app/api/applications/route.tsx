@@ -8,12 +8,19 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request): Promise<NextResponse> {
 	let applicationJSON;
-	console.log(cookies().toString())
+
+	const login_cookie = cookies().get("ods_login_cookie_nomnom")
+	if (login_cookie === undefined) {
+		// this happens when, somehow, they're here yet they don't have
+		// a login cookie :)
+		return new NextResponse();
+	}
+	
 	try {
 		const res = await fetch(`${BACKEND_URL}/applications`, {
 			cache: 'no-store',
 			headers: {
-				Cookie: cookies().toString()
+				Cookie:  `${login_cookie.name}=${login_cookie.value}`
 			},
 		});
 		applicationJSON = await res.json();
