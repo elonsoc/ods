@@ -208,7 +208,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 			session := samlsp.SessionFromContext(r.Context())
 			if session == nil {
-				svc.Log.Error(fmt.Sprintf("Somehow, the context does not contain a session.\n%v", session), nil)
+				svc.Log.Error(fmt.Sprintf("The context does not contain a session.\n%v", session), nil)
+				return
 			}
 
 			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
@@ -229,6 +230,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
+
 				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)

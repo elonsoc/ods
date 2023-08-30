@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request): Promise<NextResponse> {
 	let applicationJSON;
+	console.log(cookies().getAll().toString())
 	try {
 		const res = await fetch(`${BACKEND_URL}/applications`, {
 			cache: 'no-store',
