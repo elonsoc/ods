@@ -47,8 +47,6 @@ func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Hand
 	}
 }
 
-// func(next http.Handler) http.Handler
-
 func CheckIdentity(tokenSvcr service.TokenIFace, log service.LoggerIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +70,7 @@ func CheckIdentity(tokenSvcr service.TokenIFace, log service.LoggerIFace) func(n
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-
+			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)
 	}
@@ -112,7 +110,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 				scheme = "https"
 			}
 
-			log.Info("Request received", logrus.Fields{
+			log.Info("", logrus.Fields{
 				"method":     r.Method,
 				"path":       r.URL.Path,
 				"request_id": middleware.GetReqID(r.Context()),

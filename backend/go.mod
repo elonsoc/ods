@@ -4,8 +4,7 @@ go 1.19
 
 require (
 	aidanwoods.dev/go-paseto v1.5.0
-	
-	github.com/elonsoc/saml v0.0.0-20230822073450-45df2186004e
+	github.com/elonsoc/saml v0.0.0-20230912050502-6a7116c98c96
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/cors v1.2.1
 	github.com/jackc/pgx-gofrs-uuid v0.0.0-20230224015001-1d428863c2e2
@@ -20,7 +19,6 @@ require (
 require (
 	aidanwoods.dev/go-result v0.1.0 // indirect
 	github.com/beevik/etree v1.2.0 // indirect
-	github.com/crewjam/saml v0.4.13 // indirect
 	github.com/crewjam/httperr v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gofrs/uuid/v5 v5.0.0 // indirect

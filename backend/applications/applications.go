@@ -110,7 +110,6 @@ func (ar *ApplicationsRouter) newApp(w http.ResponseWriter, r *http.Request) {
 
 // myApps get all of the apps for a particular user id.
 func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
-
 	token, err := r.Cookie("ods_login_cookie_nomnom")
 	if err != nil {
 		// how did you get here?
@@ -121,12 +120,20 @@ func (ar *ApplicationsRouter) myApps(w http.ResponseWriter, r *http.Request) {
 
 	uid, err := ar.Svcs.Token.GetUidFromToken(token.Value)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		ar.Svcs.Log.Error(err.Error(), nil)
+		return
+	}
+
+	if uid == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		ar.Svcs.Log.Error("uid is empty", nil)
 		return
 	}
 
 	apps, err := ar.Svcs.Db.GetApplications(uid)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		ar.Svcs.Log.Error(err.Error(), nil)
 		return
 	}
@@ -171,6 +178,7 @@ func (ar *ApplicationsRouter) UpdateApplication(w http.ResponseWriter, r *http.R
 
 func (ar *ApplicationsRouter) DeleteApplication(w http.ResponseWriter, r *http.Request) {
 	applicationId := chi.URLParam(r, "id")
+	ar.Svcs.Log.Info("DeleteApplication", logrus.Fields{"applicationId": applicationId})
 	err := ar.Svcs.Db.DeleteApplication(applicationId)
 	if err != nil {
 		ar.Svcs.Log.Error(err.Error(), logrus.Fields{"applicationId": applicationId})

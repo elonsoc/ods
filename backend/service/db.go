@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/elonsoc/ods/backend/applications/types"
 	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
@@ -151,7 +152,7 @@ func (db *Db) NewApp(name string, desc string, userId string) (string, error) {
 // a list of all the applications that the user owns.
 func (db *Db) GetApplications(userId string) ([]types.Application, error) {
 	ctx := context.Background()
-	rows, err := db.db.Query(ctx, "select_all_applications", userId)
+	rows, err := db.db.Query(ctx, "select_all_applications_by_user", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -286,15 +287,12 @@ func (db *Db) GetUserInformation(elon_id string) (*ExternalUserInformation, erro
 		return nil, errors.New("elon_id is empty")
 	}
 
-	var ods_id string
-	err := db.db.QueryRow(context.Background(), "SELECT ods_id FROM elon_ods WHERE elon_id=$1", elon_id).Scan(&ods_id)
-	if err != nil {
-		return nil, err
-	}
 	var userInfo ExternalUserInformation
-	err = db.db.QueryRow(context.Background(), "SELECT email, given_name, family_name, affiliation FROM users WHERE id=$1", ods_id).Scan(&userInfo.Email, &userInfo.FirstName, &userInfo.LastName, &userInfo.Affiliation)
+	err := db.db.QueryRow(context.Background(),
+		"SELECT u.id, u.email, u.given_name, u.family_name, u.affiliation FROM users u JOIN elon_ods eo ON u.id = eo.ods_id WHERE eo.elon_id = $1",
+		elon_id).Scan(&userInfo.OdsId, &userInfo.Email, &userInfo.FirstName, &userInfo.LastName, &userInfo.Affiliation)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("could not get user information for elonId %s: %v", elon_id, err))
 	}
 
 	return &userInfo, nil

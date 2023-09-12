@@ -22,6 +22,10 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dchest/uniuri v1.2.0/go.mod h1:fSzm4SLHzNZvWLvWJew423PhAzkpNQYq+uNLq4kxhkY=
 github.com/elonsoc/saml v0.0.0-20230822073450-45df2186004e h1:TWFyqesZ2Yxcl2bkwG74BIyFxvGVQYHAK8xWluyRhSE=
 github.com/elonsoc/saml v0.0.0-20230822073450-45df2186004e/go.mod h1:AHTSH17SCJ0slGlels31kc5NL/dP5Yzpbog+ms4kvZY=
+github.com/elonsoc/saml v0.0.0-20230912045957-ba9f1f39d33a h1:GV6Kg5HiEx88GY0ifCr/WUIpxiwdhTit1jsQqctJCBE=
+github.com/elonsoc/saml v0.0.0-20230912045957-ba9f1f39d33a/go.mod h1:AHTSH17SCJ0slGlels31kc5NL/dP5Yzpbog+ms4kvZY=
+github.com/elonsoc/saml v0.0.0-20230912050502-6a7116c98c96 h1:67aMYf2cppZ+lhcHacMcI7QtvAGAZ2SHEEwul395BpQ=
+github.com/elonsoc/saml v0.0.0-20230912050502-6a7116c98c96/go.mod h1:AHTSH17SCJ0slGlels31kc5NL/dP5Yzpbog+ms4kvZY=
 github.com/go-chi/chi/v5 v5.0.8 h1:lD+NLqFcAi1ovnVZpsnObHGW4xb4J8lNmoYVfECH1Y0=
 github.com/go-chi/chi/v5 v5.0.8/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-chi/cors v1.2.1 h1:xEC8UT3Rlp2QuWNEr4Fs/c2EAGVKBwy/1vHx3bppil4=

@@ -21,7 +21,7 @@ export default function Home() {
 					through our API. Register your application for an API key and start
 					building innovative applications for the Elon community.
 				</p>
-				<Link href={'https://api.ods.elon.edu'} rel="noopener noreferrer" className={styles.button}>
+				<Link href={config.url.BACKEND_API_URL} rel="noopener noreferrer" className={styles.button}>
 					Log In with Elon
 				</Link>
 				<Link href='/docs' className={styles.learnMoreLink}>
