@@ -22,7 +22,7 @@ export default function Home() {
 					building innovative applications for the Elon community.
 				</p>
 				<Link
-					href={'https://api.ods.elon.edu'}
+					href={config.url.BACKEND_API_URL}
 					rel='noopener noreferrer'
 					className={styles.button}
 				>
