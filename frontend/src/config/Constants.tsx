@@ -1,13 +1,13 @@
 interface Config {
 	url: {
 		API_URL: string;
-		BACKEND_API_URL: string | undefined;
+		BACKEND_API_URL: string;
 	};
 }
 const prod: Config = {
 	url: {
 		API_URL: `https://ods.elon.edu`,
-		BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
+		BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL || "https://api.ods.elon.edu",
 	},
 };
 const dev: Config = {
