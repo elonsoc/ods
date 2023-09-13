@@ -4,83 +4,83 @@ metadata:
   name: kube
   namespace: kube-system
 spec:
-    - name: frontend
-      image: ghcr.io/elonsoc/ods-frontend:main
-      ports:
-        - containerPort: 443
-          hostPort: 443
-      env:
-        - name: BACKEND_URL
-          value: "backend:3000"
-        - name: PORT
-          value: "3001"
-    - name: postgres
-      image: postgres:13.3-alpine
-      ports:
-        - containerPort: 5432
-          hostPort: 5432
-      env:
-        - name: POSTGRES_DB
-          value: postgres
-        - name: POSTGRES_PASSWORD
-          value: postgres
-        - name: POSTGRES_USER
-          value: postgres
-    - name: redis
-      image: redis:6.2.5-alpine
-      ports:
-        - containerPort: 6379
-          hostPort: 6379
-    - name: loki
-      image: grafana/loki:2.3.0
-      ports:
-        - containerPort: 3100
-          hostPort: 3100
-      args:
-        - -config.file=/etc/loki/local-config.yaml
-      volumeMounts:
-        - name: config
-          mountPath: /etc/loki
-    - name: prometheus
-      image: prom/prometheus:v2.30.3
-      ports:
-        - containerPort: 9090
-          hostPort: 9090
-      args:
-        - --config.file=/etc/prometheus/prometheus.yml
-      volumeMounts:
-        - name: config
-          mountPath: /etc/prometheus
-    - name: statsdexporter
-      image: prom/statsd-exporter:v0.19.0
-      ports:
-        - containerPort: 9125
-          hostPort: 9125
-      args:
-        - --statsd.listen-udp=:8125
-        - --statsd.listen-tcp=:8125
-        - --statsd.mapping-config=/etc/statsd-mapping.conf
-      volumeMounts:
-        - name: config
-          mountPath: /etc
-    - name: grafana
-      image: grafana/grafana:latest
-      ports:
-        - containerPort: 3002
-          hostPort: 3000
-      env:
-        - name: GF_SECURITY_ADMIN_PASSWORD
-          value: grafanapw
-      volumeMounts:
-        - name: grafana-storage
-          mountPath: /var/lib/grafana
-    - name: promtail
-      image: grafana/promtail:2.7.4
-      ports:
-        - containerPort: 9080
-          hostPort: 9080
-      args:
-        - -config.file=/etc/promtail/promtail.yaml
-      volumeMounts:
-        - name: config
-          mountPath: /etc/promtail
+  - name: frontend
+    image: ghcr.io/elonsoc/ods-frontend:main
+    ports:
+      - containerPort: 443
+        hostPort: 443
+    env:
+      - name: NEXT_PUBLIC_BACKEND_URL
+        value: 'backend:3000'
+      - name: PORT
+        value: '3001'
+  - name: postgres
+    image: postgres:13.3-alpine
+    ports:
+      - containerPort: 5432
+        hostPort: 5432
+    env:
+      - name: POSTGRES_DB
+        value: postgres
+      - name: POSTGRES_PASSWORD
+        value: postgres
+      - name: POSTGRES_USER
+        value: postgres
+  - name: redis
+    image: redis:6.2.5-alpine
+    ports:
+      - containerPort: 6379
+        hostPort: 6379
+  - name: loki
+    image: grafana/loki:2.3.0
+    ports:
+      - containerPort: 3100
+        hostPort: 3100
+    args:
+      - -config.file=/etc/loki/local-config.yaml
+    volumeMounts:
+      - name: config
+        mountPath: /etc/loki
+  - name: prometheus
+    image: prom/prometheus:v2.30.3
+    ports:
+      - containerPort: 9090
+        hostPort: 9090
+    args:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumeMounts:
+      - name: config
+        mountPath: /etc/prometheus
+  - name: statsdexporter
+    image: prom/statsd-exporter:v0.19.0
+    ports:
+      - containerPort: 9125
+        hostPort: 9125
+    args:
+      - --statsd.listen-udp=:8125
+      - --statsd.listen-tcp=:8125
+      - --statsd.mapping-config=/etc/statsd-mapping.conf
+    volumeMounts:
+      - name: config
+        mountPath: /etc
+  - name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - containerPort: 3002
+        hostPort: 3000
+    env:
+      - name: GF_SECURITY_ADMIN_PASSWORD
+        value: grafanapw
+    volumeMounts:
+      - name: grafana-storage
+        mountPath: /var/lib/grafana
+  - name: promtail
+    image: grafana/promtail:2.7.4
+    ports:
+      - containerPort: 9080
+        hostPort: 9080
+    args:
+      - -config.file=/etc/promtail/promtail.yaml
+    volumeMounts:
+      - name: config
+        mountPath: /etc/promtail

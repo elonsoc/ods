@@ -7,7 +7,7 @@ interface Config {
 const prod: Config = {
 	url: {
 		API_URL: `https://ods.elon.edu`,
-		BACKEND_API_URL: process.env.BACKEND_API_URL,
+		BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
 	},
 };
 const dev: Config = {
