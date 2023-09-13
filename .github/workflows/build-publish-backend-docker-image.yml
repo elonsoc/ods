@@ -47,7 +47,7 @@ jobs:
               type=edge,branch=main
               type=ref,event=branch
               type=sha,format=long
-              type=raw,value=latest,enable={{is_default_branch}}
+              type=raw,value=latest
 
 
       - name: Build and push Docker image
