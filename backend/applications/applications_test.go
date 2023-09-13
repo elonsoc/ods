@@ -38,10 +38,11 @@ func TestNewApp(t *testing.T) {
 	)
 	r.Mount("/", apps)
 
-	// Mock services being called
+	// Mock services being called in function
 	tok.Mock.On("GetUidFromToken", mock.AnythingOfType("string")).Return("1", nil)
 	db.Mock.On("NewApp", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return("12345", nil)
 
+	// create the request body
 	app := types.BaseApplication{}
 
 	app.Description = "Test App"
@@ -50,6 +51,7 @@ func TestNewApp(t *testing.T) {
 	appJson, err := json.Marshal(app)
 	reqBody := strings.NewReader(string(appJson))
 
+	// create the request
 	req, err := http.NewRequest("POST", ts.URL, reqBody)
 	if err != nil {
 		t.Fatal(err)
@@ -76,5 +78,7 @@ func TestNewApp(t *testing.T) {
 	s := string(respBody)
 
 	assert.Equal(t, "12345", s, nil)
+	tok.AssertCalled(t, "GetUidFromToken", mock.AnythingOfType("string"))
+	db.AssertCalled(t, "NewApp", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
 }
