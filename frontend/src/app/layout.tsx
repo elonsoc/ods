@@ -1,9 +1,9 @@
 import Navbar from '@/components/ui/Navbar/Navbar';
-import Footer from '@/components/ui/Footer/Footer';
 import styles from '@/styles/pages/layout.module.css';
 import '../styles/global/globals.css';
 import { Metadata } from 'next';
 import { Raleway } from 'next/font/google';
+import { AuthProvider } from '@/context/auth/auth';
 
 const raleway = Raleway({ subsets: ['latin'] });
 
@@ -24,15 +24,17 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang='en'>
-			<head></head>
-			<body className={raleway.className}>
-				<div className={styles.container}>
-					<Navbar />
-					<main>{children}</main>
-					{/* <Footer /> */}
-				</div>
-			</body>
-		</html>
+		<AuthProvider>
+			<html lang='en'>
+				<head></head>
+				<body className={raleway.className}>
+					<div className={styles.container}>
+						<Navbar />
+						<main>{children}</main>
+						{/* <Footer /> */}
+					</div>
+				</body>
+			</html>
+		</AuthProvider>
 	);
 }
