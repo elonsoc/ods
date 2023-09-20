@@ -187,6 +187,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: svc}).Router)
 	})
 
+	r.Group(func(r chi.Router) {
+		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
+			for _, cookie := range r.Cookies() {
+				cookie.MaxAge = -1
+				http.SetCookie(w, cookie)
+			}
+			http.Redirect(w, r, webURL, http.StatusFound)
+		})
+	})
+
 	r.Route("/saml", func(r chi.Router) {
 		r.Get("/metadata", samlMiddleware.ServeMetadata)
 		r.Post("/acs", samlMiddleware.ServeACS)
@@ -197,6 +207,14 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Use(CheckIdentity(svc.Token, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
+	})
+
+	// add a route for /login/status to check whether token is valid
+	r.Group(func(r chi.Router) {
+		r.Use(CheckIdentity(svc.Token, svc.Log))
+		r.Get("/login/status", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 	})
 
 	r.Group(func(r chi.Router) {
