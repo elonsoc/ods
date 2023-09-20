@@ -23,6 +23,7 @@ export default function App() {
 		try {
 			const res = await fetch(`/api/applications`, {
 				cache: 'no-cache',
+				credentials: 'include',
 			});
 			const applications = await res.json();
 			setApplications(applications);
@@ -43,6 +44,7 @@ export default function App() {
 			headers: {
 				'Content-Type': 'application/json',
 			},
+			credentials: 'include',
 			body: JSON.stringify(appInfo),
 		});
 		setModalActive(false);
