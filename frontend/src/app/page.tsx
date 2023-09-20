@@ -4,11 +4,11 @@ import CodeBlockContainer from '@/components/CodeBlockContainer/CodeBlockContain
 import { HOME_PAGE_COURSE_SAMPLE } from '@/components/CodeBlockContainer/code';
 import styles from '@/styles/pages/home.module.css';
 import Link from 'next/link';
-import { useState } from 'react';
-import { config } from '@/config/Constants';
+import { configuration } from '@/config/Constants';
+import { useAuth } from '@/context/auth/auth';
 
 export default function Home() {
-	const [validUser, setValidUser] = useState<boolean>(false);
+	const { isAuthenticated } = useAuth();
 	return (
 		<div className={styles.container}>
 			<div className={styles.heroContainer}>
@@ -21,9 +21,19 @@ export default function Home() {
 					through our API. Register your application for an API key and start
 					building innovative applications for the Elon community.
 				</p>
-				<Link href={config.url.BACKEND_API_URL} rel="noopener noreferrer" className={styles.button}>
-					Log In with Elon
-				</Link>
+				{isAuthenticated ? (
+					<Link href={'/apps'} className={styles.button}>
+						Get Started
+					</Link>
+				) : (
+					<Link
+						href={configuration.url.BACKEND_API_URL}
+						rel='noopener noreferrer'
+						className={styles.button}
+					>
+						Log In with Elon
+					</Link>
+				)}
 				<Link href='/docs' className={styles.learnMoreLink}>
 					Learn More{' '}
 					<svg
@@ -35,14 +45,6 @@ export default function Home() {
 						<path d='M14 16.94V12.94H5.08L5.05 10.93H14V6.94L19 11.94Z' />
 					</svg>
 				</Link>
-				<div className={styles.validUserInput}>
-					<input
-						type='checkbox'
-						id='validUser'
-						onChange={() => setValidUser(!validUser)}
-					></input>
-					<label htmlFor='validUser'>Valid User</label>
-				</div>
 			</div>
 			<section className={styles.accessibleDataSection}>
 				<div className={styles.dataSectionInfo}>
