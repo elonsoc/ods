@@ -1,32 +1,33 @@
 .jsonContainer {
-    flex: 0 1 50%;
-    border: 1px solid var(--application-border);
-    border-radius: var(--border-radius);
-    padding: 1rem;
-    background-color: var(--nav-background);
+	flex: 0 1 50%;
+	border: 1px solid var(--application-border);
+	border-radius: var(--border-radius);
+	padding: 1rem;
+	background-color: var(--large-code-block-color);
+	position: relative;
 }
 
 .jsonHeader {
-    display: inline-block;
-    width: 100%;
-    color: var(--code-color);
-    font-size: .90rem;
-    padding-bottom: .5rem;
-    margin-bottom: .5rem;
-    margin-top: 0;
-    border-bottom: 1px solid var(--subheading-text-color);
+	display: inline-block;
+	width: 100%;
+	color: var(--code-color);
+	font-size: 0.9rem;
+	padding-bottom: 0.5rem;
+	margin-bottom: 0.5rem;
+	margin-top: 0;
+	border-bottom: 1px solid var(--subheading-text-color);
 }
 
 .jsonCode {
-    display: flex;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    white-space: -moz-pre-wrap;
-    white-space: -pre-wrap;
-    white-space: -o-pre-wrap;
-    word-wrap: break-word;
-    word-break: break-all;
-    color: var(--code-color);
-    font-size: .8rem;
-    font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+	display: flex;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	white-space: -pre-wrap;
+	white-space: -o-pre-wrap;
+	word-wrap: break-word;
+	word-break: break-all;
+	color: var(--code-color);
+	font-size: 0.8rem;
+	font-family: Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
 }

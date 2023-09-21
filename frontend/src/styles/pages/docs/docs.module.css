@@ -1,168 +1,177 @@
 .docsContainer {
-    display: grid;
-    grid-template-columns: minmax(200px, 300px) 1fr;
-    height: 100%;
+	display: grid;
+	grid-template-columns: minmax(200px, 300px) 1fr;
+	height: 100%;
 }
 
 .docsMain {
-    display: grid;
-    grid-template-areas: "breadcrumbs breadcrumbs"
-                         "mainContent toc";
-    gap: 1rem;
-    align-content: start;
-    position: relative;
-    padding: 1rem; 
-    color: var(--default-text-color);
-    border-left: 1px solid var(--separator-color);
+	display: grid;
+	grid-template-areas:
+		'breadcrumbs breadcrumbs'
+		'mainContent toc';
+	gap: 1rem;
+	align-content: start;
+	position: relative;
+	padding: 1rem;
+	color: var(--default-text-color);
+	border-left: 1px solid var(--separator-color);
 }
 
 .docsPageMainContent {
-    grid-area: mainContent;
-    display: flex;
-    flex-direction: column;
-    gap: 2.25rem;
+	grid-area: mainContent;
+	display: flex;
+	flex-direction: column;
+	gap: 2.25rem;
 }
 
 .docsPageMainHeader {
-    font-size: 1.5rem;
+	font-size: 1.5rem;
 }
 
-.docsPageMainHeader h1, .docsPageMainContent h1 {
-    font-weight: 300;
+.docsPageMainHeader h1,
+.docsPageMainContent h1 {
+	font-weight: 400;
 }
 
 .docsPageMainContent h2 {
-    font-weight: 200;
+	font-weight: 400;
 }
 
 .docsPageMainContent p {
-    font-weight: 300;
-    letter-spacing: .10ch;
-    line-height: 2.25ch;
-    margin: 1rem 0;
+	font-weight: 400 !important;
+	letter-spacing: 0.1ch;
+	line-height: 2.25ch;
+	margin: 1rem 0;
 }
 
 .introductionSection p {
-    margin: 0;
+	margin: 0;
 }
 
-.docsPageMainContent ul, .docsPageMainContent ol {
-    padding-left: 2rem;
+.docsPageMainContent ul,
+.docsPageMainContent ol {
+	padding-left: 2rem;
 }
 
-.docsPageMainContent ul > li, .docsPageMainContent ol > li {
-    padding: .25rem;
-    letter-spacing: .10ch;
-    line-height: 2.25ch;
+.docsPageMainContent ul > li,
+.docsPageMainContent ol > li {
+	padding: 0.25rem;
+	letter-spacing: 0.1ch;
+	line-height: 2.25ch;
+}
+
+.docsPageMainContent strong {
+	font-weight: 400;
 }
 
 .arrowWrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: .5rem;
-    border-top: 1px solid var(--separator-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--separator-color);
 }
 
 .inlineLink {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .inlineLink:hover {
-    color: var(--default-text-hover);
+	color: var(--default-text-hover);
 }
-
 
 /* FORM STYLINGS */
 .formHeader {
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--separator-color);
-    color: var(--heading-text-color);
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--separator-color);
+	color: var(--heading-text-color);
 }
 
 .modalTitle {
-    font-weight: 300;
-    padding: .5rem 0;
+	font-weight: 300;
+	padding: 0.5rem 0;
 }
 
 .requirementText {
-    color: var(--subheading-text-color);
-    font-size: .75rem;
+	color: var(--subheading-text-color);
+	font-size: 0.75rem;
 }
 
 .requiredRed {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: .85rem;
-    color: rgb(177, 26, 26) !important;
+	font-family: 'Times New Roman', Times, serif;
+	font-size: 0.85rem;
+	color: rgb(177, 26, 26) !important;
 }
 
 .docsPageMainContent form {
-    display: grid;
-    gap: 1rem;
-    color: var(--default-text-color);
-    padding: 1rem 0;
+	display: grid;
+	gap: 1rem;
+	color: var(--default-text-color);
+	padding: 1rem 0;
 }
 
 .inputWrapper {
-    display: grid;
+	display: grid;
 }
 
-.inputWrapper input[type="text"], .inputWrapper textarea {
-    padding: .65rem .5rem;
-    background: var(--input-background-color);
-    border: none;
-    border-radius: 5px;
-    margin: .2rem 0;
-    color: var(--input-text-color);
+.inputWrapper input[type='text'],
+.inputWrapper textarea {
+	padding: 0.65rem 0.5rem;
+	background: var(--input-background-color);
+	border: none;
+	border-radius: 5px;
+	margin: 0.2rem 0;
+	color: var(--input-text-color);
 }
 
 .inputWrapper textarea {
-    resize: vertical;
-    height: 100px;
+	resize: vertical;
+	height: 100px;
 }
 
 .inputWrapper label {
-    font-size: .70rem;
-    text-transform: uppercase;
-    letter-spacing: .15ch;
-    font-weight: 600;
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.15ch;
+	font-weight: 600;
 }
 
 .submitContactFormButton {
-    font-size: 1rem;
-    padding: .6rem 1rem;
-    background-color: var(--primary-background);
-    color: var(--heading-text-color);
-    border: 1px solid var(--application-border);
-    border-radius: var(--border-radius);
-    letter-spacing: .10ch;
-    cursor: pointer;
-    width: fit-content;
-    margin: 0 auto;
+	font-size: 1rem;
+	padding: 0.6rem 1rem;
+	background-color: var(--primary-background);
+	color: var(--heading-text-color);
+	border: 1px solid var(--application-border);
+	border-radius: var(--border-radius);
+	letter-spacing: 0.1ch;
+	cursor: pointer;
+	width: fit-content;
+	margin: 0 auto;
 }
 
 @media (max-width: 1000px) {
-    .docsContainer {
-        grid-template-columns: .4fr 1fr;
-        padding: 0 1%;
-    }
+	.docsContainer {
+		grid-template-columns: 0.4fr 1fr;
+		padding: 0 1%;
+	}
 }
 
 @media (max-width: 700px) {
-    .docsContainer {
-        grid-template-columns: 1fr;
-        padding: 0 1%;
-    }
+	.docsContainer {
+		grid-template-columns: 1fr;
+		padding: 0 1%;
+	}
 
-    .docsMain {
-        border-left: none;
-    }
+	.docsMain {
+		border-left: none;
+	}
 }
 
 @media (max-width: 1200px) {
-    .docsMain {
-        grid-template-areas: "breadcrumbs"
-                             "mainContent";
-        grid-template-columns: 1fr;
-    }
+	.docsMain {
+		grid-template-areas:
+			'breadcrumbs'
+			'mainContent';
+		grid-template-columns: 1fr;
+	}
 }

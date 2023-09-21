@@ -23,6 +23,7 @@ const ApplicationSettingsForm = ({
 		teamName: teamName,
 	});
 
+
 	const handleInputChange = (
 		event: FormEvent<HTMLInputElement> | FormEvent<HTMLTextAreaElement>
 	): void => {

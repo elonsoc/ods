@@ -70,7 +70,7 @@ func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath st
 			EmailAddresses: []string{"hello@elonsoc.org"},
 		},
 		DefaultRedirectURI: "ods.elon.edu",
-		AuthnNameIdFormat:  saml.PersistentNameIDFormat,
+		AuthnNameIdFormat:  saml.UnspecifiedNameIDFormat,
 	}
 
 	samlSP, _ := samlsp.New(options)

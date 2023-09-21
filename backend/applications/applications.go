@@ -31,8 +31,6 @@ type ApplicationsRouter struct {
 
 // NewApplicationsRouter is a function that returns a new applications router
 func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
-	a.Svcs.Log.Info("Initializing applications router", nil)
-
 	r := chi.NewRouter()
 
 	// CORS is used to allow cross-origin requests
@@ -64,7 +62,6 @@ func NewApplicationsRouter(a *ApplicationsRouter) *ApplicationsRouter {
 	})
 
 	a.Router = r
-	a.Svcs.Log.Info("Applications router initialized", nil)
 	return a
 }
 
