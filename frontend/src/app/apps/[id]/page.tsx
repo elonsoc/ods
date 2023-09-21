@@ -32,8 +32,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 
 	async function fetchApplication(id: String): Promise<UserAppInformation> {
 		const res = await fetch(`/api/applications/${id}`, {
-			cache: 'no-cache',
-			credentials: 'include',
+			cache: 'no-store',
 		});
 		const application = await res.json();
 		setApplication(application);
@@ -47,10 +46,8 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
-				credentials: 'include',
 			},
 			body: JSON.stringify(appInfo),
-			credentials: 'include',
 			cache: 'no-store',
 		});
 		fetchApplication(id);
@@ -63,7 +60,7 @@ const ApplicationPage = ({ params: { id } }: ApplicationProps) => {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			credentials: 'include',
+			cache: 'no-store',
 		});
 		router.replace(`/apps`);
 	}
