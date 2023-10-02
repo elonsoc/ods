@@ -1,0 +1,30 @@
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2023-09-17T01:39:25.955Z" entityID="http://localhost:3000">
+  <SPSSODescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2023-09-17T01:39:25.955374Z" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="false" WantAssertionsSigned="true">
+    <KeyDescriptor use="encryption">
+      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <X509Data xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <X509Certificate xmlns="http://www.w3.org/2000/09/xmldsig#">MIIDITCCAgmgAwIBAgIUZmtCNfwAm7DXOByzhuC1j+EXKNQwDQYJKoZIhvcNAQELBQAwIDEeMBwGA1UEAwwVbXlzZXJ2aWNlLmV4YW1wbGUuY29tMB4XDTIzMDQxMTIxNDU1MVoXDTI0MDQxMDIxNDU1MVowIDEeMBwGA1UEAwwVbXlzZXJ2aWNlLmV4YW1wbGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsJ026sMb0SOajEyGrggA4dQkB6goobktV4hxIlf6zcVt06WJsyZavu4LxqkUxuHn0EcTXD2L8PuN6+BhR7yOv/wPkpOgGPa4TrPredvwtZzlB3hVh89qvPKKHcxNAc/aj1ft2UY76ZEKPt0+JJZy/52Pf8VUZrNOkSR04/wNPHp65SdNE5YPvLe0CrBBLXQ9JDst4gRwvAjlS03XxC655/l5+Rw6KIFS0oPlhyh0SkwNq5uA2qCDHmrEAxbnmuhpeEv+RaWr4QES4/A0OqrDmy2pZeTCi5rdQZiBGbQJ7fDQRaOcL/IiHfhpOzLqBBjTJa9MUU/Gd66jyOKt0981iwIDAQABo1MwUTAdBgNVHQ4EFgQUzFpI7RsYfGXeHUdj4DWSfu1glBcwHwYDVR0jBBgwFoAUzFpI7RsYfGXeHUdj4DWSfu1glBcwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAku6ZIJ5PslIUCJOX4AOdcynusp8cAkAqdXnTZcCLQTNY1N8aDH55mwTL1pWNqpDsSbkt9CPKtGrdH8OLK4w0pHmyXG4tu36NaL6SyF77KTm/Mey307rGPxrNnv5ZasFXHNnIpjrC07m4Pu6t06v5Rpt+EII7VtLA/xjhCWCv3xfvzWFX1WDrGdw03Egprtn7qtqIWqF694OxWymZ0hi7BNmxa0cjqQvje2LG5WeECst8BTbkpT24QD9EbLz+Rfa97vuFqvgznTes62qZkUoMQnznCuERH3yuWlrGMygpCFbvYqhwsTXgxEI6KiJZH25NiX+r+YkbLS8BOgsvn69yOg==</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes128-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes192-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes256-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p"></EncryptionMethod>
+    </KeyDescriptor>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:3000/saml/slo" ResponseLocation="http://localhost:3000/saml/slo"></SingleLogoutService>
+    <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:3000/saml/acs" index="1"></AssertionConsumerService>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://localhost:3000/saml/acs" index="2"></AssertionConsumerService>
+  </SPSSODescriptor>
+  <Organization>
+    <OrganizationName xml:lang="en">Elon Society of Computing CS Project Team</OrganizationName>
+    <OrganizationDisplayName xml:lang="en">ESC CSPT</OrganizationDisplayName>
+    <OrganizationURL xml:lang="en">https://ods.elon.edu</OrganizationURL>
+  </Organization>
+  <ContactPerson contactType="technical">
+    <Company>Elon University</Company>
+    <GivenName>Elon Society of Computing CS Project Team</GivenName>
+    <SurName></SurName>
+    <EmailAddress>hello@elonsoc.org</EmailAddress>
+  </ContactPerson>
+</EntityDescriptor>
