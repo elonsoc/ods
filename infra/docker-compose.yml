@@ -7,6 +7,7 @@ volumes: #volumes are used to persist data in the docker containers and are link
   grafana: # this volume, which is used by grafana, is used to persist the dashboards and other information gf stores.
   loki:
   prometheus:
+  mssql:
 
 services: # this is where services are defined. A service is a docker container, which is defined by an image.
   statsdexporter:
@@ -78,39 +79,56 @@ services: # this is where services are defined. A service is a docker container,
       retries: 5
   redis:
     image: redis:7.0.9
-  backend: # this is the backend service, which is the main service of the application
-    depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
-      postgres:
-        condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
-    ports:
-      - 3000:3000
+  # backend: # this is the backend service, which is the main service of the application
+  #   depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
+  #     postgres:
+  #       condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:postgrespw@postgres:5432/postgres
+  #     - LOGGING_URL=http://loki:3100/loki/api/v1/push
+  #     - PROMETHEUS_URL=http://prometheus:9090
+  #     - REDIS_URL=redis://redis:6379
+  #     - STATSD_URL=statsdexporter:9125
+  #     - PORT=3000
+  #     - SAML_CERT_PATH=/certs/cert.pem
+  #     - SAML_KEY_PATH=/certs/key.pem
+  #     - IDP_URL=http://host.docker.internal:8080/idp.xml #for prod: https://idp.elon.edu/idp/shibboleth
+  #     - SP_URL=http://localhost:3000
+  #     - WEB_URL=http://localhost:3001
+  #   volumes:
+  #     - ./saml:/certs
+  #     - ./saml/cert.pem:/certs/cert.pem
+  #     - ./saml/key.pem:/certs/key.pem
+  #   build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
+  #     context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
+  #     dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
+  #     # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
+  #     # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
+  # frontend:
+  #   ports:
+  #     - 3001:3000
+  #   environment:
+  #     - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
+  #     - NODE_ENV=development
+  #   build:
+  #     context: ../frontend/
+  #     dockerfile: ../frontend/Dockerfile.dev
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      - DATABASE_URL=postgres://postgres:postgrespw@postgres:5432/postgres
-      - LOGGING_URL=http://loki:3100/loki/api/v1/push
-      - PROMETHEUS_URL=http://prometheus:9090
-      - REDIS_URL=redis://redis:6379
-      - STATSD_URL=statsdexporter:9125
-      - PORT=3000
-      - SAML_CERT_PATH=/certs/cert.pem
-      - SAML_KEY_PATH=/certs/key.pem
-      - IDP_URL=http://host.docker.internal:8080/idp.xml #for prod: https://idp.elon.edu/idp/shibboleth
-      - SP_URL=http://localhost:3000
-      - WEB_URL=http://localhost:3001
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123
+      - MSSQL_PID=Enterprise
+    ports:
+      - 1433:1433
+    platform: linux/amd64 # https://github.com/microsoft/mssql-docker/issues/668#issuecomment-1436802153
     volumes:
-      - ./saml:/certs
-      - ./saml/cert.pem:/certs/cert.pem
-      - ./saml/key.pem:/certs/key.pem
-    build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
-      context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
-      dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
-      # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
-      # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
-  frontend:
-    ports:
-      - 3001:3000
-    environment:
-      - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
-      - NODE_ENV=development
-    build:
-      context: ../frontend/
-      dockerfile: ../frontend/Dockerfile.dev
+      - mssql:/var/opt/mssql
+      - ./mssql-init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'sqlcmd -U sa -P Password123 -Q "SELECT 1"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
