@@ -1,0 +1,2 @@
+pymssql
+psycopg2-binary

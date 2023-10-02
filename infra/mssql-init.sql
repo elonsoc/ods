@@ -1,0 +1,57 @@
+CREATE DATABASE data;
+GO
+CREATE SCHEMA elon;
+CREATE TABLE buildings (
+    BUILDINGS_ID VARCHAR(4) NOT NULL,
+    BLDG_DESC VARCHAR(50) NULL,
+    BLDG_LOCATION VARCHAR(2) NULL,
+    BLDG_LOCATION_REPRESENTATION VARCHAR(50) NULL,
+    BLDG_TYPE VARCHAR(2) NULL,
+    BLDG_TYPE_REPRESENTATION VARCHAR(50) NULL,
+    BLDG_LONG_DESC VARCHAR(50) NULL,
+    BLDG_CITY VARCHAR(50) NULL,
+    BLDG_STATE VARCHAR(2) NULL,
+    BLDG_ZIP VARCHAR(5) NULL,
+    BLDG_SECTOR VARCHAR(4) NULL,
+    BLDG_LATITUDE VARCHAR(50) NULL,
+    BLDG_LONGITUDE VARCHAR(50) NULL,
+    BUILDINGS_ADD_DATE DATETIME NOT NULL,
+    BUILDINGS_CHGDATE DATETIME NOT NULL,
+    CONSTRAINT PK_BUILDINGS PRIMARY KEY (BUILDINGS_ID)
+);
+GO
+
+INSERT INTO data.elon.buildings ([BUILDINGS_ID], [BLDG_DESC], [BLDG_LOCATION], [BLDG_LOCATION_REPRESENTATION], [BLDG_TYPE], [BLDG_TYPE_REPRESENTATION], [BLDG_LONG_DESC], [BLDG_CITY], [BLDG_STATE], [BLDG_ZIP], [BLDG_SECTOR], [BLDG_LATITUDE], [BLDG_LONGITUDE], [BUILDINGS_ADD_DATE], [BUILDINGS_CHGDATE]) VALUES
+(N'HG41', N'716 E Haggard Avenue', N'OC', N'Off Campus', NULL, NULL, N'716 E Haggard Avenue', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-02 00:00:00.000', '2022-11-02 00:00:00.000'),
+(N'TEMP', N'TEMPORARY HOUSE', NULL, NULL, N'*H', N'Inactive Hall', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1999-10-01 00:00:00.000', '2016-06-22 00:00:00.000'),
+(N'CTR0', N'Campus Trace #0', N'OC', N'Off Campus', N'A', N'Apartment', N'Campus Trace #0', N'Elon', N'NC', N'27244', NULL, '36.111610', '-79.480514', '2011-06-02 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'HBAP', N'Hunter''s Bridge Apartments', N'OC', N'Off Campus', N'H', N'Hall', N'Hunter''s Bridge Apartments', N'Burlington', N'NC', N'27215', NULL, NULL, NULL, '2003-07-23 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'OHVA', N'Oak Hill Village Apartment', N'OC', N'Off Campus', N'HO', N'House', N'Oak Hill Village Apartment', N'Elon', N'NC', N'27244', NULL, '36.105115', '-79.491963', '2008-03-28 00:00:00.000', '2022-03-03 00:00:00.000'),
+(N'UNPO', N'University Pointe', N'OC', N'Off Campus', N'IH', N'Inactive Housing', N'University Pointe Apartments', NULL, NULL, NULL, NULL, '36.111966', '-79.480123', '2004-06-22 00:00:00.000', '2010-02-22 00:00:00.000'),
+(N'INQ1', N'Innovation Hall', N'EL', N'Elon University Campus', NULL, NULL, N'Innovation Hall', NULL, NULL, NULL, N'ADAC', NULL, NULL, '2022-04-11 00:00:00.000', '2023-02-06 00:00:00.000'),
+(N'PAR2', N'Phoenix Activities & Rec Ctr 2', N'EL', N'Elon University Campus', NULL, NULL, N'Phoenix Activities & Recreation Center 2', NULL, NULL, NULL, N'ATHL', '36.097834', '-79.501163', '2018-02-21 00:00:00.000', '2022-04-06 00:00:00.000'),
+(N'AVNL', N'Academic Village Numen Lumen P', N'EL', N'Elon University Campus', NULL, NULL, N'Academic Village Numen Lumen Pavilion', NULL, NULL, NULL, N'AVIL', '36.102446', '-79.502258', '2012-12-07 00:00:00.000', '2022-04-06 00:00:00.000'),
+(N'AVAS', N'Lindner Hall - Arts & Sciences', N'EL', N'Elon University Campus', N'CLASS', N'Classrooms/Lecture Halls', N'ACADEMIC VILLAGE COLLEGE OF ARTS & SCIEN', NULL, NULL, NULL, N'AVIL', '36.101319', '-79.501646', '2009-03-31 00:00:00.000', '2023-01-04 00:00:00.000'),
+(N'AVPS', N'Gray Pavilion - Pol. Science', N'EL', N'Elon University Campus', N'IH', N'Inactive Housing', N'Academic Village-Political Science', N'Elon', N'NC', N'27244', N'AVIL', '36.102012', '-79.502129', '2004-06-24 00:00:00.000', '2022-08-19 00:00:00.000'),
+(N'CLNE', N'Colonnades E', N'EL', N'Elon University Campus', N'HS', N'Hall/Suite', N'Colonnades E', N'Elon', N'NC', N'27244', N'CLNN', '36.106329', '-79.498771', '2011-02-21 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'APTO', N'Danieley Apartment O', N'EL', N'Elon University Campus', N'A', N'Apartment', N'East Apartments-Building O', N'Elon', N'NC', N'27244', N'DCTN', '36.107451', '-79.494609', '2002-04-18 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'DCTP', N'Danieley Center Apartment P', N'EL', N'Elon University Campus', N'IH', N'Inactive Housing', N'Danieley Center Apartment P', NULL, NULL, NULL, N'DCTN', '36.107564', '-79.494089', '2002-04-19 00:00:00.000', '2022-04-07 00:00:00.000'),
+(N'DCTN', N'Chandler Hall-Danieley Flat N', N'EL', N'Elon University Campus', N'S', N'Suite', N'Danieley Center Building N-Chandler Hall', N'Elon', N'NC', N'27244', N'DCTN', '36.108479', '-79.497955', '2002-03-15 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'SHE7', N'669 Sheridan Place', N'OC', N'Off Campus', NULL, NULL, N'669 Sheridan Place', NULL, NULL, NULL, N'E', NULL, NULL, '2021-07-20 00:00:00.000', '2021-07-20 00:00:00.000'),
+(N'ESTA', N'East Neighborhood Building A', N'EL', N'Elon University Campus', N'H', N'Hall', N'East Neighborhood Building A', N'Elon', N'NC', N'27244', N'ESTN', '36.102767', '-79.498638', '2018-02-15 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'CST0', N'College Station 0', N'OC', N'Off Campus', N'A', N'Apartment', N'College Station 0', N'Elon', N'NC', N'27244', N'EXHO', '36.101007', '-79.515003', '2011-05-18 00:00:00.000', '2022-03-03 00:00:00.000'),
+(N'TRL1', N'Trollinger Street House "Abby"', N'OC', N'Off Campus', N'H', N'Hall', N'Trollinger House-201 W. Trollinger Ave.', N'Elon', N'NC', N'27244', N'EXHO', '36.100184', '-79.508329', '1998-08-05 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'GBLA', N'Global Building A', N'EL', N'Elon University Campus', N'HS', N'Hall/Suite', N'Global Building A', N'Elon', N'NC', N'27244', N'GBLN', '36.105740', '-79.505573', '2013-07-12 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'GRKN', N'Greek Lodge Loy N', N'EL', N'Elon University Campus', N'HO', N'House', N'Greek Lodge Loy N', N'Elon', N'NC', N'27244', N'GRKN', '36.106529', '-79.503513', '2011-02-25 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'LSTC', N'Larose Student Commons', N'EL', N'Elon University Campus', NULL, NULL, N'LaRose Student Commons', NULL, NULL, NULL, N'HISN', '36.104058', '-79.503384', '2019-07-29 00:00:00.000', '2023-02-16 00:00:00.000'),
+(N'CARO', N'Carolina', N'EL', N'Elon University Campus', N'H', N'Hall', N'Carolina Residence Hall', N'Elon', N'NC', N'27244', N'HISN', '36.102420', '-79.502644', '1995-05-03 00:00:00.000', '2022-07-27 00:00:00.000'),
+(N'SLON', N'Sloan', N'EL', N'Elon University Campus', N'HS', N'Hall/Suite', N'Sloan Residence Hall', N'Elon', N'NC', N'27244', N'HISN', '36.102316', '-79.505809', '1995-05-03 00:00:00.000', '2021-11-30 00:00:00.000'),
+(N'AVHP', N'Kenan Pavilion - Honors', N'EL', N'Elon University Campus', N'S', N'Suite', N'Acad.Vill. - Honors Pavilion', N'Elon', N'NC', N'27244', N'HISN', '36.101657', '-79.501238', '2002-04-17 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'S361', N'Station @ Mill Pt Amenity Bldg', N'EL', N'Elon University Campus', NULL, NULL, N'Station @ Mill Point Amenity Bldg 361', NULL, NULL, NULL, N'MILN', NULL, NULL, '2012-06-05 00:00:00.000', '2014-05-23 00:00:00.000'),
+(N'S410', N'Station Mill Pt Building 410', N'EL', N'Elon University Campus', N'A', N'Apartment', N'The Station At Mill Point Building 410', N'Elon', N'NC', N'27244', N'MILN', '36.097366', '-79.508631', '2012-02-21 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'NK09', N'608 N O''Kelly(page Property P)', N'OC', N'Off Campus', NULL, NULL, N'608 N O''Kelly (Page Property Purchase)', N'Elon', NULL, NULL, N'N', '36.108640', '-79.501461', '2019-12-10 00:00:00.000', '2019-12-10 00:00:00.000'),
+(N'OAKA', N'Oaks A-Williams Hall', N'EL', N'Elon University Campus', N'A', N'Apartment', N'The Oaks Apartments Building A', N'Elon', N'NC', N'27244', N'OAKN', '36.104838', '-79.508244', '2005-12-12 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'PARK', N'Park Place At Elon', N'EL', N'Elon University Campus', N'A', N'Apartment', N'Park Place at Elon', N'Elon', N'NC', N'27244', N'PRKN', '36.103139', '-79.508663', '2016-02-02 00:00:00.000', '2020-10-27 00:00:00.000'),
+(N'FR03', N'Vac Lot 2601 W Front St.', NULL, NULL, NULL, NULL, N'Vacant lot next 2601 W Front St', NULL, NULL, NULL, N'S', NULL, NULL, '2016-04-29 00:00:00.000', '2016-04-29 00:00:00.000'),
+(N'CABL', N'Cable Schoolhouse', N'EL', N'Elon University Campus', NULL, NULL, NULL, NULL, NULL, NULL, N'SUPP', '36.111434', '-79.508024', '2014-06-27 00:00:00.000', '2022-04-07 00:00:00.000'),
+(N'MN2A', N'Print Services', N'OC', N'Off Campus', NULL, NULL, N'Print Services', NULL, NULL, NULL, N'W', '36.102328', '-79.511591', '2014-09-09 00:00:00.000', '2018-04-13 00:00:00.000');
