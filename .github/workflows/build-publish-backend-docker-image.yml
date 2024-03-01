@@ -13,7 +13,7 @@ name: Create and publish the ODS Backend Docker image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","jm/hanging-fix-dev" ]
     paths: ["backend/**"]
 
 env:
