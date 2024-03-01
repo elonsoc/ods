@@ -31,11 +31,11 @@ spec:
             - name: http
               containerPort: 3000
       volumes:
-      - name: secrets
-        secret:
-          secretName: x509-keypair-sp
-          items:
-            - key: cert
-              path: saml_cert.cert
-            - key: key
-              path: saml_key.key
+        - name: secrets
+          secret:
+            secretName: x509-keypair-sp
+            items:
+              - key: cert
+                path: saml_cert.cert
+              - key: key
+                path: saml_key.key

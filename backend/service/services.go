@@ -37,7 +37,7 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, s
 
 	log := initLogging(loggingURL)
 	db := initDb(databaseURL, log)
-	stat := initStatsD(statsdURL, log)
+	stat := initStatsD(statsdURL)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
 	token := NewTokenServicer()
 

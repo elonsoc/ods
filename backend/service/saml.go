@@ -23,26 +23,26 @@ type SamlIFace interface {
 func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
-		panic(err) // TODO handle error
+		log.Fatal(err)
 	}
 	keyPair.Leaf, err = x509.ParseCertificate(keyPair.Certificate[0])
 	if err != nil {
-		panic(err) // TODO handle error
+		log.Fatal(err)
 	}
 
 	idpMetadataURL, err := url.Parse(idpURL)
 	if err != nil {
-		panic(err) // TODO handle error
+		log.Fatal(err)
 	}
 	idpMetadata, err := samlsp.FetchMetadata(context.Background(), http.DefaultClient,
 		*idpMetadataURL)
 	if err != nil {
-		panic(err) // TODO handle error
+		log.Fatal(err)
 	}
 
 	rootURL, err := url.Parse(spURL)
 	if err != nil {
-		panic(err) // TODO handle error
+		log.Fatal(err)
 	}
 
 	options := samlsp.Options{

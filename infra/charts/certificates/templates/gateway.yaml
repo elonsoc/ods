@@ -51,4 +51,3 @@ spec:
         protocol: HTTP
       hosts:
         - dataproxy01.elon.edu
-

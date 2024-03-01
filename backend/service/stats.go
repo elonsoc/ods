@@ -4,7 +4,7 @@ import (
 	statsd "github.com/smira/go-statsd"
 )
 
-func initStatsD(statsdURL string, log LoggerIFace) *Stat {
+func initStatsD(statsdURL string) *Stat {
 	s := &Stat{}
 	s.stat = statsd.NewClient(statsdURL, statsd.MetricPrefix("backend."))
 	return s

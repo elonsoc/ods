@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"time"
 
 	"aidanwoods.dev/go-paseto"
@@ -32,7 +31,6 @@ func (t *Token) NewToken(uid string) (string, error) {
 	token.SetNotBefore(time.Now())
 	token.SetExpiration(time.Now().Add(2 * time.Hour))
 	err := token.Set("odsId", uid)
-	log.Println("uid set: " + uid)
 	if err != nil {
 		return "", nil
 	}

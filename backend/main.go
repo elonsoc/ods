@@ -13,68 +13,15 @@ import (
 
 	"github.com/elonsoc/saml/samlsp"
 	chi "github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
 	statsd "github.com/smira/go-statsd"
 
 	"github.com/elonsoc/ods/backend/applications"
 	locations "github.com/elonsoc/ods/backend/locations"
+	"github.com/elonsoc/ods/backend/middleware"
 	"github.com/elonsoc/ods/backend/service"
 )
-
-// CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			auth := r.Header.Get("Authorization")
-			if auth == "" {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-
-			// this is where the call we'd make to the database to verify the API key
-			// would happen. For now, we just check if the API key is in the map above.
-			if !db.IsValidApiKey(auth) {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-
-			// if both are okay, then we're free to further this request.
-			stat.Increment("api_key_used", statsd.StringTag("api_key", auth))
-			next.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(fn)
-	}
-}
-
-func CheckIdentity(tokenSvcr service.TokenIFace, log service.LoggerIFace) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			token_cookie, err := r.Cookie("ods_login_cookie_nomnom")
-			if err != nil {
-				// may log this?
-				log.Info("login cookie not presented", nil)
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			auth := token_cookie.Value
-			if auth == "" {
-				log.Info("value not available in login cookie", nil)
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-
-			res, err := tokenSvcr.ValidateToken(auth)
-			if !res || err != nil {
-				log.Info("login cookie invalid.", nil)
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			next.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(fn)
-	}
-}
 
 // getDomainFromURI formats a domain string into a proper
 // domain name to be inlayed into a cookie.
@@ -101,7 +48,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// pass along the http request before we log it
-			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			ww := chiMiddleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
 			next.ServeHTTP(ww, r)
 
@@ -113,7 +60,7 @@ func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next htt
 			log.Info("", logrus.Fields{
 				"method":     r.Method,
 				"path":       r.URL.Path,
-				"request_id": middleware.GetReqID(r.Context()),
+				"request_id": chiMiddleware.GetReqID(r.Context()),
 				"ip":         r.RemoteAddr,
 				"scheme":     scheme,
 				"status":     ww.Status(),
@@ -151,12 +98,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 	// middleware.Logger prints a log line for each request (access log)
 	r.Use(CustomLogger(svc.Log, svc.Stat))
-	r.Use(middleware.RequestID)
+	r.Use(chiMiddleware.RequestID)
 	// middleware.RealIP is used to get the real IP address of the client
-	r.Use(middleware.RealIP)
+	r.Use(chiMiddleware.RealIP)
 	// middleware.Recoverer recovers from panics without crashing the server and supplies
 	// a 500 error page (Internal Server Error)
-	r.Use(middleware.Recoverer)
+	r.Use(chiMiddleware.Recoverer)
 
 	// This is where we mount the various routers for the various APIs that we will be serving
 	// again, in the future we can split these up into separate services if we want to for the above reasons
@@ -176,7 +123,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Group(func(r chi.Router) {
 		// This custom middleware checks the Authorization header for a valid API key
 		// and if it's not valid, it returns a 401 Unauthorized error
-		r.Use(CheckAPIKey(svc.Db, svc.Stat))
+		r.Use(middleware.CheckAPIKey(svc.Db, svc.Stat))
 
 		// This get request is just a simple ping endpoint to test that the server is running
 		// and that the API key is valid.
@@ -194,7 +141,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 	r.Group(func(r chi.Router) {
 		// this set of groups require a JWT to be accessed
-		r.Use(CheckIdentity(svc.Token, svc.Log))
+		r.Use(middleware.CheckIdentity(svc.Token, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 
 	})
@@ -263,8 +210,9 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				Domain: cleanURL,
 			})
 
-			w.Header().Add("Content-Type", "")
+			svc.Stat.Increment("user.login", statsd.StringTag("date", time.Now().Format("2006-01-02")))
 
+			w.Header().Add("Content-Type", "")
 			http.Redirect(w, r, webURL+"/apps", http.StatusFound)
 
 		})
