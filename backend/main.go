@@ -248,6 +248,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
 				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 
 			cleanURL, err := getDomainFromURI(webURL)
