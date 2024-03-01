@@ -156,6 +156,7 @@ func (db *Db) GetApplications(userId string) ([]types.Application, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	apps := []types.Application{}
 	for rows.Next() {
 		var app types.Application
@@ -180,7 +181,10 @@ func (db *Db) GetApplication(applicationId string) (types.Application, error) {
 	rows, err := db.db.Query(context.Background(), "get_owners", applicationId)
 	if err != nil {
 		return app, err
+
 	}
+
+	defer rows.Close()
 
 	if rows.Next() {
 		var email string

@@ -216,8 +216,6 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
-			svc.Log.Info(fmt.Sprintf("we're given a elon_uid: %s", elon_uid), nil)
-
 			if !svc.Db.IsUser(elon_uid) {
 				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
 				surname := samlsp.AttributeFromContext(r.Context(), "sn")
