@@ -204,6 +204,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
+			svc.Log.Info("oop", nil)
+
 			session := samlsp.SessionFromContext(r.Context())
 			if session == nil {
 				svc.Log.Error(fmt.Sprintf("The context does not contain a session.\n%v", session), nil)
