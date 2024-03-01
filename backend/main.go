@@ -203,9 +203,6 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Use(samlMiddleware.RequireAccount)
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-
-			svc.Log.Info("oop", nil)
-
 			session := samlsp.SessionFromContext(r.Context())
 			if session == nil {
 				svc.Log.Error(fmt.Sprintf("The context does not contain a session.\n%v", session), nil)
@@ -218,6 +215,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
+			svc.Log.Info(fmt.Sprintf("we're given a elon_uid: %s", elon_uid), nil)
 
 			if !svc.Db.IsUser(elon_uid) {
 				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
