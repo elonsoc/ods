@@ -139,7 +139,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
+	svc := service.NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
 
 	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
@@ -199,6 +199,40 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 	})
 
+	r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
+		refreshToken := r.Header.Get("X-Refresh-Token")
+	
+		if refreshToken == "" {
+			svc.Log.Error("No refresh token provided", nil)
+			return
+		}
+	
+		newAccessToken, err := svc.Token.RefreshAccessToken(refreshToken)
+		if err != nil {
+			svc.Log.Error(err.Error(), nil)
+			return
+		}
+	
+		cleanURL, err := getDomainFromURI(webURL)
+		if err != nil {
+			svc.Log.Error(err.Error(), nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "ods_login_cookie_nomnom",
+			Value:    newAccessToken,
+			MaxAge:   60 * 60 * 2,
+			Domain:   cleanURL,
+			HttpOnly: true,
+			Secure:   true, 
+			Path:     "/",
+		})
+	
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
 
@@ -252,6 +286,13 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
+			refreshToken, err := svc.Token.GenerateRefreshToken(userInfo.OdsId)
+			if err != nil {
+				svc.Log.Error("Failed to generate refresh token: " + err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
 			cleanURL, err := getDomainFromURI(webURL)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
@@ -263,6 +304,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				Value:  jwt,
 				MaxAge: 60 * 60 * 2,
 				Domain: cleanURL,
+			})
+
+			http.SetCookie(w, &http.Cookie{
+				Name:     "ods_refresh_cookie_nomnom",
+				Value:    refreshToken,
+				MaxAge:   60 * 60 * 24 * 30,
+				Path:     "/",
+				Domain:   cleanURL,
+				Secure:   true,
+				HttpOnly: true,
 			})
 
 			w.Header().Add("Content-Type", "")
