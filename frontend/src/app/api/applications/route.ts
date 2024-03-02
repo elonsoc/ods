@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { redirect } from 'next/navigation';
-import { config } from '@/config/Constants';
+import { configuration } from '@/config/Constants';
 import { cookies } from 'next/headers';
 
-const BACKEND_URL = config.url.BACKEND_API_URL;
+const BACKEND_URL = configuration.url.BACKEND_API_URL;
 
 async function fetchWithAutoRefresh(url: string, options: RequestInit) {
 	let response = await fetch(url, options);

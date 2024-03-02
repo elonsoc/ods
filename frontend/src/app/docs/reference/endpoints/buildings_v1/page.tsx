@@ -16,8 +16,8 @@ const BuildingsV1 = () => {
 			</header>
 			<section className={styles.introductionSection}>
 				<p>
-					The version one "buildings" endpoint in the Open Data Service (ODS)
-					API provides access to information about buildings at Elon University.
+					The version one "buildings" endpoint in the Open Data Service API
+					provides access to information about buildings at Elon University.
 					This endpoint allows you to retrieve details such as building names,
 					locations, capacities, and other relevant data.
 				</p>
@@ -28,7 +28,7 @@ const BuildingsV1 = () => {
 					To retrieve a list of all buildings, you can make a GET request to the
 					following endpoint:
 				</p>
-				<CodeCopyable code='https://api.ods.elon.edu/v1/buildings' />
+				<CodeCopyable code='https://api.ods.elon.edu/locations/v1/buildings' />
 				<p>
 					This request will return a response containing an array of building
 					objects. Each building object represents a specific building at Elon
@@ -68,14 +68,14 @@ const BuildingsV1 = () => {
 					retrieve information about a specific building by its ID. To do this,
 					you can make a GET request to the following endpoint:
 				</p>
-				<CodeCopyable code='https://api.ods.elon.edu/v1/buildings/{buildingID}' />
+				<CodeCopyable code='https://api.ods.elon.edu/locations/v1/buildings/{buildingID}' />
 				<p>
 					Replace <span className='inline-code'>&#123;buildingID&#125;</span> in
 					the endpoint URL with the actual ID of the building you want to
 					retrieve. For example, to retrieve information about a building with
 					an ID of "123456", you would make a GET request to:
 				</p>
-				<CodeCopyable code='https://api.ods.elon.edu/v1/buildings/123456' />
+				<CodeCopyable code='https://api.ods.elon.edu/locations/v1/buildings/123456' />
 				<p>
 					This request will return a response containing the building object
 					with the specified ID. You can then use the retrieved data to display

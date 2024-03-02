@@ -21,6 +21,7 @@ type Services struct {
 	Stat  StatIFace
 	Saml  SamlIFace
 	Token TokenIFace
+	Redis RedisIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -31,7 +32,7 @@ type Services struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL string) *Services {
+func NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL string) *Services {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
@@ -39,7 +40,8 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, s
 	db := initDb(databaseURL, log)
 	stat := initStatsD(statsdURL, log)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
-	token := NewTokenServicer()
+	redis := initRedis(redisURL, log)
+	token := NewTokenServicer(redis)
 
 	return &Services{
 		Log:   log,
@@ -47,5 +49,6 @@ func NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, s
 		Stat:  stat,
 		Saml:  saml,
 		Token: token,
+		Redis: redis,
 	}
 }

@@ -1,77 +1,82 @@
 /* Make container of individual apps make them wrap around */
 .appContainer {
-    display: grid;
-    /* grid-template-columns: repeat(3, 1fr); */
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    grid-template-rows: repeat(auto-fill, 250px);
-    gap: 2rem 3rem;
-    padding: 5rem 8%;
-    position: relative;
-    height: 100%;
-    width: 100%;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	grid-template-rows: repeat(auto-fill, 250px);
+	grid-auto-rows: 250px;
+	justify-items: center;
+	gap: 2rem 3rem;
+	padding: 5rem 8%;
+	position: relative;
+	height: 100%;
+	width: 100%;
 }
 
 .appContainer > a {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+	display: flex;
+	justify-content: center;
+	max-width: 350px;
+	width: 100%;
 }
 
 .noAppContainer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    height: 100%;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	height: 100%;
+	width: 100%;
 }
 
 /* Button placement if no projects vs existing projects */
 .topRight {
-    position: absolute;
-    right: 1.5rem;
-    top: 15px;
+	position: absolute;
+	right: 1.5rem;
+	top: 15px;
 }
 
 .button {
-    padding: .6rem 1rem;
-    margin: 0 auto;
-    background-color: var(--nav-background);
-    color: var(--nav-text-color);
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    letter-spacing: .10ch;
-    cursor: pointer;
+	padding: 0.6rem 1rem;
+	margin: 0 auto;
+	background-color: var(--nav-background);
+	color: var(--nav-text-color);
+	border: 1px solid var(--border-gray);
+	border-radius: var(--border-radius);
+	letter-spacing: 0.1ch;
+	cursor: pointer;
 }
 
 .button:hover {
-    background: var(--primary-button-hover);
+	background: var(--primary-button-hover);
 }
 
 .statusContainer {
-    display: inline-flex;
-    justify-content: center;
-    flex-direction: column;
-    margin: 0 auto;
-    gap: 1rem;
+	display: inline-flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: 0 auto;
+	gap: 1rem;
 }
 
 .statusTitle {
-    color: var(--heading-text-color);
-    text-align: center;
-    font-size: 2.5rem;
+	color: var(--heading-text-color);
+	text-align: center;
+	font-size: 2.5rem;
 }
 
 .statusDescription {
-    color: var(--default-text-color);
-    text-align: center;
-    max-width: 300px;
+	color: var(--default-text-color);
+	text-align: center;
+	max-width: 300px;
 }
 
 @media (max-width: 700px) {
-    .appContainer {
-        justify-content: center;
-        grid-template-columns: repeat(auto-fill, 1fr);
-    }
+	.appContainer {
+		justify-content: center;
+		grid-template-columns: repeat(auto-fill, 1fr);
+	}
+	.appContainer > a {
+		max-width: 100%;
+	}
 }

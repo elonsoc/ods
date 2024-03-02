@@ -25,10 +25,9 @@ export const HOME_PAGE_COURSE_SAMPLE = `{
 }`;
 
 export const QUERY_PARAMETER_SECTION = `const location = 'Main Campus';
-const capacity = 100;
 
-const queryString = \`location= \${encodeURIComponent(location)}&capacity= \${encodeURIComponent(capacity)}\`;
-const url = \`http://api.ods.elon.edu/v1/buildings? \${queryString}\`;
+const queryString = \`location= \${encodeURIComponent(location)}\`;
+const url = \`https://api.ods.elon.edu/locations/v1/buildings? \${queryString}\`;
 
 // Make the GET request to the URL
 `;

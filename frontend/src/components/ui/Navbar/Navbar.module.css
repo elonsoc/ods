@@ -1,50 +1,90 @@
 .container {
-    align-self: flex-start;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--nav-background);
-    color: var(--nav-text-color);
-    padding: 1.15rem 1.75rem;
-    border-bottom: 1px solid var(--border-gray);
+	align-self: flex-start;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--nav-background);
+	color: var(--nav-text-color);
+	padding: 1.15rem 1.75rem;
+	border-bottom: 1px solid var(--border-gray);
 }
 
 .logo {
-    display: inline-flex;
-    font-size: 1.45rem;
-    letter-spacing: .05ch;
-    gap: .25rem;
+	display: inline-flex;
+	font-size: 1.45rem;
+	letter-spacing: 0.05ch;
+	gap: 0.25rem;
 }
 
 .odsLogo {
-    font-weight: 300;
-    letter-spacing: 0;
+	font-weight: 300;
+	letter-spacing: 0;
+}
+
+.mobileLogo {
+	display: none;
 }
 
 .profileIconButton {
-    fill: var(--nav-text-color);
-    height: 40px;
-    width: 40px;
-    cursor: pointer;
+	fill: var(--nav-text-color);
+	height: 40px;
+	width: 40px;
+	cursor: pointer;
 }
 
 .profileIconButton:hover {
-    fill: var(--subheading-text-color);
+	fill: var(--subheading-text-color);
 }
 
-.navOptions, .links {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.navOptions,
+.links {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	font-size: 1rem;
 }
 
 .links {
-    list-style: none;
-    border-right: 1px solid var(--nav-text-color);
-    gap: 2rem;
-    padding: 0 1rem;
+	list-style: none;
+	border-right: 1px solid var(--nav-text-color);
+	gap: 2rem;
+	padding: 0 1rem;
 }
 
 .link:hover {
-    color: var(--subheading-text-color);
+	color: var(--subheading-text-color);
+}
+
+.loginButton {
+	padding: 0.5rem 1rem;
+	background-color: var(--nav-background);
+	color: var(--nav-text-color);
+	border: 1px solid var(--border-gray);
+	border-radius: var(--border-radius);
+	letter-spacing: 0.1ch;
+	cursor: pointer;
+	position: relative;
+	text-align: center;
+}
+
+.loginButton:hover {
+	background: var(--primary-button-hover);
+}
+
+@media screen and (max-width: 650px) {
+	.logo {
+		display: none;
+	}
+
+	.mobileLogo {
+		display: block;
+	}
+
+	.links {
+		gap: 1rem;
+	}
+
+	.navOptions {
+		font-size: 0.9rem;
+	}
 }

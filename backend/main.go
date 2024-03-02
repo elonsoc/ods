@@ -187,6 +187,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: svc}).Router)
 	})
 
+	r.Group(func(r chi.Router) {
+		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
+			for _, cookie := range r.Cookies() {
+				cookie.MaxAge = -1
+				http.SetCookie(w, cookie)
+			}
+			http.Redirect(w, r, webURL, http.StatusFound)
+		})
+	})
+
 	r.Route("/saml", func(r chi.Router) {
 		r.Get("/metadata", samlMiddleware.ServeMetadata)
 		r.Post("/acs", samlMiddleware.ServeACS)
