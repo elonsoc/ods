@@ -1,64 +1,99 @@
 import { NextResponse } from 'next/server';
-import { RequestOptions, UserAppInformation } from './application.d';
-import applications from './data.json';
+import { redirect } from 'next/navigation';
 import { config } from '@/config/Constants';
+import { cookies } from 'next/headers';
+
 const BACKEND_URL = config.url.BACKEND_API_URL;
 
-import { cookies } from "next/headers";
-
-export async function GET(request: Request): Promise<NextResponse> {
-  let applicationJSON;
-
-  const login_cookie = cookies().get("ods_login_cookie_nomnom")
-  if (login_cookie === undefined) {
-    // this happens when, somehow, they're here yet they don't have
-    // a login cookie :)
-    return new NextResponse();
-  }
-
-  try {
-    const res = await fetch(`${BACKEND_URL}/applications/`, {
-      cache: 'no-store',
-      headers: {
-        Cookie: `${login_cookie.name}=${login_cookie.value}`
-      },
-    });
-    applicationJSON = await res.json();
-  } catch (error) {
-    console.error(error);
-    return new NextResponse();
-  }
-  return NextResponse.json(applicationJSON);
+async function fetchWithAutoRefresh(url: string, options: RequestInit) {
+	let response = await fetch(url, options);
+	if (response.status === 401) {
+		const refreshSuccessful = await refreshToken();
+		if (!refreshSuccessful) {
+			console.error('Failed to refresh token or no refresh token available.');
+			return null;
+		}
+		response = await fetch(url, options);
+	}
+	return response;
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
-  const login_cookie = cookies().get("ods_login_cookie_nomnom")
-  if (login_cookie === undefined) {
-    // this happens when, somehow, they're here yet they don't have
-    // a login cookie :)
-    return new NextResponse();
-  }
-  const options: RequestOptions | any = {
-    method: 'POST',
-    duplex: 'half',
-    headers: {
-      'Content-Type': 'application/json',
-      credentials: 'include',
-      Cookie: `${login_cookie.name}=${login_cookie.value}`
-    },
-    body: request.body,
-    cache: 'no-store',
-  };
-  const res = await fetch(`${BACKEND_URL}/applications/`, options);
-  const data = await res.json();
-  console.log(data);
-  return NextResponse.json(data);
+async function refreshToken() {
+	const refreshToken = cookies().get('ods_refresh_cookie_nomnom')?.value;
+	if (!refreshToken) {
+		return false;
+	}
+
+	const requestOptions = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Refresh-Token': refreshToken,
+		},
+	};
+
+	const response = await fetch(`${BACKEND_URL}/refresh`, requestOptions);
+	return response.ok;
+}
+
+export async function GET() {
+	const login_cookie = cookies().get('ods_login_cookie_nomnom');
+	if (!login_cookie) {
+		return new NextResponse();
+	}
+
+	const requestOptions: RequestInit = {
+		cache: 'no-store',
+		headers: { Cookie: `${login_cookie.name}=${login_cookie.value}` },
+	};
+
+	const response = await fetchWithAutoRefresh(
+		`${BACKEND_URL}/applications/`,
+		requestOptions
+	);
+	if (!response) {
+		redirect('/login');
+	}
+
+	const applicationJSON = await parsePotentialJSON(response);
+	return NextResponse.json(applicationJSON);
+}
+
+export async function POST(request: Request) {
+	const login_cookie = cookies().get('ods_login_cookie_nomnom');
+	if (!login_cookie) {
+		return new NextResponse();
+	}
+
+	const options: any = {
+		method: 'POST',
+		duplex: 'half',
+		headers: {
+			'Content-Type': 'application/json',
+			credentials: 'include',
+			Cookie: `${login_cookie.name}=${login_cookie.value}`,
+		},
+		body: request.body,
+		cache: 'no-store',
+	};
+
+	const response = await fetchWithAutoRefresh(
+		`${BACKEND_URL}/applications/`,
+		options
+	);
+	if (!response) {
+		redirect('/login');
+	}
+
+	const data = await parsePotentialJSON(response);
+	return NextResponse.json(data);
 }
 
 async function parsePotentialJSON(res: Response) {
-  try {
-    return await res.json();
-  } catch (error) {
-    return res.body;
-  }
+	try {
+		return await res.json();
+	} catch (error) {
+		console.error('Failed to parse JSON:', error);
+		return res.body;
+	}
 }
