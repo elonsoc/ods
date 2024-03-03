@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-	let cookie = request.cookies.get('ods_login_cookie_nomnom');
-	if (!cookie) {
+	const accessToken = request.cookies.get('ods_login_cookie_nomnom');
+	const refreshToken = request.cookies.get('ods_refresh_cookie_nomnom');
+	if (!accessToken && !refreshToken) {
 		return NextResponse.redirect(new URL('/login', request.url));
 	}
 }
