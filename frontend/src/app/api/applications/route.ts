@@ -1,99 +1,59 @@
-import { NextResponse } from 'next/server';
-import { redirect } from 'next/navigation';
+import { type NextRequest, NextResponse } from 'next/server';
 import { configuration } from '@/config/Constants';
 import { cookies } from 'next/headers';
+import { fetchWithAutoRefresh } from '@/actions/token';
 
 const BACKEND_URL = configuration.url.BACKEND_API_URL;
 
-async function fetchWithAutoRefresh(url: string, options: RequestInit) {
-	let response = await fetch(url, options);
-	if (response.status === 401) {
-		const refreshSuccessful = await refreshToken();
-		if (!refreshSuccessful) {
-			console.error('Failed to refresh token or no refresh token available.');
-			return null;
-		}
-		response = await fetch(url, options);
-	}
-	return response;
-}
-
-async function refreshToken() {
-	const refreshToken = cookies().get('ods_refresh_cookie_nomnom')?.value;
-	if (!refreshToken) {
-		return false;
-	}
-
-	const requestOptions = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-Refresh-Token': refreshToken,
-		},
-	};
-
-	const response = await fetch(`${BACKEND_URL}/refresh`, requestOptions);
-	return response.ok;
-}
-
-export async function GET() {
-	const login_cookie = cookies().get('ods_login_cookie_nomnom');
-	if (!login_cookie) {
-		return new NextResponse();
-	}
+export async function GET(request: NextRequest) {
+	const accessToken = cookies().get('ods_login_cookie_nomnom');
 
 	const requestOptions: RequestInit = {
+		method: 'GET',
 		cache: 'no-store',
-		headers: { Cookie: `${login_cookie.name}=${login_cookie.value}` },
+		credentials: 'include',
+		headers: {
+			Cookie: `${accessToken?.name}=${accessToken?.value}`,
+			'Content-Type': 'application/json',
+		},
 	};
 
 	const response = await fetchWithAutoRefresh(
 		`${BACKEND_URL}/applications/`,
 		requestOptions
 	);
-	if (!response) {
-		redirect('/login');
+
+	if (!response || response.status === 401) {
+		return NextResponse.redirect(new URL('/login', request.url));
 	}
 
-	const applicationJSON = await parsePotentialJSON(response);
+	const applicationJSON = await response.json();
 	return NextResponse.json(applicationJSON);
 }
 
-export async function POST(request: Request) {
-	const login_cookie = cookies().get('ods_login_cookie_nomnom');
-	if (!login_cookie) {
-		return new NextResponse();
-	}
-
-	const options: any = {
+export async function POST(request: NextRequest) {
+	const accessToken = cookies().get('ods_login_cookie_nomnom');
+	const options: RequestInit | any = {
 		method: 'POST',
 		duplex: 'half',
+		credentials: 'include',
+		cache: 'no-store',
 		headers: {
 			'Content-Type': 'application/json',
-			credentials: 'include',
-			Cookie: `${login_cookie.name}=${login_cookie.value}`,
+			Cookie: `${accessToken?.name}=${accessToken?.value}`,
 		},
-		body: request.body,
-		cache: 'no-store',
+		body: await request.json(),
 	};
 
 	const response = await fetchWithAutoRefresh(
 		`${BACKEND_URL}/applications/`,
 		options
 	);
-	if (!response) {
-		redirect('/login');
+
+	if (!response || response.status === 401) {
+		return NextResponse.redirect(new URL('/login', request.url));
 	}
 
-	const data = await parsePotentialJSON(response);
+	const data = await response.json();
 	return NextResponse.json(data);
-}
-
-async function parsePotentialJSON(res: Response) {
-	try {
-		return await res.json();
-	} catch (error) {
-		console.error('Failed to parse JSON:', error);
-		return res.body;
-	}
 }

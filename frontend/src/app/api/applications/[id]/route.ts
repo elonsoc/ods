@@ -1,48 +1,53 @@
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { configuration } from '@/config/Constants';
 import { cookies } from 'next/headers';
+import { fetchWithAutoRefresh } from '@/actions/token';
 const BACKEND_URL = configuration.url.BACKEND_API_URL;
 
 export async function GET(
-	request: Request,
+	request: NextRequest,
 	{
 		params,
 	}: {
 		params: { id: string };
 	}
-): Promise<NextResponse> {
+) {
 	const login_cookie = cookies().get('ods_login_cookie_nomnom');
 	const id = params.id;
-	let applicationJSON;
-	try {
-		const res = await fetch(`${BACKEND_URL}/applications/${id}`, {
-			method: 'GET',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				Cookie: `${login_cookie?.name}=${login_cookie?.value}`,
-			},
-			cache: 'no-cache',
-		});
-		applicationJSON = await res.json();
-	} catch (error) {
-		console.log('There was an error', error);
-		return NextResponse.json({ error: error });
+
+	const options: RequestInit = {
+		method: 'GET',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json',
+			Cookie: `${login_cookie?.name}=${login_cookie?.value}`,
+		},
+		cache: 'no-cache',
+	};
+	const res = await fetchWithAutoRefresh(
+		`${BACKEND_URL}/applications/${id}`,
+		options
+	);
+
+	if (!res || res.status === 401) {
+		return NextResponse.redirect(new URL('/login', request.url));
 	}
+
+	const applicationJSON = await res.json();
 	return NextResponse.json(applicationJSON);
 }
 
 export async function PUT(
-	request: Request,
+	request: NextRequest,
 	{
 		params,
 	}: {
 		params: { id: string };
 	}
-): Promise<Response> {
+) {
 	const login_cookie = cookies().get('ods_login_cookie_nomnom');
 	const id = params.id;
-	const options: any = {
+	const options: RequestInit | any = {
 		method: 'PUT',
 		duplex: 'half',
 		credentials: 'include',
@@ -50,21 +55,24 @@ export async function PUT(
 			'Content-Type': 'application/json',
 			Cookie: `${login_cookie?.name}=${login_cookie?.value}`,
 		},
-		body: request.body,
+		body: await request.json(),
 		cache: 'no-store',
 	};
-	const res = await fetch(`${BACKEND_URL}/applications/${id}`, options);
-	return new NextResponse();
+	const res = await fetchWithAutoRefresh(
+		`${BACKEND_URL}/applications/${id}`,
+		options
+	);
+	return NextResponse.json(res);
 }
 
 export async function DELETE(
-	request: Request,
+	request: NextRequest,
 	{
 		params,
 	}: {
 		params: { id: string };
 	}
-): Promise<Response> {
+) {
 	const login_cookie = cookies().get('ods_login_cookie_nomnom');
 	const id = params.id;
 	const options: any = {
@@ -78,7 +86,9 @@ export async function DELETE(
 		body: request.body,
 		cache: 'no-store',
 	};
-
-	const res = await fetch(`${BACKEND_URL}/applications/${id}`, options);
-	return new NextResponse();
+	const res = await fetchWithAutoRefresh(
+		`${BACKEND_URL}/applications/${id}`,
+		options
+	);
+	return NextResponse.json(res);
 }
