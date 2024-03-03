@@ -8,6 +8,7 @@ import {
 	ReactNode,
 } from 'react';
 import { configuration } from '@/config/Constants';
+import { refreshTokens } from '@/actions/token';
 
 interface AuthProviderProps {
 	children: ReactNode;
@@ -26,11 +27,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 	const [loading, setLoading] = useState<boolean>(true);
 
 	async function checkSession() {
-		const res = await fetch(`${API_URL}/api/login/status`, {
+		const options: RequestInit = {
 			method: 'GET',
 			credentials: 'include',
-			cache: 'no-cache',
-		});
+			cache: 'no-store',
+		};
+
+		const res = await fetch(`${API_URL}/api/login/status`, options);
 		const { isAuthenticated } = await res.json();
 		setIsAuthenticated(isAuthenticated);
 		setLoading(false);
@@ -38,7 +41,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 	useEffect(() => {
 		checkSession();
-	}, []);
+
+		const intervalId = setInterval(() => {
+			if (isAuthenticated) {
+				refreshTokens();
+			}
+		}, 4 * 60 * 1000 + 30 * 1000);
+
+		return () => clearInterval(intervalId);
+	}, [isAuthenticated]);
 
 	return (
 		<AuthContext.Provider
