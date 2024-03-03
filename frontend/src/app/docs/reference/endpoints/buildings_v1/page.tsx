@@ -94,7 +94,7 @@ const BuildingsV1 = () => {
 			<section aria-labelledby='Conclusion'>
 				<h2 id='Conclusion'>Conclusion</h2>
 				<p>
-					The "buildings v1" endpoint of the ODS API allows you to access
+					The "buildings v1" endpoint of the API allows you to access
 					comprehensive information about buildings at Elon University. By
 					making requests to this endpoint, you can retrieve a list of all
 					buildings or retrieve specific buildings by their IDs to obtain

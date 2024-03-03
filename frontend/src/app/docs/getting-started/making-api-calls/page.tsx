@@ -29,9 +29,9 @@ const GSMakingAPICalls = () => {
 				<h2 id='Overview_of_API_Endpoints'>Overview of API Endpoints</h2>
 				<p>
 					Before making API calls, it's essential to familiarize yourself with
-					the available endpoints provided by the ODS API. Each endpoint
-					represents a specific data resource, such as buildings, courses, or
-					other relevant information about Elon University. Refer to the API
+					the available endpoints provided by the API. Each endpoint represents
+					a specific data resource, such as buildings, courses, or other
+					relevant information about Elon University. Refer to the API
 					documentation or the "Reference" section for a comprehensive list of
 					endpoints and their functionalities.
 				</p>

@@ -21,8 +21,7 @@ export default function DocsPage() {
 					guide provides detailed information on how to integrate and utilize
 					the ODS API to access data about Elon University. Whether you're a
 					student, researcher, or developer, this documentation will help you
-					harness the power of our API to retrieve information about buildings,
-					courses, and more.
+					use our API to retrieve information about Elon University.
 				</p>
 			</section>
 			<section aria-labelledby='Documentation_Structure'>
@@ -30,7 +29,6 @@ export default function DocsPage() {
 				<p>The documentation is organized into the following sections:</p>
 				<ul>
 					<li>
-						{' '}
 						<strong>
 							<Link href='/docs/getting-started' className={styles.inlineLink}>
 								Getting Started
@@ -39,16 +37,15 @@ export default function DocsPage() {
 						<ul>
 							<li>
 								The "Getting Started" section offers a step-by-step guide to
-								help you quickly set up and begin using the Open Data Service
-								API. It covers prerequisites, registration of your application,
-								retrieving your API key, and making your first API call. If
-								you're new to the API, this is the perfect place to begin.
+								help you quickly set up and begin using the API. It covers
+								prerequisites, registration of your application, retrieving your
+								API key, and making your first API call. If you're new to the
+								API, this is the perfect place to begin.
 							</li>
 						</ul>
 					</li>
 
 					<li>
-						{' '}
 						<strong>
 							<Link href='/docs/usage-guides' className={styles.inlineLink}>
 								Usage Guides
@@ -66,7 +63,6 @@ export default function DocsPage() {
 						</ul>
 					</li>
 					<li>
-						{' '}
 						<strong>
 							<Link href='/docs/reference' className={styles.inlineLink}>
 								Reference
@@ -75,16 +71,15 @@ export default function DocsPage() {
 						<ul>
 							<li>
 								The "Reference" section serves as a comprehensive reference
-								guide for the Open Data Service API. It contains detailed
-								information about available endpoints, request parameters, and
-								response formats. This section is invaluable when you need
-								precise details about the API's functionalities and how to
-								interact with it programmatically.
+								guide for the API. It contains detailed information about
+								available endpoints, request parameters, and response formats.
+								This section is useful when you need precise details about the
+								API's functionalities and how to interact with it
+								programmatically.
 							</li>
 						</ul>
 					</li>
 					<li>
-						{' '}
 						<strong>
 							<Link href='/docs/resources' className={styles.inlineLink}>
 								Resources

@@ -71,21 +71,20 @@ const UGErrorHandling = () => {
 					aware of potential error responses that you may encounter. The API
 					service follows standard HTTP status codes to indicate the success or
 					failure of a request. Here are some common HTTP error responses that
-					you may encounter when using the ODS API:
+					you may encounter when using the API:
 				</p>
 				<p>
 					These are just a few examples of HTTP error responses that you may
-					encounter while using the ODS API. It's important to handle these
-					errors gracefully in your applications, providing meaningful error
-					messages to users and implementing appropriate fallback mechanisms
-					where necessary. Refer to the API documentation for specific error
-					codes and their corresponding meanings.
+					encounter while using the API. It's important to handle these errors
+					gracefully in your applications, providing meaningful error messages
+					to users and implementing appropriate fallback mechanisms where
+					necessary. Refer to the API documentation for specific error codes and
+					their corresponding meanings.
 				</p>
 				<p>
 					By understanding and effectively handling these error responses, you
-					can build robust and reliable integrations with the ODS API, ensuring
-					a smooth experience for your users even in the face of potential
-					errors.
+					can build robust and reliable integrations with the API, ensuring a
+					smooth experience for your users even in the face of potential errors.
 				</p>
 			</section>
 			<nav className={styles.arrowWrapper}>

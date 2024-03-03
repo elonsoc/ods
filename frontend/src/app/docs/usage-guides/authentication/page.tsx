@@ -27,7 +27,7 @@ const UGAuthentication = () => {
 					authentication. To access the API or an API key, you need to have a
 					valid Elon University account. By utilizing your Elon University
 					credentials, you can authenticate and gain authorized access to the
-					ODS API resources. This SSO approach ensures a seamless and secure
+					API resources. This SSO approach ensures a seamless and secure
 					authentication process.
 				</p>
 			</section>
