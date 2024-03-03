@@ -10,6 +10,7 @@ import (
 type RedisIFace interface {
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
+	Del(ctx context.Context, key string) error
 }
 
 type RedisService struct {
@@ -40,4 +41,8 @@ func (r *RedisService) Set(ctx context.Context, key string, value interface{}, e
 
 func (r *RedisService) Get(ctx context.Context, key string) (string, error) {
 	return r.client.Get(ctx, key).Result()
+}
+
+func (r *RedisService) Del(ctx context.Context, key string) error {
+	return r.client.Del(ctx, key).Err()
 }
