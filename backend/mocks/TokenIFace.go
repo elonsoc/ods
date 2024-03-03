@@ -9,6 +9,34 @@ type TokenIFace struct {
 	mock.Mock
 }
 
+// GenerateAccessToken provides a mock function with given fields: _a0
+func (_m *TokenIFace) GenerateAccessToken(_a0 string) (string, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateAccessToken")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (string, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GenerateRefreshToken provides a mock function with given fields: _a0
 func (_m *TokenIFace) GenerateRefreshToken(_a0 string) (string, error) {
 	ret := _m.Called(_a0)
@@ -94,7 +122,7 @@ func (_m *TokenIFace) NewToken(_a0 string) (string, error) {
 }
 
 // RefreshAccessToken provides a mock function with given fields: _a0
-func (_m *TokenIFace) RefreshAccessToken(_a0 string) (string, error) {
+func (_m *TokenIFace) RefreshAccessToken(_a0 string) (string, string, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
@@ -102,8 +130,9 @@ func (_m *TokenIFace) RefreshAccessToken(_a0 string) (string, error) {
 	}
 
 	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (string, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string) (string, string, error)); ok {
 		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(string) string); ok {
@@ -112,13 +141,19 @@ func (_m *TokenIFace) RefreshAccessToken(_a0 string) (string, error) {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) string); ok {
 		r1 = rf(_a0)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(string) error); ok {
+		r2 = rf(_a0)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // ValidateToken provides a mock function with given fields: _a0
