@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -203,45 +204,41 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	})
 
 	r.Group(func(r chi.Router) {
-		// this set of groups require a JWT to be accessed
 		r.Use(CheckIdentity(svc.Token, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
-
+		r.Get("/login/status", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 	})
 
 	r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
 		refreshToken := r.Header.Get("X-Refresh-Token")
-	
+		svc.Log.Info("refresh token: " + refreshToken, nil)
 		if refreshToken == "" {
 			svc.Log.Error("No refresh token provided", nil)
+			http.Error(w, "No refresh token provided", http.StatusBadRequest)
 			return
 		}
 	
-		newAccessToken, err := svc.Token.RefreshAccessToken(refreshToken)
+		newAccessToken, newRefreshToken, err := svc.Token.RefreshAccessToken(refreshToken)
 		if err != nil {
-			svc.Log.Error(err.Error(), nil)
+			svc.Log.Error("Failed to refresh access token: " + err.Error(), nil)
+			http.Error(w, "Failed to refresh access token", http.StatusInternalServerError)
 			return
 		}
 	
-		cleanURL, err := getDomainFromURI(webURL)
-		if err != nil {
-			svc.Log.Error(err.Error(), nil)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		tokens := struct {
+			AccessToken  string `json:"access_token"`
+			RefreshToken string `json:"refresh_token,omitempty"`
+		}{
+			AccessToken:  newAccessToken,
+			RefreshToken: newRefreshToken,
 		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "ods_login_cookie_nomnom",
-			Value:    newAccessToken,
-			MaxAge:   60 * 60 * 2,
-			Domain:   cleanURL,
-			HttpOnly: true,
-			Secure:   true, 
-			Path:     "/",
-		})
 	
-		w.WriteHeader(http.StatusNoContent)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tokens)
 	})
+	
 
 	r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
@@ -289,7 +286,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
-			jwt, err := svc.Token.NewToken(userInfo.OdsId)
+			// jwt, err := svc.Token.NewToken(userInfo.OdsId)
+			jwt, err := svc.Token.GenerateAccessToken(userInfo.OdsId)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -312,8 +310,11 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			http.SetCookie(w, &http.Cookie{
 				Name:   "ods_login_cookie_nomnom",
 				Value:  jwt,
-				MaxAge: 60 * 60 * 2,
+				MaxAge: 60 * 5 /* * 60 * 2 */,
 				Domain: cleanURL,
+				Path:   "/",
+				Secure: true,
+				HttpOnly: true,
 			})
 
 			http.SetCookie(w, &http.Cookie{
