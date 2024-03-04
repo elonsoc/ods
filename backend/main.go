@@ -39,7 +39,7 @@ func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Hand
 				return
 			}
 
-			apiKey := parts[1]
+			apiKey := parts[1] 
 
 			// this is where the call we'd make to the database to verify the API key
 			// would happen. For now, we just check if the API key is in the map above.
