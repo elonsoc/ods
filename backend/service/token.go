@@ -26,15 +26,15 @@ const (
 
 type Token struct {
 	key *paseto.V4AsymmetricSecretKey
-	Redis RedisIFace
+	Db InMemoryDbIFace
 }
 
-func NewTokenServicer(redis RedisIFace) *Token {
+func NewTokenServicer(db InMemoryDbIFace) *Token {
 	key := paseto.NewV4AsymmetricSecretKey()
 
 	return &Token{
 		&key,
-		redis,
+		db,
 	}
 }
 
@@ -95,9 +95,10 @@ func (t *Token) GenerateAccessToken(uid string) (string, error) {
 
 	accessToken := token.V4Sign(*t.key, []byte("public"))
 
-	err = t.Redis.Set(context.Background(), "access_token:"+uid, accessToken, AccessTokenLife)
+	err = t.Db.Set(context.Background(), "access_token:"+uid, accessToken, AccessTokenLife)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to store access token in Redis")
+		return "", errors.Wrap(err, "failed to store access token in cache")
+
 	}
 
 	return accessToken, nil
@@ -115,9 +116,9 @@ func (t *Token) GenerateRefreshToken(uid string) (string, error) {
 
 	refreshToken := token.V4Sign(*t.key, []byte("public"))
 
-	err = t.Redis.Set(context.Background(), "refresh_token:"+uid, refreshToken, RefreshTokenLife)
+	err = t.Db.Set(context.Background(), "refresh_token:"+uid, refreshToken, RefreshTokenLife)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to store refresh token in Redis")
+		return "", errors.Wrap(err, "failed to store refresh token in cache")
 	}
 
 	return refreshToken, nil
@@ -128,13 +129,13 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	if err != nil {
 		return "", "", errors.Wrap(err, "invalid refresh token")
 	}
-
-	if err := t.Redis.Del(context.Background(), "access_token:"+uid); err != nil {
-		log.Printf("Warning: Failed to remove old access token from Redis for user %s: %v\n", uid, err)
+  
+	if err := t.Db.Del(context.Background(), "access_token:"+uid); err != nil {
+		log.Printf("Warning: Failed to remove old access token from cache for user %s: %v\n", uid, err)
 	}
 
-	if err := t.Redis.Del(context.Background(), "refresh_token:"+uid); err != nil {
-		log.Printf("Warning: Failed to remove old refresh token from Redis for user %s: %v\n", uid, err)
+	if err := t.Db.Del(context.Background(), "refresh_token:"+uid); err != nil {
+		log.Printf("Warning: Failed to remove old refresh token from cache for user %s: %v\n", uid, err)
 	}
 
 
@@ -152,8 +153,8 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 
 
 func (t *Token) InvalidateToken(tokenKey string) error {
-	if err := t.Redis.Del(context.Background(), tokenKey); err != nil {
-		return errors.Wrap(err, "failed to remove token from Redis")
+	if err := t.Db.Del(context.Background(), tokenKey); err != nil {
+		return errors.Wrap(err, "failed to remove token from cache")
 	}
 
 	return nil

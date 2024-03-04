@@ -21,7 +21,7 @@ type Services struct {
 	Stat  StatIFace
 	Saml  SamlIFace
 	Token TokenIFace
-	Redis RedisIFace
+	Redis InMemoryDbIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -40,7 +40,7 @@ func NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath,
 	db := initDb(databaseURL, log)
 	stat := initStatsD(statsdURL, log)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
-	redis := initRedis(redisURL, log)
+	redis := initInMemoryDb(redisURL, log)
 	token := NewTokenServicer(redis)
 
 	return &Services{
