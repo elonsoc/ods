@@ -199,6 +199,11 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 					}[cookie.Name]
 					
 					odsId, err := svc.Token.GetUidFromToken(cookie.Value)
+					if err != nil {
+						svc.Log.Error("Failed to get odsId from token: "+err.Error(), nil)
+						http.Error(w, "Server error", http.StatusInternalServerError)
+						return
+					}
 					tokenKey := tokenPrefix + odsId
 					if err = svc.Token.InvalidateToken(tokenKey); err != nil {
 						svc.Log.Error("Failed to invalidate token: "+tokenKey+" "+err.Error(), nil)
@@ -303,7 +308,6 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
-			// jwt, err := svc.Token.NewToken(userInfo.OdsId)
 			jwt, err := svc.Token.GenerateAccessToken(userInfo.OdsId)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
@@ -337,7 +341,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			http.SetCookie(w, &http.Cookie{
 				Name:     "ods_refresh_cookie_nomnom",
 				Value:    refreshToken,
-				MaxAge:   60 * 60 * 24 * 30,
+				MaxAge:   60 * 60 * 24 * 7,
 				Path:     "/",
 				Domain:   cleanURL,
 				Secure:   true,
