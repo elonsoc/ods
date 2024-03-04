@@ -16,7 +16,8 @@ interface Config {
 const prod: Config = {
 	url: {
 		API_URL: `https://ods.elon.edu`,
-		BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL || "https://api.ods.elon.edu",
+		BACKEND_API_URL:
+			process.env.NEXT_PUBLIC_BACKEND_API_URL || 'https://api.ods.elon.edu',
 	},
 };
 const dev: Config = {
@@ -26,4 +27,4 @@ const dev: Config = {
 	},
 };
 
-export const config = process.env.NODE_ENV == `development` ? dev : prod;
+export const configuration = process.env.NODE_ENV == `development` ? dev : prod;

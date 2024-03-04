@@ -4,9 +4,9 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import styles from './Sidebar.module.css';
 import { usePathname } from 'next/navigation';
-import { config } from '@/config/Constants';
+import { configuration } from '@/config/Constants';
 
-const URL = config.url.API_URL;
+const URL = configuration.url.API_URL;
 
 const Sidebar = ({
 	mobileSidebarActive,

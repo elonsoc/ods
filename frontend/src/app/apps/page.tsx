@@ -5,14 +5,12 @@ import Apps from '@/components/ApplicationPreviewGallery/UserApps';
 import AddAppModal from '@/components/AddApplicationModel/AddAppModal';
 import styles from '@/styles/pages/applicationGallery.module.css';
 import Loader from '@/components/ui/Loader/Loader';
-import { useRouter } from 'next/navigation';
 import {
 	ApplicationSimple,
 	UserAppInformation,
 } from '../api/applications/application.d';
 
 export default function App() {
-	const router = useRouter();
 	const [applications, setApplications] = useState<ApplicationSimple[]>([]);
 	const [modalActive, setModalActive] = useState<boolean>(false);
 	const [loading, setLoading] = useState(true);
@@ -22,7 +20,7 @@ export default function App() {
 	async function fetchApplications() {
 		try {
 			const res = await fetch(`/api/applications`, {
-				cache: 'no-cache',
+				cache: 'no-store',
 			});
 			const applications = await res.json();
 			setApplications(applications);
@@ -43,6 +41,7 @@ export default function App() {
 			headers: {
 				'Content-Type': 'application/json',
 			},
+			cache: 'no-store',
 			body: JSON.stringify(appInfo),
 		});
 		setModalActive(false);
@@ -51,7 +50,6 @@ export default function App() {
 
 	if (error) {
 		throw new Error(error);
-		// throw new <Error message='could not load' reset={router.refresh} />;
 	}
 
 	if (loading) {

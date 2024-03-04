@@ -23,13 +23,13 @@ const RDataFormat = () => {
 					JSON is a lightweight and widely supported data interchange format
 					that provides a simple and human-readable structure. It is well-suited
 					for representing structured data, making it an ideal choice for
-					exchanging information with the ODS API.
+					exchanging information with the API.
 				</p>
 			</section>
 			<section>
 				<h2 id='Request_Payloads'>Request Payloads</h2>
 				<p>
-					When sending data to the ODS API, you will typically include a request
+					When sending data to the API, you will typically include a request
 					payload in the body of your API requests. The request payload should
 					be formatted as a JSON object. It allows you to pass parameters,
 					filters, or additional data necessary for the API to process your
@@ -50,11 +50,11 @@ const RDataFormat = () => {
 			<section aria-labelledby='Response_Data'>
 				<h2 id='Response_Data'>Response Data</h2>
 				<p>
-					The data returned by the ODS API in response to your requests will
-					also be in JSON format. The response data will typically be an object
-					or an array of objects, depending on the nature of the request. Each
-					object represents a resource or an entity and contains various
-					attributes and their corresponding values.
+					The data returned by the API in response to your requests will also be
+					in JSON format. The response data will typically be an object or an
+					array of objects, depending on the nature of the request. Each object
+					represents a resource or an entity and contains various attributes and
+					their corresponding values.
 				</p>
 				<p>
 					Here's an example response for a request to retrieve information about
@@ -92,7 +92,7 @@ const RDataFormat = () => {
 					Handling JSON in Your Application
 				</h2>
 				<p>
-					To interact with the ODS API effectively, your application should be
+					To interact with the API effectively, your application should be
 					equipped to handle JSON data. This involves parsing JSON responses,
 					validating JSON structures, and serializing/deserializing JSON
 					objects. Refer to the documentation of your chosen programming
@@ -101,11 +101,11 @@ const RDataFormat = () => {
 				</p>
 				<p>
 					The JSON format's simplicity, readability, and wide adoption make it a
-					suitable choice for exchanging data with the ODS API. By understanding
-					the structure of JSON request payloads and response data, as well as
+					suitable choice for exchanging data with the API. By understanding the
+					structure of JSON request payloads and response data, as well as
 					leveraging relevant libraries and tools, you can seamlessly integrate
 					the API into your applications and efficiently work with the data
-					provided by the ODS API.
+					provided by the API.
 				</p>
 			</section>
 			<nav className={styles.arrowWrapper}>

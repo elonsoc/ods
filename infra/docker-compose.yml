@@ -8,6 +8,7 @@ volumes: #volumes are used to persist data in the docker containers and are link
   loki:
   prometheus:
   mssql:
+  redis-data:
 
 services: # this is where services are defined. A service is a docker container, which is defined by an image.
   statsdexporter:
@@ -79,10 +80,23 @@ services: # this is where services are defined. A service is a docker container,
       retries: 5
   redis:
     image: redis:7.0.9
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
   # backend: # this is the backend service, which is the main service of the application
   #   depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
   #     postgres:
   #       condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
+  #     redis:
+  #       condition: service_healthy
   #   ports:
   #     - 3000:3000
   #   environment:
@@ -94,7 +108,7 @@ services: # this is where services are defined. A service is a docker container,
   #     - PORT=3000
   #     - SAML_CERT_PATH=/certs/cert.pem
   #     - SAML_KEY_PATH=/certs/key.pem
-  #     - IDP_URL=http://host.docker.internal:8080/idp.xml #for prod: https://idp.elon.edu/idp/shibboleth
+  #     - IDP_URL=http://host.docker.internal:8088/idp.xml #for prod: https://idp.elon.edu/idp/shibboleth
   #     - SP_URL=http://localhost:3000
   #     - WEB_URL=http://localhost:3001
   #   volumes:
@@ -106,15 +120,15 @@ services: # this is where services are defined. A service is a docker container,
   #     dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
   #     # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
   #     # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
-  # frontend:
-  #   ports:
-  #     - 3001:3000
-  #   environment:
-  #     - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
-  #     - NODE_ENV=development
-  #   build:
-  #     context: ../frontend/
-  #     dockerfile: ../frontend/Dockerfile.dev
+  frontend:
+    ports:
+      - 3001:3001
+    environment:
+      - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
+      - NODE_ENV=development
+    build:
+      context: ../frontend/
+      dockerfile: ../frontend/Dockerfile.dev
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:

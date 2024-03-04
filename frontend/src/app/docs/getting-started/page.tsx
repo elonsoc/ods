@@ -16,7 +16,7 @@ const GettingStarted = () => {
 			<section className={styles.introductionSection}>
 				<p>
 					The "Getting Started" page provides a comprehensive introduction to
-					using the Elon ODS API. It covers the following key points:
+					using the API. It covers the following key points:
 				</p>
 				<ol>
 					<li>
@@ -26,10 +26,9 @@ const GettingStarted = () => {
 						>
 							Overview
 						</Link>
-						: Users gain an understanding of the Open Data Service API and its
-						purpose in providing access to data about Elon University. It
-						highlights the benefits and possibilities of using the API in
-						applications.
+						: You will gain general understanding of the API and its purpose in
+						providing access to data about Elon University. It highlights the
+						benefits and possibilities of using the API in applications.
 					</li>
 					<li>
 						<Link
@@ -38,10 +37,10 @@ const GettingStarted = () => {
 						>
 							Registering an App
 						</Link>
-						: Users are guided through the process of creating and registering
-						their application. This involves logging into their Elon ODS
-						account, providing essential information such as app name and
-						description, and submitting the registration form.
+						: In 'Registering an App', you are guided through the process of
+						creating and registering your application. This involves logging
+						into your ODS account, providing essential information such as app
+						name and description, and submitting the registration form.
 					</li>
 					<li>
 						<Link
@@ -50,17 +49,17 @@ const GettingStarted = () => {
 						>
 							Making API Calls
 						</Link>
-						: Users learn how to make their first API call using their
-						registered app and the provided API key. The guide covers the
-						necessary endpoints, parameters, and authentication methods to
-						successfully retrieve data from the Open Data Service API.
+						: In this section, you will learn how to make your first API call
+						using your registered app and the provided API key. The guide covers
+						the necessary endpoints, parameters, and authentication methods to
+						successfully retrieve data from the API.
 					</li>
 				</ol>
 				<p>
-					By following the steps outlined in the "Getting Started" page, users
-					can gain a solid foundation for integrating the Open Data Service API
-					into their applications. It equips them with the necessary knowledge
-					and steps to register an app, obtain an API key, and start making API
+					By following the steps outlined in the "Getting Started" page, you can
+					gain a solid foundation for integrating the API into your
+					applications. It should equip you with the necessary knowledge and
+					steps to register an app, obtain an API key, and start making API
 					calls to retrieve data about Elon University.
 				</p>
 			</section>

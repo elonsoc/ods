@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -139,7 +140,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := service.NewService(loggingURL, databaseURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
+	svc := service.NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
 
 	samlMiddleware := svc.Saml.GetSamlMiddleware()
 
@@ -187,17 +188,79 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		r.Mount("/locations", locations.NewLocationsRouter(&locations.LocationsRouter{Svcs: svc}).Router)
 	})
 
+	r.Group(func(r chi.Router) {
+		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
+			for _, cookie := range r.Cookies() {
+				switch cookie.Name {
+				case "ods_login_cookie_nomnom", "ods_refresh_cookie_nomnom":
+					tokenPrefix := map[string]string{
+						"ods_login_cookie_nomnom":  "access_token:",
+						"ods_refresh_cookie_nomnom": "refresh_token:",
+					}[cookie.Name]
+					
+					odsId, err := svc.Token.GetUidFromToken(cookie.Value)
+					if err != nil {
+						svc.Log.Error("Failed to get odsId from token: "+err.Error(), nil)
+						http.Error(w, "Server error", http.StatusInternalServerError)
+						return
+					}
+					tokenKey := tokenPrefix + odsId
+					if err = svc.Token.InvalidateToken(tokenKey); err != nil {
+						svc.Log.Error("Failed to invalidate token: "+tokenKey+" "+err.Error(), nil)
+						http.Error(w, "Server error", http.StatusInternalServerError)
+						return
+					}
+					svc.Log.Info("Token invalidated: " + tokenKey, nil)
+				}
+
+				cookie.MaxAge = -1
+				http.SetCookie(w, cookie)
+			}
+			http.Redirect(w, r, webURL, http.StatusFound)
+		})		
+	})
+
 	r.Route("/saml", func(r chi.Router) {
 		r.Get("/metadata", samlMiddleware.ServeMetadata)
 		r.Post("/acs", samlMiddleware.ServeACS)
 	})
 
 	r.Group(func(r chi.Router) {
-		// this set of groups require a JWT to be accessed
 		r.Use(CheckIdentity(svc.Token, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
-
+		r.Get("/login/status", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 	})
+
+	r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
+		refreshToken := r.Header.Get("X-Refresh-Token")
+		svc.Log.Info("refresh token: " + refreshToken, nil)
+		if refreshToken == "" {
+			svc.Log.Error("No refresh token provided", nil)
+			http.Error(w, "No refresh token provided", http.StatusBadRequest)
+			return
+		}
+	
+		newAccessToken, newRefreshToken, err := svc.Token.RefreshAccessToken(refreshToken)
+		if err != nil {
+			svc.Log.Error("Failed to refresh access token: " + err.Error(), nil)
+			http.Error(w, "Failed to refresh access token", http.StatusInternalServerError)
+			return
+		}
+	
+		tokens := struct {
+			AccessToken  string `json:"access_token"`
+			RefreshToken string `json:"refresh_token,omitempty"`
+		}{
+			AccessToken:  newAccessToken,
+			RefreshToken: newRefreshToken,
+		}
+	
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tokens)
+	})
+	
 
 	r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
@@ -245,9 +308,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
-			jwt, err := svc.Token.NewToken(userInfo.OdsId)
+			jwt, err := svc.Token.GenerateAccessToken(userInfo.OdsId)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			refreshToken, err := svc.Token.GenerateRefreshToken(userInfo.OdsId)
+			if err != nil {
+				svc.Log.Error("Failed to generate refresh token: " + err.Error(), nil)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -261,8 +331,21 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			http.SetCookie(w, &http.Cookie{
 				Name:   "ods_login_cookie_nomnom",
 				Value:  jwt,
-				MaxAge: 60 * 60 * 2,
+				MaxAge: 60 * 5 /* * 60 * 2 */,
 				Domain: cleanURL,
+				Path:   "/",
+				Secure: true,
+				HttpOnly: true,
+			})
+
+			http.SetCookie(w, &http.Cookie{
+				Name:     "ods_refresh_cookie_nomnom",
+				Value:    refreshToken,
+				MaxAge:   60 * 60 * 24 * 7,
+				Path:     "/",
+				Domain:   cleanURL,
+				Secure:   true,
+				HttpOnly: true,
 			})
 
 			w.Header().Add("Content-Type", "")
