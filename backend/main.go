@@ -27,21 +27,29 @@ import (
 func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			auth := r.Header.Get("Authorization")
-			if auth == "" {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
+			parts := strings.SplitN(authHeader, " ", 2)
+			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+				http.Error(w, "Authorization header must be in the format 'Bearer {token}'", http.StatusUnauthorized)
+				return
+			}
+
+			apiKey := parts[1]
+
 			// this is where the call we'd make to the database to verify the API key
 			// would happen. For now, we just check if the API key is in the map above.
-			if !db.IsValidApiKey(auth) {
-				w.WriteHeader(http.StatusUnauthorized)
+			if !db.IsValidApiKey(apiKey) {
+				http.Error(w, "Invalid API key", http.StatusUnauthorized)
 				return
 			}
 
 			// if both are okay, then we're free to further this request.
-			stat.Increment("api_key_used", statsd.StringTag("api_key", auth))
+			stat.Increment("api_key_used", statsd.StringTag("api_key", apiKey))
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)

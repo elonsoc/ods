@@ -98,6 +98,7 @@ func (t *Token) GenerateAccessToken(uid string) (string, error) {
 	err = t.Db.Set(context.Background(), "access_token:"+uid, accessToken, AccessTokenLife)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to store access token in cache")
+
 	}
 
 	return accessToken, nil
@@ -128,7 +129,7 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	if err != nil {
 		return "", "", errors.Wrap(err, "invalid refresh token")
 	}
-
+  
 	if err := t.Db.Del(context.Background(), "access_token:"+uid); err != nil {
 		log.Printf("Warning: Failed to remove old access token from cache for user %s: %v\n", uid, err)
 	}
