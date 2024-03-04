@@ -191,11 +191,28 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Group(func(r chi.Router) {
 		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
 			for _, cookie := range r.Cookies() {
+				switch cookie.Name {
+				case "ods_login_cookie_nomnom", "ods_refresh_cookie_nomnom":
+					tokenPrefix := map[string]string{
+						"ods_login_cookie_nomnom":  "access_token:",
+						"ods_refresh_cookie_nomnom": "refresh_token:",
+					}[cookie.Name]
+					
+					odsId, err := svc.Token.GetUidFromToken(cookie.Value)
+					tokenKey := tokenPrefix + odsId
+					if err = svc.Token.InvalidateToken(tokenKey); err != nil {
+						svc.Log.Error("Failed to invalidate token: "+tokenKey+" "+err.Error(), nil)
+						http.Error(w, "Server error", http.StatusInternalServerError)
+						return
+					}
+					svc.Log.Info("Token invalidated: " + tokenKey, nil)
+				}
+
 				cookie.MaxAge = -1
 				http.SetCookie(w, cookie)
 			}
 			http.Redirect(w, r, webURL, http.StatusFound)
-		})
+		})		
 	})
 
 	r.Route("/saml", func(r chi.Router) {

@@ -16,7 +16,7 @@ type TokenIFace interface {
 	GenerateAccessToken(string) (string, error)
 	GenerateRefreshToken(string) (string, error)
 	RefreshAccessToken(string) (string, string, error)
-	// InvalidateToken(string) error
+	InvalidateToken(string) error
 }
 
 const (
