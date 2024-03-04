@@ -111,7 +111,7 @@ export default function GSOverviewPage() {
 				</p>
 				<CodeCopyable
 					code='curl -X GET "https://api.ods.elon.edu/locations/v1/buildings/" -H
-							"Authorization: [YOUR_API_KEY]"'
+							"Authorization: Bearer [YOUR_API_KEY]"'
 				/>
 			</section>
 			<nav className={styles.arrowWrapper}>
