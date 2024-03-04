@@ -43,7 +43,7 @@ const UGAuthentication = () => {
 					unique identifier for your application and grants you access to the
 					protected resources.
 				</p>
-				<p className='code'>Authorization: YOUR_API_KEY</p>
+				<p className='code'>Authorization: Bearer [YOUR_API_KEY]</p>
 				<p>
 					Ensure that you replace `YOUR_API_KEY` with the actual API key
 					obtained from your registered application.
@@ -56,7 +56,7 @@ const UGAuthentication = () => {
 					in the header:
 				</p>
 				<CodeCopyable
-					code={`curl -X GET https://api.ods.elon.edu/locations/v1/buildings/ -H "Authorization: [YOUR_API_KEY]" | json_pp`}
+					code={`curl -X GET https://api.ods.elon.edu/locations/v1/buildings/ -H "Authorization: Bearer [YOUR_API_KEY]" | json_pp`}
 				/>
 				<p>Make sure to replace `YOUR_API_KEY` with your actual API key.</p>
 			</section>
