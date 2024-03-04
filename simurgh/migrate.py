@@ -1,4 +1,5 @@
-# migrate.py is a
+# migrate.py is a script to fetch Elon's MSSQL datasets into our PSQL database
+# currenlty, this migrates Elon's Building dataset
 
 import pymssql as mssql
 import psycopg2 as pg

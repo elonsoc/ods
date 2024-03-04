@@ -1,2 +1,4 @@
 pymssql
 psycopg2-binary
+pandas
+sqlalchemy
