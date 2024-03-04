@@ -93,6 +93,24 @@ func (_m *TokenIFace) GetUidFromToken(_a0 string) (string, error) {
 	return r0, r1
 }
 
+// InvalidateToken provides a mock function with given fields: _a0
+func (_m *TokenIFace) InvalidateToken(_a0 string) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InvalidateToken")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewToken provides a mock function with given fields: _a0
 func (_m *TokenIFace) NewToken(_a0 string) (string, error) {
 	ret := _m.Called(_a0)
