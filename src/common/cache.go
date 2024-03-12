@@ -1,10 +1,9 @@
-package service
+package common
 
 import (
 	"context"
 	"time"
 
-	"github.com/elonsoc/ods/src/common"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -18,7 +17,7 @@ type InMemoryDbService struct {
 	client *redis.Client
 }
 
-func initInMemoryDb(redisURL string, log common.LoggerIFace) InMemoryDbIFace {
+func InitInMemoryDb(redisURL string, log LoggerIFace) InMemoryDbIFace {
 	opts, err := redis.ParseURL(redisURL)
 	if err != nil {
 		log.Fatal(err)

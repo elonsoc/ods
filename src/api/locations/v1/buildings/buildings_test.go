@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	buildings_v1 "github.com/elonsoc/ods/backend/locations/v1/buildings"
-	"github.com/elonsoc/ods/backend/mocks"
-	"github.com/elonsoc/ods/backend/service"
+	buildings_v1 "github.com/elonsoc/ods/src/api/locations/v1/buildings"
+	"github.com/elonsoc/ods/src/api/mocks"
+	"github.com/elonsoc/ods/src/api/service"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

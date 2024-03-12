@@ -19,11 +19,11 @@ import "github.com/elonsoc/ods/src/common"
 // in the backend of ods.
 type Services struct {
 	Log   common.LoggerIFace
-	Db    DbIFace
-	Stat  StatIFace
+	Db    common.DbIFace
+	Stat  common.StatIFace
 	Saml  SamlIFace
 	Token TokenIFace
-	Redis InMemoryDbIFace
+	Redis common.InMemoryDbIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -39,10 +39,10 @@ func NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath,
 	// that will be used to log messages to the console.
 
 	log := common.InitLogging(loggingURL)
-	db := initDb(databaseURL, log)
-	stat := initStatsD(statsdURL, log)
+	db := common.InitDb(databaseURL, log)
+	stat := common.InitStatsD(statsdURL, log)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
-	redis := initInMemoryDb(redisURL, log)
+	redis := common.InitInMemoryDb(redisURL, log)
 	token := NewTokenServicer(redis)
 
 	return &Services{

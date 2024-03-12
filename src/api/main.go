@@ -15,17 +15,16 @@ import (
 	"github.com/elonsoc/saml/samlsp"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sirupsen/logrus"
 	statsd "github.com/smira/go-statsd"
 
-	"github.com/elonsoc/ods/backend/applications"
-	locations "github.com/elonsoc/ods/backend/locations"
-	"github.com/elonsoc/ods/backend/service"
+	"github.com/elonsoc/ods/src/api/applications"
+	locations "github.com/elonsoc/ods/src/api/locations"
+	"github.com/elonsoc/ods/src/api/service"
 	"github.com/elonsoc/ods/src/common"
 )
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
-func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
+func CheckAPIKey(db common.DbIFace, stat common.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -107,34 +106,6 @@ func getDomainFromURI(domain string) (string, error) {
 
 }
 
-func CustomLogger(log common.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			// pass along the http request before we log it
-			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
-
-			next.ServeHTTP(ww, r)
-
-			scheme := "http"
-			if r.TLS != nil {
-				scheme = "https"
-			}
-
-			log.Info("", logrus.Fields{
-				"method":     r.Method,
-				"path":       r.URL.Path,
-				"request_id": middleware.GetReqID(r.Context()),
-				"ip":         r.RemoteAddr,
-				"scheme":     scheme,
-				"status":     ww.Status(),
-			})
-			stat.Increment("request", statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
-		}
-
-		return http.HandlerFunc(fn)
-	}
-}
-
 // initialize begins the startup process for the backend of ods.
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
@@ -160,7 +131,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// This means that the first middleware that is declared will be the last one to be executed.
 
 	// middleware.Logger prints a log line for each request (access log)
-	r.Use(CustomLogger(svc.Log, svc.Stat))
+	r.Use(common.CustomLogger(svc.Log, svc.Stat))
 	r.Use(middleware.RequestID)
 	// middleware.RealIP is used to get the real IP address of the client
 	r.Use(middleware.RealIP)

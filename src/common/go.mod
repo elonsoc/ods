@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/go-chi/chi v1.5.5
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect

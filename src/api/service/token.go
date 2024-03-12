@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"aidanwoods.dev/go-paseto"
+	"github.com/elonsoc/ods/src/common"
 	errors "github.com/pkg/errors"
 )
 
@@ -26,10 +27,10 @@ const (
 
 type Token struct {
 	key *paseto.V4AsymmetricSecretKey
-	Db  InMemoryDbIFace
+	Db  common.InMemoryDbIFace
 }
 
-func NewTokenServicer(db InMemoryDbIFace) *Token {
+func NewTokenServicer(db common.InMemoryDbIFace) *Token {
 	key := paseto.NewV4AsymmetricSecretKey()
 
 	return &Token{

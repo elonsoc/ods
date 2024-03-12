@@ -1,8 +1,12 @@
 package common
 
 import (
+	"net/http"
+
+	"github.com/go-chi/chi/middleware"
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
+	statsd "github.com/smira/go-statsd"
 )
 
 func InitLogging(loggingURL string) *Log {
@@ -40,4 +44,32 @@ func (s *Log) Error(message string, fields logrus.Fields) {
 
 func (s *Log) Fatal(err error) {
 	s.logger.Fatal(err)
+}
+
+func CustomLogger(log LoggerIFace, stat StatIFace) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			// pass along the http request before we log it
+			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
+			next.ServeHTTP(ww, r)
+
+			scheme := "http"
+			if r.TLS != nil {
+				scheme = "https"
+			}
+
+			log.Info("", logrus.Fields{
+				"method":     r.Method,
+				"path":       r.URL.Path,
+				"request_id": middleware.GetReqID(r.Context()),
+				"ip":         r.RemoteAddr,
+				"scheme":     scheme,
+				"status":     ww.Status(),
+			})
+			stat.Increment("request", statsd.IntTag("status", ww.Status()), statsd.StringTag("path", r.URL.Path))
+		}
+
+		return http.HandlerFunc(fn)
+	}
 }

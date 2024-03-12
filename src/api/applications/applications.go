@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/elonsoc/ods/backend/applications/types"
-	"github.com/elonsoc/ods/backend/service"
+	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common/types"
+
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"

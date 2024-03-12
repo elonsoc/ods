@@ -1,11 +1,10 @@
-package service
+package common
 
 import (
-	"github.com/elonsoc/ods/src/common"
 	statsd "github.com/smira/go-statsd"
 )
 
-func initStatsD(statsdURL string, log common.LoggerIFace) *Stat {
+func InitStatsD(statsdURL string, log LoggerIFace) *Stat {
 	s := &Stat{}
 	s.stat = statsd.NewClient(statsdURL, statsd.MetricPrefix("backend."))
 	return s
