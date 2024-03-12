@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/elonsoc/ods/src/common"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -17,22 +18,22 @@ type InMemoryDbService struct {
 	client *redis.Client
 }
 
-func initInMemoryDb(redisURL string, log LoggerIFace) InMemoryDbIFace {
-    opts, err := redis.ParseURL(redisURL)
-    if err != nil {
-        log.Fatal(err)
-        return nil
-    }
+func initInMemoryDb(redisURL string, log common.LoggerIFace) InMemoryDbIFace {
+	opts, err := redis.ParseURL(redisURL)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 
-    client := redis.NewClient(opts)
+	client := redis.NewClient(opts)
 
-    _, err = client.Ping(context.Background()).Result()
-    if err != nil {
-        log.Fatal(err)
-        return nil
-    }
+	_, err = client.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 
-    return &InMemoryDbService{client: client}
+	return &InMemoryDbService{client: client}
 }
 
 func (r *InMemoryDbService) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {

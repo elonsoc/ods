@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/elonsoc/ods/src/common"
 	"github.com/elonsoc/saml"
 	"github.com/elonsoc/saml/samlsp"
 )
@@ -20,7 +21,7 @@ type SamlIFace interface {
 	GetSamlMiddleware() *samlsp.Middleware
 }
 
-func initializeSaml(log LoggerIFace, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
+func initializeSaml(log common.LoggerIFace, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error

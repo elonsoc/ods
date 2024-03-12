@@ -13,10 +13,12 @@
 
 package service
 
+import "github.com/elonsoc/ods/src/common"
+
 // Service, here, describes the services that we will be using
 // in the backend of ods.
 type Services struct {
-	Log   LoggerIFace
+	Log   common.LoggerIFace
 	Db    DbIFace
 	Stat  StatIFace
 	Saml  SamlIFace
@@ -36,7 +38,7 @@ func NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath,
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
-	log := initLogging(loggingURL)
+	log := common.InitLogging(loggingURL)
 	db := initDb(databaseURL, log)
 	stat := initStatsD(statsdURL, log)
 	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)

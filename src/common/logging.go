@@ -1,11 +1,11 @@
-package service
+package common
 
 import (
 	logrusLoki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
 )
 
-func initLogging(loggingURL string) *Log {
+func InitLogging(loggingURL string) *Log {
 	log := logrus.New()
 	hook, err := logrusLoki.NewLokiDefaults(loggingURL)
 	if err != nil {

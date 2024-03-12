@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/elonsoc/ods/backend/applications/types"
+	"github.com/elonsoc/ods/src/common"
 	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -37,7 +38,7 @@ type Db struct {
 	db *pgxpool.Pool
 }
 
-func initDb(databaseURL string, log LoggerIFace) *Db {
+func initDb(databaseURL string, log common.LoggerIFace) *Db {
 	ctx := context.Background()
 
 	cfg, err := pgxpool.ParseConfig(databaseURL)

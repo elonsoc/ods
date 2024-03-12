@@ -21,6 +21,7 @@ import (
 	"github.com/elonsoc/ods/backend/applications"
 	locations "github.com/elonsoc/ods/backend/locations"
 	"github.com/elonsoc/ods/backend/service"
+	"github.com/elonsoc/ods/src/common"
 )
 
 // CheckAuth is a custom middleware that checks the Authorization header for a valid API key
@@ -56,7 +57,7 @@ func CheckAPIKey(db service.DbIFace, stat service.StatIFace) func(next http.Hand
 	}
 }
 
-func CheckIdentity(tokenSvcr service.TokenIFace, log service.LoggerIFace) func(next http.Handler) http.Handler {
+func CheckIdentity(tokenSvcr service.TokenIFace, log common.LoggerIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			token_cookie, err := r.Cookie("ods_login_cookie_nomnom")
@@ -106,7 +107,7 @@ func getDomainFromURI(domain string) (string, error) {
 
 }
 
-func CustomLogger(log service.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
+func CustomLogger(log common.LoggerIFace, stat service.StatIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// pass along the http request before we log it
@@ -202,10 +203,10 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				switch cookie.Name {
 				case "ods_login_cookie_nomnom", "ods_refresh_cookie_nomnom":
 					tokenPrefix := map[string]string{
-						"ods_login_cookie_nomnom":  "access_token:",
+						"ods_login_cookie_nomnom":   "access_token:",
 						"ods_refresh_cookie_nomnom": "refresh_token:",
 					}[cookie.Name]
-					
+
 					odsId, err := svc.Token.GetUidFromToken(cookie.Value)
 					if err != nil {
 						svc.Log.Error("Failed to get odsId from token: "+err.Error(), nil)
@@ -218,14 +219,14 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 						http.Error(w, "Server error", http.StatusInternalServerError)
 						return
 					}
-					svc.Log.Info("Token invalidated: " + tokenKey, nil)
+					svc.Log.Info("Token invalidated: "+tokenKey, nil)
 				}
 
 				cookie.MaxAge = -1
 				http.SetCookie(w, cookie)
 			}
 			http.Redirect(w, r, webURL, http.StatusFound)
-		})		
+		})
 	})
 
 	r.Route("/saml", func(r chi.Router) {
@@ -243,20 +244,20 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 	r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
 		refreshToken := r.Header.Get("X-Refresh-Token")
-		svc.Log.Info("refresh token: " + refreshToken, nil)
+		svc.Log.Info("refresh token: "+refreshToken, nil)
 		if refreshToken == "" {
 			svc.Log.Error("No refresh token provided", nil)
 			http.Error(w, "No refresh token provided", http.StatusBadRequest)
 			return
 		}
-	
+
 		newAccessToken, newRefreshToken, err := svc.Token.RefreshAccessToken(refreshToken)
 		if err != nil {
-			svc.Log.Error("Failed to refresh access token: " + err.Error(), nil)
+			svc.Log.Error("Failed to refresh access token: "+err.Error(), nil)
 			http.Error(w, "Failed to refresh access token", http.StatusInternalServerError)
 			return
 		}
-	
+
 		tokens := struct {
 			AccessToken  string `json:"access_token"`
 			RefreshToken string `json:"refresh_token,omitempty"`
@@ -264,11 +265,10 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			AccessToken:  newAccessToken,
 			RefreshToken: newRefreshToken,
 		}
-	
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tokens)
 	})
-	
 
 	r.Group(func(r chi.Router) {
 		r.Use(samlMiddleware.RequireAccount)
@@ -325,7 +325,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 
 			refreshToken, err := svc.Token.GenerateRefreshToken(userInfo.OdsId)
 			if err != nil {
-				svc.Log.Error("Failed to generate refresh token: " + err.Error(), nil)
+				svc.Log.Error("Failed to generate refresh token: "+err.Error(), nil)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -337,12 +337,12 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 			http.SetCookie(w, &http.Cookie{
-				Name:   "ods_login_cookie_nomnom",
-				Value:  jwt,
-				MaxAge: 60 * 5 /* * 60 * 2 */,
-				Domain: cleanURL,
-				Path:   "/",
-				Secure: true,
+				Name:     "ods_login_cookie_nomnom",
+				Value:    jwt,
+				MaxAge:   60 * 5, /* * 60 * 2 */
+				Domain:   cleanURL,
+				Path:     "/",
+				Secure:   true,
 				HttpOnly: true,
 			})
 
