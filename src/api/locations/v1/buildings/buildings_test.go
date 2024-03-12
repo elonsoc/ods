@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	buildings_v1 "github.com/elonsoc/ods/src/api/locations/v1/buildings"
-	"github.com/elonsoc/ods/src/api/mocks"
-	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common"
+	"github.com/elonsoc/ods/src/mocks"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,7 +28,7 @@ func setup(t *testing.T) (*httptest.Server, *mocks.DbIFace,
 	ts := httptest.NewServer(r)
 	BuildingsV1 := buildings_v1.NewBuildingsRouter(
 		&buildings_v1.BuildingsRouter{
-			Svcs: &service.Services{
+			Svcs: &common.Services{
 				Db:   db,
 				Log:  logger,
 				Stat: stat,

@@ -11,19 +11,20 @@
 // By separating the services into their own file, we can focus the different packages
 // on their specific tasks, and not have to worry about the services that they are using.
 
-package service
+package common
 
-import "github.com/elonsoc/ods/src/common"
+import (
+	auth "github.com/elonsoc/ods/src/auth/pkg"
+)
 
 // Service, here, describes the services that we will be using
 // in the backend of ods.
 type Services struct {
-	Log   common.LoggerIFace
-	Db    common.DbIFace
-	Stat  common.StatIFace
-	Saml  SamlIFace
-	Token TokenIFace
-	Redis common.InMemoryDbIFace
+	Log   LoggerIFace
+	Db    DbIFace
+	Stat  StatIFace
+	IMDb  InMemoryDbIFace
+	Token auth.TokenIFace
 }
 
 // NewService creates a new instance of the Service struct
@@ -34,23 +35,21 @@ type Services struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL string) *Services {
+func NewService(loggingURL, databaseURL, redisURL, statsdURL, webURL, authURL string) *Services {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
-	log := common.InitLogging(loggingURL)
-	db := common.InitDb(databaseURL, log)
-	stat := common.InitStatsD(statsdURL, log)
-	saml := initializeSaml(log, idpURL, webURL, spURL, certPath, keyPath)
-	redis := common.InitInMemoryDb(redisURL, log)
-	token := NewTokenServicer(redis)
+	log := InitLogging(loggingURL)
+	db := InitDb(databaseURL, log)
+	stat := InitStatsD(statsdURL, log)
+	redis := InitInMemoryDb(redisURL, log)
+	tok := auth.NewTokenService(authURL)
 
 	return &Services{
 		Log:   log,
 		Db:    db,
 		Stat:  stat,
-		Saml:  saml,
-		Token: token,
-		Redis: redis,
+		IMDb:  redis,
+		Token: tok,
 	}
 }

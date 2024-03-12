@@ -5,7 +5,7 @@ go 1.19
 require (
 	aidanwoods.dev/go-paseto v1.5.1
 	github.com/elonsoc/saml v0.0.0-20230912050502-6a7116c98c96
-	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/jackc/pgx-gofrs-uuid v0.0.0-20230224015001-1d428863c2e2

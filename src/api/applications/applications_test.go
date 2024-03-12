@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/elonsoc/ods/src/api/applications"
-	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common"
 	"github.com/elonsoc/ods/src/common/types"
 	"github.com/elonsoc/ods/src/mocks"
 	chi "github.com/go-chi/chi/v5"
@@ -28,7 +28,7 @@ func TestNewApp(t *testing.T) {
 	ts := httptest.NewServer(r)
 	apps := applications.NewApplicationsRouter(
 		&applications.ApplicationsRouter{
-			Svcs: &service.Services{
+			Svcs: &common.Services{
 				Db:    db,
 				Log:   logger,
 				Stat:  stat,

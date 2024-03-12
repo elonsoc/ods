@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common"
 	"github.com/elonsoc/ods/src/common/types"
 
 	chi "github.com/go-chi/chi/v5"
@@ -27,7 +27,7 @@ import (
 // Defining the struct for the applications router
 type ApplicationsRouter struct {
 	chi.Router
-	Svcs *service.Services
+	Svcs *common.Services
 }
 
 // NewApplicationsRouter is a function that returns a new applications router

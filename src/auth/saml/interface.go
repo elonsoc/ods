@@ -1,4 +1,4 @@
-package service
+package saml
 
 import (
 	"context"
@@ -18,10 +18,14 @@ type Saml struct {
 }
 
 type SamlIFace interface {
-	GetSamlMiddleware() *samlsp.Middleware
+	Middleware() *samlsp.Middleware
 }
 
-func initializeSaml(log common.LoggerIFace, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
+func (s *Saml) Middleware() *samlsp.Middleware {
+	return s.saml
+}
+
+func InitializeSaml(svc *common.Services, idpURL, webURL, spURL, certPath, keyPath string) SamlIFace {
 	keyPair, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		panic(err) // TODO handle error
@@ -85,11 +89,5 @@ func initializeSaml(log common.LoggerIFace, idpURL, webURL, spURL, certPath, key
 		Codec:    samlsp.DefaultSessionCodec(options),
 	}
 
-	return &Saml{
-		saml: samlSP,
-	}
-}
-
-func (s *Saml) GetSamlMiddleware() *samlsp.Middleware {
-	return s.saml
+	return &Saml{saml: samlSP}
 }

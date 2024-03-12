@@ -1,4 +1,4 @@
-package service
+package token
 
 import (
 	"context"
@@ -25,21 +25,21 @@ const (
 	RefreshTokenLife = 7 * 24 * time.Hour
 )
 
-type Token struct {
+type token struct {
 	key *paseto.V4AsymmetricSecretKey
 	Db  common.InMemoryDbIFace
 }
 
-func NewTokenServicer(db common.InMemoryDbIFace) *Token {
+func NewTokenServicer(db common.InMemoryDbIFace) *token {
 	key := paseto.NewV4AsymmetricSecretKey()
 
-	return &Token{
+	return &token{
 		&key,
 		db,
 	}
 }
 
-func (t *Token) NewToken(uid string) (string, error) {
+func (t *token) NewToken(uid string) (string, error) {
 	token := paseto.NewToken()
 	token.SetIssuedAt(time.Now())
 	token.SetNotBefore(time.Now())
@@ -53,14 +53,14 @@ func (t *Token) NewToken(uid string) (string, error) {
 	return token.V4Sign(*t.key, []byte("public")), nil
 }
 
-func (t *Token) parseToken(jwt string) (*paseto.Token, error) {
+func (t *token) parseToken(jwt string) (*paseto.Token, error) {
 	parser := paseto.NewParser()
 
 	return parser.ParseV4Public(t.key.Public(), jwt, []byte("public"))
 
 }
 
-func (t *Token) ValidateToken(token string) (bool, error) {
+func (t *token) ValidateToken(token string) (bool, error) {
 	_, err := t.parseToken(token)
 	if err != nil {
 		return false, err
@@ -69,7 +69,7 @@ func (t *Token) ValidateToken(token string) (bool, error) {
 	return true, nil
 }
 
-func (t *Token) GetUidFromToken(jwt string) (string, error) {
+func (t *token) GetUidFromToken(jwt string) (string, error) {
 	token, err := t.parseToken(jwt)
 	if err != nil {
 		return "", err
@@ -84,7 +84,7 @@ func (t *Token) GetUidFromToken(jwt string) (string, error) {
 	return id, nil
 }
 
-func (t *Token) GenerateAccessToken(uid string) (string, error) {
+func (t *token) GenerateAccessToken(uid string) (string, error) {
 	token := paseto.NewToken()
 	token.SetIssuedAt(time.Now())
 	token.SetNotBefore(time.Now())
@@ -105,7 +105,7 @@ func (t *Token) GenerateAccessToken(uid string) (string, error) {
 	return accessToken, nil
 }
 
-func (t *Token) GenerateRefreshToken(uid string) (string, error) {
+func (t *token) GenerateRefreshToken(uid string) (string, error) {
 	token := paseto.NewToken()
 	token.SetIssuedAt(time.Now())
 	token.SetNotBefore(time.Now())
@@ -125,7 +125,7 @@ func (t *Token) GenerateRefreshToken(uid string) (string, error) {
 	return refreshToken, nil
 }
 
-func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) {
+func (t *token) RefreshAccessToken(refreshToken string) (string, string, error) {
 	uid, err := t.GetUidFromToken(refreshToken)
 	if err != nil {
 		return "", "", errors.Wrap(err, "invalid refresh token")
@@ -151,7 +151,7 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	return newAccessToken, newRefreshToken, nil
 }
 
-func (t *Token) InvalidateToken(tokenKey string) error {
+func (t *token) InvalidateToken(tokenKey string) error {
 	if err := t.Db.Del(context.Background(), tokenKey); err != nil {
 		return errors.Wrap(err, "failed to remove token from cache")
 	}

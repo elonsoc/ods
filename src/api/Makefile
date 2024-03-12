@@ -15,8 +15,8 @@ run:
 	PROMETHEUS_URL=http://localhost:9090 \
 	REDIS_URL=redis://localhost:6379 \
 	STATSD_URL=localhost:9125 \
-	SAML_CERT_PATH=../infra/saml/cert.pem \
-	SAML_KEY_PATH=../infra/saml/key.pem \
+	SAML_CERT_PATH=../../infra/saml/cert.pem \
+	SAML_KEY_PATH=../../infra/saml/key.pem \
 	IDP_URL="http://localhost:8088/idp.xml" \
 	SP_URL="http://localhost:3000" \
 	WEB_URL="http://localhost:3001" \

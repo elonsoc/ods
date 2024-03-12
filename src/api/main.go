@@ -5,21 +5,18 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/elonsoc/saml/samlsp"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	statsd "github.com/smira/go-statsd"
 
 	"github.com/elonsoc/ods/src/api/applications"
 	locations "github.com/elonsoc/ods/src/api/locations"
-	"github.com/elonsoc/ods/src/api/service"
+	auth "github.com/elonsoc/ods/src/auth/pkg"
 	"github.com/elonsoc/ods/src/common"
 )
 
@@ -56,7 +53,7 @@ func CheckAPIKey(db common.DbIFace, stat common.StatIFace) func(next http.Handle
 	}
 }
 
-func CheckIdentity(tokenSvcr service.TokenIFace, log common.LoggerIFace) func(next http.Handler) http.Handler {
+func CheckIdentity(tokenSvcr auth.TokenIFace, log common.LoggerIFace) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			token_cookie, err := r.Cookie("ods_login_cookie_nomnom")
@@ -85,32 +82,11 @@ func CheckIdentity(tokenSvcr service.TokenIFace, log common.LoggerIFace) func(ne
 	}
 }
 
-// getDomainFromURI formats a domain string into a proper
-// domain name to be inlayed into a cookie.
-func getDomainFromURI(domain string) (string, error) {
-	if strings.ToLower(domain[:4]) == "http" {
-		u, err := url.Parse(domain)
-		if err != nil {
-			return "", err
-		}
-		return u.Hostname(), nil
-	}
-	// the provided domain is not a URL, so it should be a hostname
-	domain, _, err := net.SplitHostPort(domain)
-	if err != nil {
-		return "", err
-
-	}
-
-	return domain, nil
-
-}
-
 // initialize begins the startup process for the backend of ods.
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL string) chi.Router {
+func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, webURL string) chi.Router {
 	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
@@ -120,9 +96,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := service.NewService(loggingURL, databaseURL, redisURL, statsdURL, certPath, keyPath, idpURL, spURL, webURL)
-
-	samlMiddleware := svc.Saml.GetSamlMiddleware()
+	svc := common.NewService(loggingURL, databaseURL, redisURL, statsdURL, webURL, "")
+	tokenSvc := auth.NewTokenService("")
 
 	// Create a new instance of the router
 	r := chi.NewRouter()
@@ -178,14 +153,14 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 						"ods_refresh_cookie_nomnom": "refresh_token:",
 					}[cookie.Name]
 
-					odsId, err := svc.Token.GetUidFromToken(cookie.Value)
+					odsId, err := tokenSvc.GetUidFromToken(cookie.Value)
 					if err != nil {
 						svc.Log.Error("Failed to get odsId from token: "+err.Error(), nil)
 						http.Error(w, "Server error", http.StatusInternalServerError)
 						return
 					}
 					tokenKey := tokenPrefix + odsId
-					if err = svc.Token.InvalidateToken(tokenKey); err != nil {
+					if err = tokenSvc.InvalidateToken(tokenKey); err != nil {
 						svc.Log.Error("Failed to invalidate token: "+tokenKey+" "+err.Error(), nil)
 						http.Error(w, "Server error", http.StatusInternalServerError)
 						return
@@ -200,13 +175,8 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		})
 	})
 
-	r.Route("/saml", func(r chi.Router) {
-		r.Get("/metadata", samlMiddleware.ServeMetadata)
-		r.Post("/acs", samlMiddleware.ServeACS)
-	})
-
 	r.Group(func(r chi.Router) {
-		r.Use(CheckIdentity(svc.Token, svc.Log))
+		r.Use(CheckIdentity(tokenSvc, svc.Log))
 		r.Mount("/applications", applications.NewApplicationsRouter(&applications.ApplicationsRouter{Svcs: svc}).Router)
 		r.Get("/login/status", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -222,7 +192,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			return
 		}
 
-		newAccessToken, newRefreshToken, err := svc.Token.RefreshAccessToken(refreshToken)
+		newAccessToken, newRefreshToken, err := tokenSvc.RefreshAccessToken(refreshToken)
 		if err != nil {
 			svc.Log.Error("Failed to refresh access token: "+err.Error(), nil)
 			http.Error(w, "Failed to refresh access token", http.StatusInternalServerError)
@@ -241,99 +211,6 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 		json.NewEncoder(w).Encode(tokens)
 	})
 
-	r.Group(func(r chi.Router) {
-		r.Use(samlMiddleware.RequireAccount)
-
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			session := samlsp.SessionFromContext(r.Context())
-			if session == nil {
-				svc.Log.Error(fmt.Sprintf("The context does not contain a session.\n%v", session), nil)
-				return
-			}
-
-			elon_uid := samlsp.AttributeFromContext(r.Context(), "employeeNumber")
-			if elon_uid == "" {
-				svc.Log.Error("Elon employeeNumber not provided in context payload.", nil)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			svc.Log.Info(fmt.Sprintf("we're given a elon_uid: %s", elon_uid), nil)
-
-			if !svc.Db.IsUser(elon_uid) {
-				givenName := samlsp.AttributeFromContext(r.Context(), "givenName")
-				surname := samlsp.AttributeFromContext(r.Context(), "sn")
-				email := samlsp.AttributeFromContext(r.Context(), "mail")
-				affiliation := samlsp.AttributeFromContext(r.Context(), "eduPersonPrimaryAffiliation")
-
-				if givenName == "" || surname == "" || email == "" || affiliation == "" {
-					svc.Log.Error(fmt.Sprintf("Something's missing... gn: %s, sn: %s, mail: %s, affi: %s", givenName, surname, email, affiliation), nil)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
-				if err != nil {
-					svc.Log.Error(err.Error(), nil)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-			}
-
-			userInfo, err := svc.Db.GetUserInformation(elon_uid)
-			if err != nil {
-				svc.Log.Error(err.Error(), nil)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			jwt, err := svc.Token.GenerateAccessToken(userInfo.OdsId)
-			if err != nil {
-				svc.Log.Error(err.Error(), nil)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			refreshToken, err := svc.Token.GenerateRefreshToken(userInfo.OdsId)
-			if err != nil {
-				svc.Log.Error("Failed to generate refresh token: "+err.Error(), nil)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			cleanURL, err := getDomainFromURI(webURL)
-			if err != nil {
-				svc.Log.Error(err.Error(), nil)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			http.SetCookie(w, &http.Cookie{
-				Name:     "ods_login_cookie_nomnom",
-				Value:    jwt,
-				MaxAge:   60 * 5, /* * 60 * 2 */
-				Domain:   cleanURL,
-				Path:     "/",
-				Secure:   true,
-				HttpOnly: true,
-			})
-
-			http.SetCookie(w, &http.Cookie{
-				Name:     "ods_refresh_cookie_nomnom",
-				Value:    refreshToken,
-				MaxAge:   60 * 60 * 24 * 7,
-				Path:     "/",
-				Domain:   cleanURL,
-				Secure:   true,
-				HttpOnly: true,
-			})
-
-			w.Header().Add("Content-Type", "")
-
-			http.Redirect(w, r, webURL+"/apps", http.StatusFound)
-
-		})
-	})
-
 	svc.Log.Info("Server running on port "+servicePort, nil)
 	svc.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
@@ -346,10 +223,6 @@ func main() {
 	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
 	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
 	statsdURL := flag.String("statsd_url", os.Getenv("STATSD_URL"), "statsd url")
-	samlCertPath := flag.String("saml_cert_path", os.Getenv("SAML_CERT_PATH"), "location of service cert")
-	samlKeyPath := flag.String("saml_key_path", os.Getenv("SAML_KEY_PATH"), "location of service key")
-	idpURL := flag.String("idp_url", os.Getenv("IDP_URL"), "url of identity provider")
-	spURL := flag.String("sp_url", os.Getenv("SP_URL"), "url of the hosted service provider")
 	webURL := flag.String("web_url", os.Getenv("WEB_URL"), "url of the hosted web service")
 
 	// this could use some improvement in nameing and probably would require
@@ -372,25 +245,12 @@ func main() {
 	if *statsdURL == "" {
 		log.Fatal("statsd url not set")
 	}
-	if *samlCertPath == "" {
-		log.Fatal("service cert location not set")
-	}
-	if *samlKeyPath == "" {
-		log.Fatal("service key location not set")
-	}
-	if *idpURL == "" {
-		log.Fatal("idp url not set")
-	}
-	if *spURL == "" {
-		log.Fatal("sp url not set")
-	}
-
 	if *webURL == "" {
-		webURL = spURL
+		log.Fatal("web url not set")
 	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
-		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *samlCertPath, *samlKeyPath, *idpURL, *spURL, *webURL))
+		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *webURL))
 	if err != nil {
 		fmt.Println(err)
 	}

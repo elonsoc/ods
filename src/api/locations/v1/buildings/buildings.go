@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common"
 	chi "github.com/go-chi/chi/v5"
 )
 
@@ -53,7 +53,7 @@ var BUILDINGS = map[string]Building{
 // and a pointer to the service struct which is defined in the service package.
 type BuildingsRouter struct {
 	chi.Router
-	Svcs *service.Services
+	Svcs *common.Services
 }
 
 // NewBuildingsRouter creates a new instance of the BuildingsRouter struct

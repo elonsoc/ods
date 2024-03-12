@@ -2,7 +2,7 @@ package locations
 
 import (
 	buildings_v1 "github.com/elonsoc/ods/src/api/locations/v1/buildings"
-	"github.com/elonsoc/ods/src/api/service"
+	"github.com/elonsoc/ods/src/common"
 	chi "github.com/go-chi/chi/v5"
 )
 
@@ -11,7 +11,7 @@ import (
 // that contains the various services that we will be using in the backend.
 type LocationsRouter struct {
 	chi.Router
-	Svcs *service.Services
+	Svcs *common.Services
 }
 
 // NewLocationsRouter creates a new instance of the LocationsRouter struct

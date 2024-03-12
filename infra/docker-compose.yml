@@ -127,8 +127,8 @@ services: # this is where services are defined. A service is a docker container,
       - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
       - NODE_ENV=development
     build:
-      context: ../src/frontend/
-      dockerfile: ../src/frontend/Dockerfile.dev
+      context: ../src/web/
+      dockerfile: ./Dockerfile.dev
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
