@@ -1,6 +1,6 @@
 # This is a docker-compose file, which is used to run the applications locally.
 # It is usually not used in a production context.
-version: '3'
+version: "3"
 name: elon-ods
 volumes: #volumes are used to persist data in the docker containers and are linked to the host machine(s) fs
   data:
@@ -21,7 +21,7 @@ services: # this is where services are defined. A service is a docker container,
     volumes:
       - ./statsd-exporter.yml:/etc/statsd-exporter/mapping.yml
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f localhost:9102/-/ready']
+      test: ["CMD-SHELL", "curl -f localhost:9102/-/ready"]
       interval: 10s
       timeout: 30s
       retries: 5
@@ -37,12 +37,12 @@ services: # this is where services are defined. A service is a docker container,
   loki:
     image: grafana/loki:2.7.4
     ports:
-      - '3100:3100'
+      - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki:/loki
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:3100/ready']
+      test: ["CMD-SHELL", "curl -f http://localhost:3100/ready"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,13 +54,13 @@ services: # this is where services are defined. A service is a docker container,
   grafana: # this is the grafana service, which is used to visualize the data from prometheus and loki
     image: grafana/grafana:latest # the image defines what the contianer will be based on
     ports: # we expose ports on both the machine and locally to be able to access the service
-      - '3002:3000' # the grafana service expects to be accessed on port 3000, but we expose it locally on port 3002. This is done to avoid conflicts with other services.
+      - "3002:3000" # the grafana service expects to be accessed on port 3000, but we expose it locally on port 3002. This is done to avoid conflicts with other services.
     environment: # this is where we define the EnvVars in the containers as variable=value.
       - GF_SECURITY_ADMIN_PASSWORD=grafanapw
     volumes: # this is where we define what volumes to attach to the container. This is done to persist data in the container.
       - grafana:/var/lib/grafana
     healthcheck: # In healthchecking we're defining how to see if the service is up or not. This is done to avoid starting services that depend on this service before it is ready.
-      test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health']
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -74,19 +74,19 @@ services: # this is where services are defined. A service is a docker container,
       - data:/var/lib/postgresql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
   redis:
     image: redis:7.0.9
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -116,8 +116,8 @@ services: # this is where services are defined. A service is a docker container,
   #     - ./saml/cert.pem:/certs/cert.pem
   #     - ./saml/key.pem:/certs/key.pem
   #   build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
-  #     context: ../backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
-  #     dockerfile: ../backend/Dockerfile # This is the path to the dockerfile to use to build the service.
+  #     context: ../src/backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
+  #     dockerfile: ../src/backend/Dockerfile # This is the path to the dockerfile to use to build the service.
   #     # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
   #     # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
   frontend:
@@ -127,8 +127,8 @@ services: # this is where services are defined. A service is a docker container,
       - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
       - NODE_ENV=development
     build:
-      context: ../frontend/
-      dockerfile: ../frontend/Dockerfile.dev
+      context: ../src/frontend/
+      dockerfile: ../src/frontend/Dockerfile.dev
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -142,7 +142,7 @@ services: # this is where services are defined. A service is a docker container,
       - mssql:/var/opt/mssql
       - ./mssql-init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ['CMD-SHELL', 'sqlcmd -U sa -P Password123 -Q "SELECT 1"']
+      test: ["CMD-SHELL", 'sqlcmd -U sa -P Password123 -Q "SELECT 1"']
       interval: 10s
       timeout: 5s
       retries: 5

@@ -1,4 +1,4 @@
-# stolen from: 
+# stolen from:
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -13,8 +13,8 @@ name: Create and publish the ODS Frontend Docker image
 
 on:
   push:
-    branches: [ "main" ]
-    paths: ["frontend/**"]
+    branches: ["main"]
+    paths: ["src/frontend/**"]
 
 env:
   REGISTRY: ghcr.io
@@ -44,15 +44,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-              type=edge,branch=main
-              type=ref,event=branch
-              type=sha,format=long
-              type=raw,value=latest
+            type=edge,branch=main
+            type=ref,event=branch
+            type=sha,format=long
+            type=raw,value=latest
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./frontend
+          context: ./src/frontend
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

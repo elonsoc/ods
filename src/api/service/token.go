@@ -26,7 +26,7 @@ const (
 
 type Token struct {
 	key *paseto.V4AsymmetricSecretKey
-	Db InMemoryDbIFace
+	Db  InMemoryDbIFace
 }
 
 func NewTokenServicer(db InMemoryDbIFace) *Token {
@@ -129,7 +129,7 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	if err != nil {
 		return "", "", errors.Wrap(err, "invalid refresh token")
 	}
-  
+
 	if err := t.Db.Del(context.Background(), "access_token:"+uid); err != nil {
 		log.Printf("Warning: Failed to remove old access token from cache for user %s: %v\n", uid, err)
 	}
@@ -137,7 +137,6 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	if err := t.Db.Del(context.Background(), "refresh_token:"+uid); err != nil {
 		log.Printf("Warning: Failed to remove old refresh token from cache for user %s: %v\n", uid, err)
 	}
-
 
 	newAccessToken, err := t.GenerateAccessToken(uid)
 	if err != nil {
@@ -150,7 +149,6 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 	}
 	return newAccessToken, newRefreshToken, nil
 }
-
 
 func (t *Token) InvalidateToken(tokenKey string) error {
 	if err := t.Db.Del(context.Background(), tokenKey); err != nil {
