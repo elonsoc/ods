@@ -13,9 +13,9 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func initialize(certPath, keyPath, idpURL, spURL string) chi.Router {
+func initialize(urls common.Flags, certPath, keyPath, idpURL, spURL string) chi.Router {
 	// startInitialization := time.Now()
-	svc := common.NewService("", "", "", "", "", "")
+	svc := common.NewService(urls)
 	s := saml.InitializeSaml(svc, idpURL, spURL, spURL, certPath, keyPath)
 
 	t := token.NewTokenServicer(svc.IMDb)
@@ -24,15 +24,17 @@ func initialize(certPath, keyPath, idpURL, spURL string) chi.Router {
 
 	r := chi.NewRouter()
 	r.Mount("/saml", saml.SetSamlEndpoint(spURL, svc, t, smw))
+	r.Mount("/token", token.SetTokenEndpoint(svc, t))
 
 	return r
 }
 func main() {
-	servicePort := flag.String("service_port", os.Getenv("SERVICE_PORT"), "the port to run the service on")
 	samlCertPath := flag.String("saml_cert_path", os.Getenv("SAML_CERT_PATH"), "location of service cert")
 	samlKeyPath := flag.String("saml_key_path", os.Getenv("SAML_KEY_PATH"), "location of service key")
 	idpURL := flag.String("idp_url", os.Getenv("IDP_URL"), "url of identity provider")
 	spURL := flag.String("sp_url", os.Getenv("SP_URL"), "url of the hosted service provider")
+
+	f := common.GetAndParseFlags()
 	if *samlCertPath == "" {
 		log.Fatal("service cert location not set")
 	}
@@ -46,8 +48,8 @@ func main() {
 		log.Fatal("sp url not set")
 	}
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
-		initialize(*samlCertPath, *samlKeyPath, *idpURL, *spURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *f.ServicePort),
+		initialize(f, *samlCertPath, *samlKeyPath, *idpURL, *spURL))
 	if err != nil {
 		fmt.Println(err)
 	}

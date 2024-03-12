@@ -35,15 +35,15 @@ type Services struct {
 // struct, and any changes made to the struct would not be
 // reflected in the original struct and thus not able to
 // be used by other functions.
-func NewService(loggingURL, databaseURL, redisURL, statsdURL, webURL, authURL string) *Services {
+func NewService(urls Flags) *Services {
 	// We are using the log package here to create a new logger
 	// that will be used to log messages to the console.
 
-	log := InitLogging(loggingURL)
-	db := InitDb(databaseURL, log)
-	stat := InitStatsD(statsdURL, log)
-	redis := InitInMemoryDb(redisURL, log)
-	tok := auth.NewTokenService(authURL)
+	log := InitLogging(*urls.LogURL)
+	db := InitDb(*urls.DbURL, log)
+	stat := InitStatsD(*urls.StatURL, log)
+	redis := InitInMemoryDb(*urls.IMDbURL, log)
+	tok := auth.NewTokenService(*urls.AuthURL)
 
 	return &Services{
 		Log:   log,

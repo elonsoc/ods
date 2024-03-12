@@ -219,7 +219,7 @@ func (db *Db) DeleteApplication(applicationId string) error {
 	if err != nil {
 		return err
 	}
-	tx.Exec(txContext, "delete_application", applicationId)
+	_, err = tx.Exec(txContext, "delete_application", applicationId)
 	if err != nil {
 		return err
 	}

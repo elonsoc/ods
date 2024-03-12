@@ -2,11 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -86,7 +83,7 @@ func CheckIdentity(tokenSvcr auth.TokenIFace, log common.LoggerIFace) func(next 
 // At the beginning, we create a new instance of the router, declare usage of multiple middlewares
 // initialize connections to external services, and mount the various routers for the apis that we
 // will be serving.
-func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, webURL string) chi.Router {
+func initialize(urls common.Flags) chi.Router {
 	startInitialization := time.Now()
 	// This is where we initialize the various services that we will be using
 	// like the database, logger, stats, etc.
@@ -96,7 +93,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, webUR
 	// This particular technique is called dependency injection, and it's a good practice to use
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
-	svc := common.NewService(loggingURL, databaseURL, redisURL, statsdURL, webURL, "")
+	svc := common.NewService(urls)
 	tokenSvc := auth.NewTokenService("")
 
 	// Create a new instance of the router
@@ -171,7 +168,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, webUR
 				cookie.MaxAge = -1
 				http.SetCookie(w, cookie)
 			}
-			http.Redirect(w, r, webURL, http.StatusFound)
+			http.Redirect(w, r, *urls.ServicePort, http.StatusFound)
 		})
 	})
 
@@ -211,46 +208,16 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, webUR
 		json.NewEncoder(w).Encode(tokens)
 	})
 
-	svc.Log.Info("Server running on port "+servicePort, nil)
+	svc.Log.Info("Server running on port "+*urls.ServicePort, nil)
 	svc.Stat.TimeElapsed("server.start", time.Since(startInitialization).Milliseconds())
 	return r
 }
 
 func main() {
-	// get our pertinent information from the environment variables or the command line
-	servicePort := flag.String("port", os.Getenv("PORT"), "port to run server on")
-	databaseURL := flag.String("database_url", os.Getenv("DATABASE_URL"), "database url")
-	redisURL := flag.String("redis_url", os.Getenv("REDIS_URL"), "redis url")
-	loggingURL := flag.String("logging_url", os.Getenv("LOGGING_URL"), "logging url")
-	statsdURL := flag.String("statsd_url", os.Getenv("STATSD_URL"), "statsd url")
-	webURL := flag.String("web_url", os.Getenv("WEB_URL"), "url of the hosted web service")
+	urls := common.GetAndParseFlags()
 
-	// this could use some improvement in nameing and probably would require
-	// Hashicorp Vault or someting of the sort
-	// x509KeyPair := flag.String("keypair_location", os.Getenv("X509_Keypair_Location"), "location of x509 key pair")
-
-	flag.Parse()
-	if *servicePort == "" {
-		log.Fatal("port not set")
-	}
-	if *databaseURL == "" {
-		log.Fatal("database url not set")
-	}
-	if *redisURL == "" {
-		log.Fatal("redis url not set")
-	}
-	if *loggingURL == "" {
-		log.Fatal("logging url not set")
-	}
-	if *statsdURL == "" {
-		log.Fatal("statsd url not set")
-	}
-	if *webURL == "" {
-		log.Fatal("web url not set")
-	}
-
-	err := http.ListenAndServe(fmt.Sprintf(":%s", *servicePort),
-		initialize(*servicePort, *databaseURL, *redisURL, *loggingURL, *statsdURL, *webURL))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *urls.ServicePort),
+		initialize(urls))
 	if err != nil {
 		fmt.Println(err)
 	}

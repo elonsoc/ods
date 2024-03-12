@@ -20,7 +20,8 @@ run:
 	IDP_URL="http://localhost:8088/idp.xml" \
 	SP_URL="http://localhost:3000" \
 	WEB_URL="http://localhost:3001" \
-	AUTH_URL="http://localhost:696969"  \
+	AUTH_URL="http://localhost:696969" 
+	
 	go run ./...
 
 .PHONY: test
