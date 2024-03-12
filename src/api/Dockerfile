@@ -4,7 +4,9 @@
 # Build stage
 FROM golang:1.20.1 AS builder
 WORKDIR /app
-COPY . .
+# this gets the full workspace since we need it.
+COPY .. . 
+CMD ["mv", "api"]
 RUN CGO_ENABLED=0 go build -a -installsuffix cgo  -o ods-api .
 
 # Run stage

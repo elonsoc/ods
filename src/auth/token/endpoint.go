@@ -7,15 +7,16 @@ import (
 	"github.com/elonsoc/ods/src/auth/pkg"
 	"github.com/elonsoc/ods/src/common"
 	"github.com/go-chi/chi"
+	"github.com/sirupsen/logrus"
 )
 
 func SetTokenEndpoint(svc *common.Services, tok TokenIFace) chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		t := pkg.TokenHttp{}
+		t := struct{ Uid string }{}
 		json.NewDecoder(r.Body).Decode(&t)
-		newToken, err := tok.NewToken(t.T)
+		newToken, err := tok.NewToken(t.Uid)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -36,6 +37,7 @@ func SetTokenEndpoint(svc *common.Services, tok TokenIFace) chi.Router {
 		json.NewDecoder(r.Body).Decode(&t)
 		verdict, err := tok.ValidateToken(t.T)
 		if err != nil {
+			svc.Log.Error(err.Error(), logrus.Fields{"token": t.T})
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -44,6 +46,7 @@ func SetTokenEndpoint(svc *common.Services, tok TokenIFace) chi.Router {
 			Verdict bool `json:"verdict"`
 		}{Verdict: verdict})
 		if err != nil {
+			svc.Log.Error(err.Error(), nil)
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -63,7 +66,7 @@ func SetTokenEndpoint(svc *common.Services, tok TokenIFace) chi.Router {
 			return
 		}
 
-		res, err := json.Marshal(struct{ uid string }{uid})
+		res, err := json.Marshal(struct{ Uid string }{uid})
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)

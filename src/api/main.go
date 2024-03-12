@@ -94,7 +94,7 @@ func initialize(urls common.Flags) chi.Router {
 	// when writing code that could one day be decoupled into separate services.
 	// There are better ways to do this, but this is a good start to keep the app monolithic for now.
 	svc := common.NewService(urls)
-	tokenSvc := auth.NewTokenService("")
+	tokenSvc := auth.NewTokenService(*urls.AuthURL)
 
 	// Create a new instance of the router
 	r := chi.NewRouter()

@@ -11,19 +11,25 @@ import (
 	"github.com/elonsoc/ods/src/auth/token"
 	"github.com/elonsoc/ods/src/common"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 func initialize(urls common.Flags, certPath, keyPath, idpURL, spURL string) chi.Router {
 	// startInitialization := time.Now()
 	svc := common.NewService(urls)
-	s := saml.InitializeSaml(svc, idpURL, spURL, spURL, certPath, keyPath)
+	s := saml.InitializeSaml(svc, idpURL, *urls.WebURL, spURL, certPath, keyPath)
 
 	t := token.NewTokenServicer(svc.IMDb)
 
 	smw := s.Middleware()
 
 	r := chi.NewRouter()
-	r.Mount("/saml", saml.SetSamlEndpoint(spURL, svc, t, smw))
+	r.Use(common.CustomLogger(svc.Log, svc.Stat))
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Recoverer)
+
+	r.Mount("/saml", saml.SetSamlEndpoint(*urls.WebURL, svc, t, smw))
 	r.Mount("/token", token.SetTokenEndpoint(svc, t))
 
 	return r

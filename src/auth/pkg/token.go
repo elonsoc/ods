@@ -25,11 +25,11 @@ type TokenHttp struct {
 
 func NewTokenService(authURL string) TokenIFace {
 
-	return &Token{url: authURL}
+	return &Token{url: authURL} // this is lazy, we should probably only take a URL.
 }
 func (t *Token) NewToken(s string) (string, error) {
-	c, _ := json.Marshal(TokenHttp{T: s})
-	res, err := http.DefaultClient.Post(fmt.Sprintf("http://%s/token/", t.url), "encoding/json", bytes.NewBuffer(c))
+	c, _ := json.Marshal(struct{ Uid string }{Uid: s})
+	res, err := http.DefaultClient.Post(fmt.Sprintf("%s/token/", t.url), "encoding/json", bytes.NewBuffer(c))
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func (t *Token) NewToken(s string) (string, error) {
 
 func (t *Token) ValidateToken(s string) (bool, error) {
 	c, _ := json.Marshal(TokenHttp{T: s})
-	res, err := http.DefaultClient.Post(fmt.Sprintf("http://%s/token/validate", t.url), "encoding/json", bytes.NewBuffer(c))
+	res, err := http.DefaultClient.Post(fmt.Sprintf("%s/token/validate", t.url), "encoding/json", bytes.NewBuffer(c))
 	if err != nil {
 		return false, err
 	}
@@ -57,7 +57,7 @@ func (t *Token) ValidateToken(s string) (bool, error) {
 
 func (t *Token) GetUidFromToken(s string) (string, error) {
 	c, _ := json.Marshal(TokenHttp{T: s})
-	res, err := http.DefaultClient.Post(fmt.Sprintf("http://%s/token/uid", t.url), "encoding/json", bytes.NewBuffer(c))
+	res, err := http.DefaultClient.Post(fmt.Sprintf("%s/token/uid", t.url), "encoding/json", bytes.NewBuffer(c))
 	if err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func (t *Token) GetUidFromToken(s string) (string, error) {
 func (t *Token) RefreshAccessToken(s string) (string, string, error) {
 	c, _ := json.Marshal(TokenHttp{T: s})
 
-	res, err := http.DefaultClient.Post(fmt.Sprintf("http://%s/token/refresh", t.url), "encoding/json", bytes.NewBuffer(c))
+	res, err := http.DefaultClient.Post(fmt.Sprintf("%s/token/refresh", t.url), "encoding/json", bytes.NewBuffer(c))
 	if err != nil {
 		return "", "", err
 	}
@@ -90,7 +90,7 @@ func (t *Token) RefreshAccessToken(s string) (string, string, error) {
 func (t *Token) InvalidateToken(s string) error {
 	c, _ := json.Marshal(TokenHttp{T: s})
 
-	_, err := http.DefaultClient.Post(fmt.Sprintf("http://%s/token/invalidate", t.url), "encoding/json", bytes.NewBuffer(c))
+	_, err := http.DefaultClient.Post(fmt.Sprintf("%s/token/invalidate", t.url), "encoding/json", bytes.NewBuffer(c))
 	if err != nil {
 		// we could log the res, if necessary.
 		return err

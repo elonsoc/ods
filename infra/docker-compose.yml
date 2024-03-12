@@ -91,7 +91,16 @@ services: # this is where services are defined. A service is a docker container,
       timeout: 5s
       retries: 5
     restart: always
-  # backend: # this is the backend service, which is the main service of the application
+  # auth:
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   ports:
+  #     - 3010:3010
+  #   environment:
+  # api: # this is the backend service, which is the main service of the application
   #   depends_on: # In defining depends_on, we define what we want to wait for before starting the service.
   #     postgres:
   #       condition: service_healthy # there are multiple conditions, but service_healthy is the last one to be checked, so it is the most reliable.
@@ -111,20 +120,21 @@ services: # this is where services are defined. A service is a docker container,
   #     - IDP_URL=http://host.docker.internal:8088/idp.xml #for prod: https://idp.elon.edu/idp/shibboleth
   #     - SP_URL=http://localhost:3000
   #     - WEB_URL=http://localhost:3001
+  #     - AUTH_URL=http://host.docker.internal:3010
   #   volumes:
   #     - ./saml:/certs
   #     - ./saml/cert.pem:/certs/cert.pem
   #     - ./saml/key.pem:/certs/key.pem
   #   build: # In build, we define where to build the provided docker file. This is in contrast to just supplying the image which is queried from a registry. This service is local and thus not avaiable in a registry, so we have to build it locally.
-  #     context: ../src/backend/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
-  #     dockerfile: ../src/backend/Dockerfile # This is the path to the dockerfile to use to build the service.
+  #     context: ../src/api/ # Context describes where to build the dockerfile from. If not set, it will use the directory where the docker-compose file is located.
+  #     dockerfile: ./Dockerfile # This is the path to the dockerfile to use to build the service.
   #     # We colocate the dockerfile with the code it is building, so we have to specify the path to it.
   #     # on the other hand, we can bring the dockerfile to the same path as the docker-compose file, but then we have to specify the path to the code in the context directive.
-  frontend:
+  web:
     ports:
       - 3001:3001
     environment:
-      - NEXT_PUBLIC_BACKEND_API_URL=http://backend:3000
+      - NEXT_PUBLIC_BACKEND_API_URL=http://api:3000
       - NODE_ENV=development
     build:
       context: ../src/web/

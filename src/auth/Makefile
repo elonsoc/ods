@@ -9,7 +9,7 @@ build:
 
 .PHONY: run
 run:
-	PORT=3000 \
+	PORT=3010 \
 	DATABASE_URL=postgres://postgres:postgrespw@localhost:5432/postgres \
 	LOGGING_URL=http://localhost:3100/loki/api/v1/push \
 	PROMETHEUS_URL=http://localhost:9090 \
@@ -18,12 +18,10 @@ run:
 	SAML_CERT_PATH=../../infra/saml/cert.pem \
 	SAML_KEY_PATH=../../infra/saml/key.pem \
 	IDP_URL="http://localhost:8088/idp.xml" \
-	SP_URL="http://localhost:3000" \
+	SP_URL="http://localhost:3010" \
 	WEB_URL="http://localhost:3001" \
-	AUTH_URL="http://localhost:696969" 
-	
+	AUTH_URL="http://localhost:3010" \
 	go run ./...
-
 .PHONY: test
 test:
 	go test -v ./...
