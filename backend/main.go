@@ -301,7 +301,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 					return
 				}
 
-				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
+				err := svc.Db.NewUser(elon_uid, givenName, surname, email, strings.ToLower(affiliation))
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -310,6 +310,13 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 			}
 
 			userInfo, err := svc.Db.GetUserInformation(elon_uid)
+			if err != nil {
+				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			err = svc.Token.InvalidateTokensForUid(userInfo.OdsId)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -336,6 +343,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
 			http.SetCookie(w, &http.Cookie{
 				Name:   "ods_login_cookie_nomnom",
 				Value:  jwt,
