@@ -25,7 +25,7 @@ const Sidebar = ({
 				<header>
 					<p className={styles.sidebarHeader}>
 						<strong>
-							<Link href='docs'>Docs</Link>
+							<Link href='/docs'>Docs</Link>
 						</strong>
 					</p>
 					<button
@@ -43,34 +43,34 @@ const Sidebar = ({
 					<li className={styles.sectionHeader}>
 						<p>
 							<strong className={styles.sublistHeader}>
-								<Link href='docs/getting-started'>Getting Started</Link>
+								<Link href='/docs/getting-started'>Getting Started</Link>
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
 							<NavLink
 								title={'Overview'}
-								link={'docs/getting-started/overview'}
+								link={'/docs/getting-started/overview'}
 							/>
 							<NavLink
 								title={'Registering an App'}
-								link={'docs/getting-started/registering-an-app'}
+								link={'/docs/getting-started/registering-an-app'}
 							/>
 							<NavLink
 								title={'Making API Calls'}
-								link={'docs/getting-started/making-api-calls'}
+								link={'/docs/getting-started/making-api-calls'}
 							/>
 						</ul>
 					</li>
 					<li className={styles.sectionHeader}>
 						<p>
 							<strong className={styles.sublistHeader}>
-								<Link href='docs/usage-guides'>Usage Guides</Link>
+								<Link href='/docs/usage-guides'>Usage Guides</Link>
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
 							<NavLink
 								title={'Authentication'}
-								link={'docs/usage-guides/authentication'}
+								link={'/docs/usage-guides/authentication'}
 							/>
 							{/* <NavLink
 								title={'Rate Limits'}
@@ -78,28 +78,28 @@ const Sidebar = ({
 							/> */}
 							<NavLink
 								title={'Error Handling'}
-								link={'docs/usage-guides/error-handling'}
+								link={'/docs/usage-guides/error-handling'}
 							/>
 						</ul>
 					</li>
 					<li className={styles.sectionHeader}>
 						<p>
 							<strong className={styles.sublistHeader}>
-								<Link href='docs/reference'>Reference</Link>
+								<Link href='/docs/reference'>Reference</Link>
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
 							<NavLink
 								title={'Data Format'}
-								link={'docs/reference/data-format'}
+								link={'/docs/reference/data-format'}
 							/>
 							<NavLinkDropdown
 								title={'Endpoints'}
-								link={'docs/reference/endpoints'}
+								link={'/docs/reference/endpoints'}
 								sublinks={[
 									{
 										title: 'Buildings v1',
-										link: 'docs/reference/endpoints/buildings_v1',
+										link: '/docs/reference/endpoints/buildings_v1',
 									},
 								]}
 							/>
@@ -108,18 +108,18 @@ const Sidebar = ({
 					<li className={styles.sectionHeader}>
 						<p>
 							<strong className={styles.sublistHeader}>
-								<Link href='docs/resources'>Resources</Link>
+								<Link href='/docs/resources'>Resources</Link>
 							</strong>
 						</p>
 						<ul className={styles.sublist}>
-							<NavLink title={'FAQ'} link={'docs/resources/faq'} />
+							<NavLink title={'FAQ'} link={'/docs/resources/faq'} />
 							<NavLink
 								title={'Contact Us'}
-								link={'docs/resources/contact-us'}
+								link={'/docs/resources/contact-us'}
 							/>
 							<NavLink
 								title={'Terms of Use'}
-								link={'docs/resources/terms-of-use'}
+								link={'/docs/resources/terms-of-use'}
 							/>
 						</ul>
 					</li>
@@ -160,7 +160,7 @@ const NavLinkDropdown = ({ title, link, sublinks }: NavLinkDropdownProps) => {
 		<li>
 			<span
 				className={`${styles.dropdownLinkWrapper} ${
-					path == '/' + link ? styles.active : ''
+					path == link ? styles.active : ''
 				}`}
 			>
 				<Link href={link}>{title}</Link>
@@ -186,7 +186,7 @@ const NavLinkDropdown = ({ title, link, sublinks }: NavLinkDropdownProps) => {
 					{sublinks.map((sublink, index) => (
 						<li
 							key={index}
-							className={path == '/' + sublink.link ? styles.activeSub : ''}
+							className={path == sublink.link ? styles.activeSub : ''}
 						>
 							<Link href={sublink.link}>{sublink.title}</Link>
 						</li>
