@@ -16,6 +16,7 @@ type TokenIFace interface {
 	GenerateAccessToken(string) (string, error)
 	GenerateRefreshToken(string) (string, error)
 	RefreshAccessToken(string) (string, string, error)
+	InvalidateTokensForUid(string) error
 	InvalidateToken(string) error
 }
 
@@ -149,6 +150,18 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 		return "", "", errors.Wrap(err, "failed to generate new refresh token")
 	}
 	return newAccessToken, newRefreshToken, nil
+}
+
+func (t *Token) InvalidateTokensForUid(uid string) error {
+	if err := t.Db.Del(context.Background(), "access_token:"+uid); err != nil {
+		return errors.Wrap(err, "failed to remove access token from cache")
+	}
+
+	if err := t.Db.Del(context.Background(), "refresh_token:"+uid); err != nil {
+		return errors.Wrap(err, "failed to remove refresh token from cache")
+	}
+
+	return nil
 }
 
 
