@@ -301,7 +301,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 					return
 				}
 
-				err := svc.Db.NewUser(elon_uid, givenName, surname, email, affiliation)
+				err := svc.Db.NewUser(elon_uid, givenName, surname, email, strings.ToLower(affiliation))
 				if err != nil {
 					svc.Log.Error(err.Error(), nil)
 					w.WriteHeader(http.StatusInternalServerError)
