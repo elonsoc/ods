@@ -1,4 +1,8 @@
-package buildings_v1
+package types
+
+import (
+	"time"
+)
 
 // Room is a struct that describes a room on a specific floor of a building.
 // It contains the name of the room and the level of the floor that the room is on.
@@ -64,11 +68,30 @@ func (t BuildingType) String() string {
 // It contains the name of the building, the floors of the building,
 // the location of the building, the address of the building,
 // the type of the building, and the id of the building.
+// type Building struct {
+// 	Name         string       `json:"name"`
+// 	Floors       []Floor      `json:"floors"`
+// 	Location     LatLng       `json:"location"`
+// 	Address      string       `json:"address"`
+// 	BuildingType BuildingType `json:"type"`
+// 	Id           string       `json:"id"`
+// }
+
 type Building struct {
-	Name         string       `json:"name"`
-	Floors       []Floor      `json:"floors"`
-	Location     LatLng       `json:"location"`
-	Address      string       `json:"address"`
-	BuildingType BuildingType `json:"type"`
-	Id           string       `json:"id"`
+    ID                       *string   	`json:"id"`
+    Description              *string   	`json:"description"`
+    Location                 *string   	`json:"location"`
+    LocationRepresentation   *string   	`json:"location_representation"`
+    Type                     *string   	`json:"type"`
+    TypeRepresentation       *string   	`json:"type_representation"`
+    LongDescription          *string   	`json:"long_description"`
+    City                     *string   	`json:"city"`
+    State                    *string   	`json:"state"`
+    Zip                      *string   	`json:"zip"`
+    Sector                   *string   	`json:"sector"`
+    SectorRepresentation     *string   	`json:"sector_representation"`
+    Latitude                 *float64  	`json:"latitude"`
+    Longitude                *float64  	`json:"longitude"`
+    AddDate                  *time.Time	`json:"add_date"`
+    ChangeDate               *time.Time  `json:"change_date"` 
 }
