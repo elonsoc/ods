@@ -10,44 +10,6 @@ import (
 	chi "github.com/go-chi/chi/v5"
 )
 
-// this map is a mock database of buildings
-var BUILDINGS = map[string]Building{
-	"mcewen": {
-		Name: "McEwen Dining Hall",
-		Floors: []Floor{
-			{Name: "Floor 1", Level: 1, Rooms: []Room{{Name: "Room 1", Level: 1}, {Name: "Room 2", Level: 1}}},
-			{Name: "Floor 2", Level: 2, Rooms: []Room{{Name: "Room 3", Level: 2}, {Name: "Room 4", Level: 2}}},
-		},
-		Location:     LatLng{Lat: 37.422, Lng: -122.084},
-		Address:      "1600 Amphitheatre Parkway, Mountain View, CA 94043",
-		BuildingType: BuildingTypeDining,
-		Id:           "mcewen",
-	},
-
-	"powell": {
-		Name: "Powell Building",
-		Floors: []Floor{
-			{Name: "Floor 1", Level: 1, Rooms: []Room{{Name: "Room 1", Level: 1}, {Name: "Room 2", Level: 1}}},
-			{Name: "Floor 2", Level: 2, Rooms: []Room{{Name: "Room 3", Level: 2}, {Name: "Room 4", Level: 2}}},
-			{Name: "Floor 3", Level: 3, Rooms: []Room{{Name: "Room 5", Level: 3}, {Name: "Room 6", Level: 3}}},
-		},
-		Location:     LatLng{Lat: 37.422, Lng: -122.084},
-		Address:      "1600 Amphitheatre Parkway, Mountain View, CA 94043",
-		BuildingType: BuildingTypeOffice,
-		Id:           "powell",
-	},
-	"lodge-a": {
-		Name: "The Lodge — Dormitory A",
-		Floors: []Floor{
-			{Name: "First Floor", Level: 0, Rooms: []Room{{Name: "101", Level: 0}}, Floorplan: "https://eloncdn.blob.core.windows.net/eu3/sites/789/2018/04/Lodge-Dormitory-A-First-Floor.pdf"},
-		},
-		Location:     LatLng{Lat: 37.422, Lng: -122.084},
-		Address:      "1600 Amphitheatre Parkway, Mountain View, CA 94043",
-		BuildingType: BuildingTypeResidence,
-		Id:           "lodge-a",
-	},
-}
-
 // BuildingsRouter is the router for the buildings service
 // It contains a pointer to the chi router that is defined in NewBuildingsRouter
 // and a pointer to the service struct which is defined in the service package.
@@ -91,27 +53,45 @@ func NewBuildingsRouter(b *BuildingsRouter) *BuildingsRouter {
 //
 // It might be interesting to add a query parameter to this endpoint
 // for filtering the buildings by building type.
-func (be *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
+func (br *BuildingsRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
+	buildings, err := br.Svcs.Db.GetBuildings()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		br.Svcs.Log.Error("failed to get buildings: " + err.Error(), nil)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(BUILDINGS)
+	err = json.NewEncoder(w).Encode(buildings)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		br.Svcs.Log.Error("failed to encode buildings: " + err.Error(), nil)
+	}
 }
 
 // BuildingByIdHandler is the handler for the REST endpoint
 // that will be used to get a specific building's data.
 // The endpoint for this handler is locations/v1/buildings/{buildingID}
 // where buildingID is the id of the building that you want to get the data for.
-func (be *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-	w.Header().Set("Content-Type", "application/json")
-	buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
-	if BUILDINGS[buildingId].Name == "" {
-		be.Svcs.Log.Error("Building not found: "+buildingId, nil)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+func (br *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Request) {
+    start := time.Now()
+    w.Header().Set("Content-Type", "application/json")
 
-	be.Svcs.Stat.TimeElapsed("by_id.time", time.Since(start).Milliseconds())
-	be.Svcs.Stat.Increment("by_id.count")
-	json.NewEncoder(w).Encode(BUILDINGS[buildingId])
+    buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
+
+    building, err := br.Svcs.Db.GetBuildingById(buildingId)
+    if err != nil {
+        br.Svcs.Log.Error("Building not found: "+buildingId, nil)
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+
+    br.Svcs.Stat.TimeElapsed("by_id.time", time.Since(start).Milliseconds())
+    br.Svcs.Stat.Increment("by_id.count")
+
+    err = json.NewEncoder(w).Encode(building)
+    if err != nil {
+        br.Svcs.Log.Error("Failed to encode building: "+err.Error(), nil)
+        w.WriteHeader(http.StatusInternalServerError)
+    }
 }
