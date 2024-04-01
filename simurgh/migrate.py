@@ -64,12 +64,13 @@ def main():
         
         with psql_engine.connect() as psql_conn: 
             # fetch mssql data
-            # mssql_data = pd.read_sql("SELECT * FROM dbo.vw_ESC_BUILDINGS", mssql_engine)
+            mssql_data = pd.read_sql("SELECT * FROM dbo.vw_ESC_BUILDINGS", mssql_engine)
             # insert into PSQL buildings table -- make if it doesn't exist, replace/overwrite table if it does
-            # mssql_data.to_sql('buildings', psql_conn, index=False, if_exists='replace', method='multi')
+            mssql_data.to_sql('buildings', psql_conn, index=False, if_exists='replace', method='multi')
 
-            result = psql_conn.execute(text("SELECT * FROM buildings;"))
-            print(result.fetchall())
+            # fetch psql data
+            # result = psql_conn.execute(text("SELECT * FROM buildings;"))
+            # print(result.fetchall())
 
         print("Data copied from MSSQL to PostgreSQL.")
 
