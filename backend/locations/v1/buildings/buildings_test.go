@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
-	buildings_v1 "github.com/elonsoc/ods/backend/locations/v1/buildings"
+	bldg "github.com/elonsoc/ods/backend/locations/v1/buildings"
+	types "github.com/elonsoc/ods/backend/locations/v1/buildings/types"
 	"github.com/elonsoc/ods/backend/mocks"
 	"github.com/elonsoc/ods/backend/service"
 	chi "github.com/go-chi/chi/v5"
@@ -26,8 +28,8 @@ func setup(t *testing.T) (*httptest.Server, *mocks.DbIFace,
 	r := chi.NewRouter()
 
 	ts := httptest.NewServer(r)
-	BuildingsV1 := buildings_v1.NewBuildingsRouter(
-		&buildings_v1.BuildingsRouter{
+	BuildingsV1 := bldg.NewBuildingsRouter(
+		&bldg.BuildingsRouter{
 			Svcs: &service.Services{
 				Db:   db,
 				Log:  logger,
@@ -68,23 +70,48 @@ func TestBuildingByIdHandler(t *testing.T) {
 	stat.Mock.On("Increment", mock.Anything)
 	stat.Mock.On("TimeElapsed", mock.Anything, mock.Anything)
 
-	mcewenBuildingMock := buildings_v1.Building{
-		Name: "McEwen Dining Hall",
-		Floors: []buildings_v1.Floor{
-			{Name: "Floor 1", Level: 1, Rooms: []buildings_v1.Room{{Name: "Room 1", Level: 1}, {Name: "Room 2", Level: 1}}},
-			{Name: "Floor 2", Level: 2, Rooms: []buildings_v1.Room{{Name: "Room 3", Level: 2}, {Name: "Room 4", Level: 2}}},
-		},
-		Location:     buildings_v1.LatLng{Lat: 37.422, Lng: -122.084},
-		Address:      "1600 Amphitheatre Parkway, Mountain View, CA 94043",
-		BuildingType: buildings_v1.BuildingTypeDining,
-		Id:           "mcewen",
+	id := "mcewen"
+	description := "McEwen Dining Hall"
+	location := "1600 Amphitheatre Parkway"
+	locationRepresentation := "Mountain View, CA 94043"
+	buildingType := "Dining" // 'type' is a reserved keyword in Go, so using 'buildingType' instead
+	typeRepresentation := "Dining Hall"
+	longDescription := "McEwen Dining Hall is a popular dining location with multiple floors and a variety of food options."
+	city := "Mountain View"
+	state := "CA"
+	zip := "94043"
+	sector := "Education"
+	sectorRepresentation := "University Campus"
+	latitude := 37.422
+	longitude := -122.084
+	addDate := time.Now()
+	changeDate := time.Now()
+
+	mcewenBuildingMock := types.Building{
+		ID:                       &id,
+		Description:              &description,
+		Location:                 &location,
+		LocationRepresentation:   &locationRepresentation,
+		Type:                     &buildingType,
+		TypeRepresentation:       &typeRepresentation,
+		LongDescription:          &longDescription,
+		City:                     &city,
+		State:                    &state,
+		Zip:                      &zip,
+		Sector:                   &sector,
+		SectorRepresentation:     &sectorRepresentation,
+		Latitude:                 &latitude,
+		Longitude:                &longitude,
+		AddDate:                  &addDate,
+		ChangeDate:               &changeDate,
 	}
+	
 	// Act - make the request
 	resp, body := testRequest(t, ts, http.MethodGet, "/buildings/mcewen", nil)
 
 	// Assert - check the response
 
-	respBuilding := buildings_v1.Building{}
+	respBuilding := types.Building{}
 	err := json.Unmarshal(body, &respBuilding)
 	if err != nil {
 		t.Fatal(err)
@@ -144,32 +171,4 @@ func TestRootHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Contains(t, string(body), "mcewen")
-}
-
-func TestBuildingTypes(t *testing.T) {
-	// Arrange
-
-	buildingTypes := map[string]buildings_v1.BuildingType{
-		"Unknown":   buildings_v1.BuildingTypeUnknown,
-		"Residence": buildings_v1.BuildingTypeResidence,
-		"Dining":    buildings_v1.BuildingTypeDining,
-		"Office":    buildings_v1.BuildingTypeOffice,
-		"Academic":  buildings_v1.BuildingTypeAcademic,
-		"Retail":    buildings_v1.BuildingTypeRetail,
-		"Other":     buildings_v1.BuildingTypeOther,
-	}
-
-	mockBuildingWithIncorrectType := buildings_v1.Building{
-		BuildingType: 10,
-	}
-
-	// Act
-	// make sure we spell the strings correctly
-	for s, b := range buildingTypes {
-		// Assert
-		assert.Equal(t, s, b.String())
-	}
-
-	// test for default case
-	assert.Equal(t, "Unknown", mockBuildingWithIncorrectType.BuildingType.String())
 }
