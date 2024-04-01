@@ -1,2 +1,6 @@
 pymssql
+pyodbc
+pandas
+sqlalchemy
 psycopg2-binary
+python-dotenv
