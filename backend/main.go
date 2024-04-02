@@ -199,7 +199,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Group(func(r chi.Router) {
 		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
 			for _, cookie := range r.Cookies() {
-				svc.Log.Info("Removing cookie: "+cookie.Name+" "+cookie.Value, nil)
+				svc.Log.Info("Removing cookie: "+cookie.Name, nil)
 				switch cookie.Name {
 				case "ods_login_cookie_nomnom", "ods_refresh_cookie_nomnom":
 					tokenPrefix := map[string]string{
