@@ -70,40 +70,23 @@ func TestBuildingByIdHandler(t *testing.T) {
 	stat.Mock.On("Increment", mock.Anything)
 	stat.Mock.On("TimeElapsed", mock.Anything, mock.Anything)
 
-	id := "mcewen"
-	description := "McEwen Dining Hall"
-	location := "1600 Amphitheatre Parkway"
-	locationRepresentation := "Mountain View, CA 94043"
-	buildingType := "Dining" // 'type' is a reserved keyword in Go, so using 'buildingType' instead
-	typeRepresentation := "Dining Hall"
-	longDescription := "McEwen Dining Hall is a popular dining location with multiple floors and a variety of food options."
-	city := "Mountain View"
-	state := "CA"
-	zip := "94043"
-	sector := "Education"
-	sectorRepresentation := "University Campus"
-	latitude := 37.422
-	longitude := -122.084
-	addDate := time.Now()
-	changeDate := time.Now()
-
 	mcewenBuildingMock := types.Building{
-		ID:                       &id,
-		Description:              &description,
-		Location:                 &location,
-		LocationRepresentation:   &locationRepresentation,
-		Type:                     &buildingType,
-		TypeRepresentation:       &typeRepresentation,
-		LongDescription:          &longDescription,
-		City:                     &city,
-		State:                    &state,
-		Zip:                      &zip,
-		Sector:                   &sector,
-		SectorRepresentation:     &sectorRepresentation,
-		Latitude:                 &latitude,
-		Longitude:                &longitude,
-		AddDate:                  &addDate,
-		ChangeDate:               &changeDate,
+		ID:                       strPtr("mcewen"),
+		Description:              strPtr("McEwen Dining Hall"),
+		Location:                 strPtr("1600 Amphitheatre Parkway"),
+		LocationRepresentation:   strPtr("Mountain View, CA 94043"),
+		Type:                     strPtr("Dining"),
+		TypeRepresentation:       strPtr("Dining Hall"),
+		LongDescription:          strPtr("McEwen Dining Hall is a popular dining location with multiple floors and a variety of food options."),
+		City:                     strPtr("Mountain View"),
+		State:                    strPtr("CA"),
+		Zip:                      strPtr("94043"),
+		Sector:                   strPtr("Education"),
+		SectorRepresentation:     strPtr("University Campus"),
+		Latitude:                 float64Ptr(37.422),
+		Longitude:                float64Ptr(-122.084),
+		AddDate:                  timePtr(time.Now()),
+		ChangeDate:               timePtr(time.Now()),
 	}
 	
 	// Act - make the request
@@ -172,3 +155,7 @@ func TestRootHandler(t *testing.T) {
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Contains(t, string(body), "mcewen")
 }
+
+func strPtr(s string) *string { return &s }
+func float64Ptr(f float64) *float64 { return &f }
+func timePtr(t time.Time) *time.Time { return &t }
