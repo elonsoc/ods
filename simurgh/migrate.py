@@ -31,6 +31,27 @@ def connect_psql():
     psql_url_object = f"postgresql://{psql_user}:{psql_pass}@{psql_host}/{psql_database}"
     psql_engine = create_engine(psql_url_object)
     # define PSQL table structure
+
+    # buildings_table_psql = """
+    # CREATE TABLE IF NOT EXISTS buildings (
+    #     buildings_id VARCHAR(4) PRIMARY KEY NOT NULL,
+    #     bldg_desc VARCHAR(50),
+    #     bldg_location VARCHAR(5),
+    #     bldg_location_representation VARCHAR(30),
+    #     bldg_type VARCHAR(10),
+    #     bldg_type_representation VARCHAR(32),
+    #     bldg_long_desc VARCHAR(1996),
+    #     bldg_city VARCHAR(25),
+    #     bldg_state VARCHAR(2),
+    #     bldg_zip VARCHAR(10),
+    #     bldg_sector VARCHAR(10),
+    #     bldg_sector_representation VARCHAR(32),
+    #     bldg_latitude NUMERIC,
+    #     bldg_longitude NUMERIC,
+    #     buildings_add_date TIMESTAMP,
+    #     buildings_chgdate TIMESTAMP
+    # );
+
     buildings_table_psql = Table(
         'buildings', MetaData(),
         Column('buildings_id', VARCHAR(4), primary_key=True, nullable=False),
@@ -67,10 +88,6 @@ def main():
             mssql_data = pd.read_sql("SELECT * FROM dbo.vw_ESC_BUILDINGS", mssql_engine)
             # insert into PSQL buildings table -- make if it doesn't exist, replace/overwrite table if it does
             mssql_data.to_sql('buildings', psql_conn, index=False, if_exists='replace', method='multi')
-
-            # fetch psql data
-            # result = psql_conn.execute(text("SELECT * FROM buildings;"))
-            # print(result.fetchall())
 
         print("Data copied from MSSQL to PostgreSQL.")
 
