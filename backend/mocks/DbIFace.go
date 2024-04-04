@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	service "github.com/elonsoc/ods/backend/service"
+	buildingstypes "github.com/elonsoc/ods/backend/locations/v1/buildings/types"
 	mock "github.com/stretchr/testify/mock"
+
+	service "github.com/elonsoc/ods/backend/service"
 
 	types "github.com/elonsoc/ods/backend/applications/types"
 )
@@ -83,6 +85,66 @@ func (_m *DbIFace) GetApplications(_a0 string) ([]types.Application, error) {
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetBuildingById provides a mock function with given fields: _a0
+func (_m *DbIFace) GetBuildingById(_a0 string) (*buildingstypes.Building, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBuildingById")
+	}
+
+	var r0 *buildingstypes.Building
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*buildingstypes.Building, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(string) *buildingstypes.Building); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*buildingstypes.Building)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetBuildings provides a mock function with given fields:
+func (_m *DbIFace) GetBuildings() ([]buildingstypes.Building, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBuildings")
+	}
+
+	var r0 []buildingstypes.Building
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]buildingstypes.Building, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []buildingstypes.Building); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]buildingstypes.Building)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

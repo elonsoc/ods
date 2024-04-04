@@ -65,7 +65,7 @@ services: # this is where services are defined. A service is a docker container,
       timeout: 5s
       retries: 5
   postgres:
-    image: postgres:15.2
+    image: postgres:16.2
     environment:
       - POSTGRES_PASSWORD=postgrespw
     ports:

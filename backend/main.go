@@ -199,6 +199,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 	r.Group(func(r chi.Router) {
 		r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
 			for _, cookie := range r.Cookies() {
+				svc.Log.Info("Removing cookie: "+cookie.Name, nil)
 				switch cookie.Name {
 				case "ods_login_cookie_nomnom", "ods_refresh_cookie_nomnom":
 					tokenPrefix := map[string]string{
@@ -316,6 +317,13 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				return
 			}
 
+			err = svc.Token.InvalidateTokensForUid(userInfo.OdsId)
+			if err != nil {
+				svc.Log.Error(err.Error(), nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
 			jwt, err := svc.Token.GenerateAccessToken(userInfo.OdsId)
 			if err != nil {
 				svc.Log.Error(err.Error(), nil)
@@ -336,6 +344,7 @@ func initialize(servicePort, databaseURL, redisURL, loggingURL, statsdURL, certP
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
 			http.SetCookie(w, &http.Cookie{
 				Name:   "ods_login_cookie_nomnom",
 				Value:  jwt,

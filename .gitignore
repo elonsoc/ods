@@ -10,3 +10,4 @@ node_modules
 kompose
 *.old
 komposed
+**.env

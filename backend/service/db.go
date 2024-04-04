@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/elonsoc/ods/backend/applications/types"
+	bldg "github.com/elonsoc/ods/backend/locations/v1/buildings/types"
 	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,6 +23,8 @@ type DbIFace interface {
 	IsUser(string) bool
 	IsValidApiKey(string) bool
 	GetUserInformation(string) (*ExternalUserInformation, error)
+	GetBuildings() ([]bldg.Building, error)
+	GetBuildingById(string) (*bldg.Building, error)
 }
 
 type ExternalUserInformation struct {
@@ -115,6 +118,18 @@ func prepareStatements(ctx context.Context, connection *pgx.Conn) error {
 	if err != nil {
 		return err
 	}
+	_, err = connection.Prepare(ctx, "select_all_buildings", 
+		`SELECT "BUILDINGS_ID", "BLDG_DESC", "BLDG_LOCATION", "BLDG_LOCATION_REPRESENTATION", "BLDG_TYPE", "BLDG_TYPE_REPRESENTATION", "BLDG_LONG_DESC", "BLDG_CITY", "BLDG_STATE", "BLDG_ZIP", "BLDG_SECTOR", "BLDG_SECTOR_REPRESENTATION", "BLDG_LATITUDE", "BLDG_LONGITUDE", "BUILDINGS_ADD_DATE", "BUILDINGS_CHGDATE" FROM buildings`)
+	if err != nil {
+		return err
+	}
+	_, err = connection.Prepare(ctx, "select_building_by_id",
+    	`SELECT "BUILDINGS_ID", "BLDG_DESC", "BLDG_LOCATION", "BLDG_LOCATION_REPRESENTATION", "BLDG_TYPE", "BLDG_TYPE_REPRESENTATION", "BLDG_LONG_DESC", "BLDG_CITY", "BLDG_STATE", "BLDG_ZIP", "BLDG_SECTOR", "BLDG_SECTOR_REPRESENTATION", "BLDG_LATITUDE", "BLDG_LONGITUDE", "BUILDINGS_ADD_DATE", "BUILDINGS_CHGDATE" FROM buildings WHERE "BUILDINGS_ID" = $1`)
+	if err != nil {
+		return err
+	}
+
+
 	return nil
 }
 
@@ -300,4 +315,33 @@ func (db *Db) GetUserInformation(elon_id string) (*ExternalUserInformation, erro
 	}
 
 	return &userInfo, nil
+}
+
+func (db *Db) GetBuildings() ([]bldg.Building, error) {
+    ctx := context.Background()
+    rows, err := db.db.Query(ctx, "select_all_buildings")
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var buildings []bldg.Building
+    for rows.Next() {
+        var b bldg.Building
+        err := rows.Scan(&b.ID, &b.Description, &b.Location, &b.LocationRepresentation, &b.Type, &b.TypeRepresentation, &b.LongDescription, &b.City, &b.State, &b.Zip, &b.Sector, &b.SectorRepresentation, &b.Latitude, &b.Longitude, &b.AddDate, &b.ChangeDate)
+        if err != nil {
+            return nil, err
+        }
+        buildings = append(buildings, b)
+    }
+    return buildings, nil
+}
+
+func (db *Db) GetBuildingById(buildingId string) (*bldg.Building, error) {
+    var b bldg.Building
+    err := db.db.QueryRow(context.Background(), "select_building_by_id", buildingId).Scan(&b.ID, &b.Description, &b.Location, &b.LocationRepresentation, &b.Type, &b.TypeRepresentation, &b.LongDescription, &b.City, &b.State, &b.Zip, &b.Sector, &b.SectorRepresentation, &b.Latitude, &b.Longitude, &b.AddDate, &b.ChangeDate)
+    if err != nil {
+        return nil, err
+    }
+    return &b, nil
 }

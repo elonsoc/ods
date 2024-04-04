@@ -29,7 +29,7 @@ CREATE TABLE "public"."elon_ods" (
 DROP TABLE IF EXISTS "public"."users";
 
 DROP TYPE IF EXISTS "public"."affiliation";
-CREATE TYPE "public"."affiliation" AS ENUM ('Staff', 'Alumni', 'Student', 'Affiliate');
+CREATE TYPE "public"."affiliation" AS ENUM ('staff', 'alumni', 'student', 'affiliate');
 CREATE TABLE "public"."users" (
     "id" uuid NOT NULL DEFAULT gen_random_uuid(),
     "given_name" text NOT NULL,

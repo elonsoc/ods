@@ -16,6 +16,7 @@ type TokenIFace interface {
 	GenerateAccessToken(string) (string, error)
 	GenerateRefreshToken(string) (string, error)
 	RefreshAccessToken(string) (string, string, error)
+	InvalidateTokensForUid(string) error
 	InvalidateToken(string) error
 }
 
@@ -27,6 +28,14 @@ const (
 type Token struct {
 	key *paseto.V4AsymmetricSecretKey
 	Db InMemoryDbIFace
+}
+
+func (t *Token) accessTokenKey(uid string) string {
+    return "access_token:" + uid;
+}
+
+func (t *Token) refreshTokenKey(uid string) string {
+    return "refresh_token:" + uid;
 }
 
 func NewTokenServicer(db InMemoryDbIFace) *Token {
@@ -95,7 +104,8 @@ func (t *Token) GenerateAccessToken(uid string) (string, error) {
 
 	accessToken := token.V4Sign(*t.key, []byte("public"))
 
-	err = t.Db.Set(context.Background(), "access_token:"+uid, accessToken, AccessTokenLife)
+	accessTokenKey := t.accessTokenKey(uid)
+	err = t.Db.Set(context.Background(), accessTokenKey, accessToken, AccessTokenLife)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to store access token in cache")
 
@@ -116,7 +126,8 @@ func (t *Token) GenerateRefreshToken(uid string) (string, error) {
 
 	refreshToken := token.V4Sign(*t.key, []byte("public"))
 
-	err = t.Db.Set(context.Background(), "refresh_token:"+uid, refreshToken, RefreshTokenLife)
+	refreshTokenKey := t.refreshTokenKey(uid)
+	err = t.Db.Set(context.Background(), refreshTokenKey, refreshToken, RefreshTokenLife)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to store refresh token in cache")
 	}
@@ -130,14 +141,10 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 		return "", "", errors.Wrap(err, "invalid refresh token")
 	}
   
-	if err := t.Db.Del(context.Background(), "access_token:"+uid); err != nil {
-		log.Printf("Warning: Failed to remove old access token from cache for user %s: %v\n", uid, err)
+	err = t.InvalidateTokensForUid(uid);
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to invalidate tokens for uid")
 	}
-
-	if err := t.Db.Del(context.Background(), "refresh_token:"+uid); err != nil {
-		log.Printf("Warning: Failed to remove old refresh token from cache for user %s: %v\n", uid, err)
-	}
-
 
 	newAccessToken, err := t.GenerateAccessToken(uid)
 	if err != nil {
@@ -149,6 +156,18 @@ func (t *Token) RefreshAccessToken(refreshToken string) (string, string, error) 
 		return "", "", errors.Wrap(err, "failed to generate new refresh token")
 	}
 	return newAccessToken, newRefreshToken, nil
+}
+
+func (t *Token) InvalidateTokensForUid(uid string) error {
+	if err := t.Db.Del(context.Background(), t.accessTokenKey(uid)); err != nil {
+		return errors.Wrap(err, "failed to remove access token from cache")
+	}
+
+	if err := t.Db.Del(context.Background(), t.refreshTokenKey(uid)); err != nil {
+		return errors.Wrap(err, "failed to remove refresh token from cache")
+	}
+
+	return nil
 }
 
 
