@@ -172,7 +172,3 @@ func TestRootHandler(t *testing.T) {
 	assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 	assert.Contains(t, string(body), "mcewen")
 }
-
-func strPtr(s string) *string { return &s }
-func float64Ptr(f float64) *float64 { return &f }
-func timePtr(t time.Time) *time.Time { return &t }
