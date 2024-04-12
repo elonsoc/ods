@@ -3,7 +3,6 @@ package buildings_v1
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/elonsoc/ods/backend/service"
@@ -77,7 +76,7 @@ func (br *BuildingsRouter) BuildingByIdHandler(w http.ResponseWriter, r *http.Re
     start := time.Now()
     w.Header().Set("Content-Type", "application/json")
 
-    buildingId := strings.ToLower(chi.URLParam(r, "buildingID"))
+    buildingId := chi.URLParam(r, "buildingID")
 
     building, err := br.Svcs.Db.GetBuildingById(buildingId)
     if err != nil {
